@@ -129,9 +129,9 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <a href="/" className="hover:text-accent">
+                  <Link to="/sitemap" className="hover:text-accent">
                     Sitemap
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
