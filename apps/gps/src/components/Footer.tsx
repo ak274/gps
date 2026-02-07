@@ -1,35 +1,11 @@
 import { Link } from 'react-router-dom';
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  Mail,
-  DownloadCloud,
-} from 'lucide-react';
+import { Facebook, Twitter, Instagram, DownloadCloud } from 'lucide-react';
 import { contactInfo } from '../lib/contactInfo';
 
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white relative overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* System status row */}
-        <div className="flex items-center justify-between mb-6 text-sm text-slate-400">
-          <div className="flex items-center gap-3">
-            <span className="text-slate-300">System status:</span>
-            <span className="font-medium text-white">Operational</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-          </div>
-          <div className="hidden sm:flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-white/80">
-                GDPR
-              </span>
-              <span className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-white/80">
-                SOC2
-              </span>
-            </div>
-          </div>
-        </div>
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div className="space-y-4">
@@ -198,20 +174,21 @@ export default function Footer() {
 
       {/* Huge outlined watermark (absolutely positioned, clipped by footer) */}
       <svg
-        className="absolute left-1/2 transform -translate-x-1/2 -bottom-24 w-[220%] h-[400px] pointer-events-none z-0"
-        viewBox="0 0 1400 200"
+        className="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-[220%] h-[220px] sm:h-[260px] md:h-[320px] lg:h-[400px] pointer-events-none z-0 overflow-visible"
+        viewBox="0 0 1400 320"
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
         <text
           x="50%"
-          y="65%"
+          y="58%"
           textAnchor="middle"
+          dominantBaseline="middle"
           fontFamily="Inter, Helvetica, Arial, sans-serif"
           fontWeight="500"
-          fontSize="170"
+          fontSize="400"
           fill="none"
-          stroke="rgba(255,255,255,0.03)"
+          stroke="rgba(255,255,255,0.1)"
           strokeWidth="1"
           strokeLinejoin="round"
           letterSpacing={8}
