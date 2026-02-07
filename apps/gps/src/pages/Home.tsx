@@ -14,40 +14,153 @@ import {
   Users,
   Zap,
   Award,
-  CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
+import { PageMeta } from '../components/PageMeta';
 
 export default function Home() {
   return (
     <div className="w-full">
+      <PageMeta
+        title="Global Public School, Fatehpur | Learning Today, Leading Tomorrow"
+        description="Global Public School in Fatehpur — quality education with modern teaching methods and holistic development from play school to middle school."
+      />
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-slate-950 via-blue-900 to-slate-900 text-white py-24 md:py-40 overflow-hidden">
+        <style>{`
+          @keyframes gpsFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+          }
+          @keyframes gpsTextFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+          }
+          .gps-tile { animation-name: gpsFloat; animation-iteration-count: infinite; animation-timing-function: ease-in-out; will-change: transform; }
+          .gps-float-text { animation-name: gpsTextFloat; animation-iteration-count: infinite; animation-timing-function: ease-in-out; will-change: transform; }
+          .gps-hero:hover .gps-tile { transform: translateY(-12px) rotate(2deg); }
+          .gps-hero:hover .gps-float-text { transform: translateY(-6px); }
+          @media (prefers-reduced-motion: reduce) {
+            .gps-tile, .gps-float-text { animation: none !important; transform: none !important; }
+          }
+        `}</style>
+
         {/* Background decorative elements */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Full-hero floating image collage (100% width/height) */}
+        <div className="absolute inset-0 pointer-events-none z-0 gps-hero">
+          <div className="absolute inset-0 opacity-70">
+            <img
+              src="/all_images/page8_img24.jpeg"
+              alt=""
+              className="gps-tile absolute rounded-2xl shadow-2xl"
+              style={{
+                width: '260px',
+                height: '170px',
+                top: '6%',
+                left: '6%',
+                transform: 'rotate(-6deg)',
+                animationDuration: '6s',
+              }}
+            />
+            <img
+              src="/all_images/page8_img25.jpeg"
+              alt=""
+              className="gps-tile absolute rounded-2xl shadow-2xl"
+              style={{
+                width: '200px',
+                height: '280px',
+                top: '12%',
+                left: '38%',
+                transform: 'rotate(4deg)',
+                animationDuration: '7s',
+                animationDelay: '0.4s',
+              }}
+            />
+            <img
+              src="/all_images/page12_img34.jpeg"
+              alt=""
+              className="gps-tile absolute rounded-2xl shadow-2xl"
+              style={{
+                width: '240px',
+                height: '160px',
+                top: '56%',
+                left: '14%',
+                transform: 'rotate(2deg)',
+                animationDuration: '5.8s',
+                animationDelay: '0.9s',
+              }}
+            />
+            <img
+              src="/all_images/page9_img26.jpeg"
+              alt=""
+              className="gps-tile absolute rounded-2xl shadow-2xl"
+              style={{
+                width: '320px',
+                height: '210px',
+                top: '58%',
+                left: '60%',
+                transform: 'rotate(-4deg)',
+                animationDuration: '6.9s',
+                animationDelay: '0.6s',
+              }}
+            />
+            <img
+              src="/all_images/page9_img28.jpeg"
+              alt=""
+              className="gps-tile absolute rounded-2xl shadow-2xl"
+              style={{
+                width: '150px',
+                height: '150px',
+                top: '22%',
+                left: '78%',
+                transform: 'rotate(8deg)',
+                animationDuration: '8s',
+                animationDelay: '0.2s',
+              }}
+            />
+          </div>
+
+          {/* Soft overlay so text stays readable */}
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-950/30 via-blue-950/35 to-slate-950/45" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="inline-block bg-gradient-to-r from-blue-400 to-purple-400 text-slate-950 px-4 py-2 rounded-full text-sm font-semibold">
-                <span role="img" aria-label="sparkle">
-                  ✨
-                </span>{' '}
-                Welcome to Excellence
+            <div className="space-y-8 relative">
+              <div
+                className="relative z-10 inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm text-white/90 gps-float-text"
+                style={{ animationDuration: '8s' }}
+              >
+                <Sparkles className="w-4 h-4" />
+                Global Public School • Fatehpur
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+              <h1
+                className="relative z-10 text-5xl md:text-7xl font-bold leading-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent gps-float-text"
+                style={{ animationDuration: '9s', animationDelay: '0.2s' }}
+              >
                 Global Public School
               </h1>
-              <p className="text-2xl md:text-3xl font-semibold text-blue-200">
+              <p
+                className="relative z-10 text-2xl md:text-3xl font-semibold text-blue-200 gps-float-text"
+                style={{ animationDuration: '10s', animationDelay: '0.35s' }}
+              >
                 Learning Today, Leading Tomorrow
               </p>
-              <p className="text-lg text-gray-300 max-w-lg leading-relaxed">
+              <p
+                className="relative z-10 text-lg text-gray-300 max-w-lg leading-relaxed gps-float-text"
+                style={{ animationDuration: '11s', animationDelay: '0.5s' }}
+              >
                 Established in 2018, we provide quality education with modern
                 teaching methods and holistic development for every student.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <div className="relative z-10 flex flex-col sm:flex-row gap-4 pt-6">
                 <Button
                   asChild
                   size="lg"
@@ -61,7 +174,8 @@ export default function Home() {
                 <Button
                   asChild
                   size="lg"
-                  className="border-2 border-white text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300"
+                  variant="outline"
+                  className="border-white/25 bg-white/10 text-white hover:bg-white/15 hover:text-white backdrop-blur-sm transition-all duration-300"
                 >
                   <Link to="/about">Learn More</Link>
                 </Button>
@@ -72,7 +186,7 @@ export default function Home() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000" />
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                   <img
-                    src="/all_images/page1_img1.jpeg"
+                    src="/all_images/page9_img27.jpeg"
                     alt="Global Public School Campus"
                     className="w-full h-full object-cover"
                   />
@@ -84,13 +198,13 @@ export default function Home() {
       </section>
 
       {/* School Info Cards */}
-      <section className="py-20 md:py-28 bg-gradient-to-b from-white to-slate-50">
+      <section className="py-20 md:py-28 bg-gradient-to-b from-background to-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent mb-4">
               Why Choose Global Public School?
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Our commitment to excellence and holistic development
             </p>
           </div>
@@ -130,7 +244,7 @@ export default function Home() {
                 <div
                   className={`absolute -inset-0.5 bg-gradient-to-r ${item.gradient} rounded-2xl blur opacity-60 group-hover:opacity-100 transition duration-1000`}
                 />
-                <Card className="relative bg-white hover:shadow-2xl transition-all duration-300 transform group-hover:scale-105 rounded-2xl overflow-hidden">
+                <Card className="relative hover:shadow-2xl transition-all duration-300 transform group-hover:scale-105 rounded-2xl overflow-hidden">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-4">
                       <div
@@ -155,11 +269,14 @@ export default function Home() {
       </section>
 
       {/* Motto, Vision, Mission, Policy Cards */}
-      <section id="philosophy" className="py-20 md:py-28 bg-white relative">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-50 rounded-full blur-3xl -mr-48 -mt-48" />
+      <section
+        id="philosophy"
+        className="py-20 md:py-28 bg-background relative"
+      >
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -mr-48 -mt-48" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent mb-4">
               Our Philosophy
             </h2>
           </div>
@@ -168,12 +285,12 @@ export default function Home() {
             <Card className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-cyan-500" />
               <CardHeader>
-                <CardTitle className="text-2xl text-blue-600">
+                <CardTitle className="text-2xl text-primary">
                   Our Motto
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-lg font-semibold text-center py-4 text-slate-800">
+                <p className="text-lg font-semibold text-center py-4 text-foreground">
                   "Excellence in Education, Character in Action"
                 </p>
                 <p className="text-muted-foreground">
@@ -187,7 +304,7 @@ export default function Home() {
             <Card className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-purple-500 to-pink-500" />
               <CardHeader>
-                <CardTitle className="text-2xl text-purple-600">
+                <CardTitle className="text-2xl text-primary">
                   Our Vision
                 </CardTitle>
               </CardHeader>
@@ -203,7 +320,7 @@ export default function Home() {
             <Card className="relative overflow-hidden rounded-2xl border-0 shadow-lg hover:shadow-2xl transition-all duration-300">
               <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500 to-red-500" />
               <CardHeader>
-                <CardTitle className="text-2xl text-orange-600">
+                <CardTitle className="text-2xl text-primary">
                   Our Mission
                 </CardTitle>
               </CardHeader>

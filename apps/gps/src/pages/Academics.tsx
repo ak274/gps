@@ -5,7 +5,18 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Users, BookOpen, Lightbulb, Award, Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '../components/ui/button';
+import { PageMeta } from '../components/PageMeta';
+import {
+  Users,
+  BookOpen,
+  Lightbulb,
+  Award,
+  Check,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react';
 
 const programImages: Record<string, string> = {
   'Play School': '/all_images/page4_img14.jpeg',
@@ -15,6 +26,7 @@ const programImages: Record<string, string> = {
 };
 
 export default function Academics() {
+  // SEO metadata
   const programs = [
     {
       name: 'Play School',
@@ -76,82 +88,138 @@ export default function Academics() {
 
   return (
     <div className="w-full">
+      <PageMeta
+        title="Academics | Global Public School, Fatehpur"
+        description="Explore academics at Global Public School, Fatehpur — programs, teaching methodology, curriculum highlights, and extracurricular activities."
+      />
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-950 via-amber-900 to-slate-900 text-white py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-500 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-500 rounded-full blur-3xl animate-pulse" />
+      <section className="relative bg-gradient-to-br from-slate-950 via-blue-900 to-slate-900 text-white py-24 md:py-36 overflow-hidden">
+        <img
+          src="/all_images/page12_img33.jpeg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" />
         </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-amber-100 to-white bg-clip-text text-transparent">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm text-white/90">
+            <Sparkles className="w-4 h-4" />
+            Global Public School • Fatehpur
+          </div>
+
+          <h1 className="mt-6 text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
             Academics
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-200 max-w-3xl mx-auto">
             Comprehensive educational programs from Play School to Middle School
+            — with modern teaching and strong foundations.
           </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              asChild
+              className="bg-gradient-to-r from-blue-400 to-purple-500 text-slate-950 hover:from-blue-300 hover:to-purple-400 rounded-full shadow-lg"
+            >
+              <a href="#programs" className="inline-flex items-center gap-2">
+                Explore Programs <ArrowRight className="w-4 h-4" />
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-white/25 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+            >
+              <Link to="/admissions">Admissions</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Academic Programs */}
       <section id="programs" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-12">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Academic Programs
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3 max-w-3xl mx-auto">
+              Age-appropriate learning pathways designed to build confidence,
+              curiosity, and strong academic foundations.
+            </p>
+          </div>
+
+          <div className="space-y-10">
             {programs.map((program, index) => (
-              <div
+              <Card
                 key={index}
-                className="grid md:grid-cols-3 gap-8 items-start"
+                className="overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
               >
-                {/* Left side - Icon and Title */}
-                <div className="md:col-span-1">
-                  <div className="rounded-lg overflow-hidden shadow-lg h-64">
+                <div className="grid md:grid-cols-5 gap-0">
+                  <div
+                    className={`md:col-span-2 relative ${
+                      index % 2 === 1 ? 'md:order-2' : 'md:order-1'
+                    }`}
+                  >
                     <img
                       src={programImages[program.name]}
                       alt={program.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-56 md:h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-slate-950/15 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1 text-xs text-white">
+                        <program.icon className="w-4 h-4" />
+                        {program.age}
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* Right side - Content */}
-                <div className="md:col-span-2 space-y-4">
-                  <div>
-                    <h2 className="text-3xl font-bold text-foreground">
-                      {program.name}
-                    </h2>
-                    <p className="text-primary font-semibold text-lg">
-                      {program.age}
-                    </p>
-                  </div>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    {program.description}
-                  </p>
+                  <div
+                    className={`md:col-span-3 p-6 md:p-8 space-y-4 ${
+                      index % 2 === 1 ? 'md:order-1' : 'md:order-2'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-6">
+                      <div>
+                        <h3 className="text-2xl md:text-3xl font-bold text-foreground">
+                          {program.name}
+                        </h3>
+                        <p className="text-muted-foreground mt-2 leading-relaxed">
+                          {program.description}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="pt-4">
-                    <h4 className="font-semibold text-foreground mb-4">
-                      Key Features:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {program.highlights.map((highlight, i) => (
-                        <Badge
-                          key={i}
-                          variant="secondary"
-                          className="gap-2 py-2 px-3 text-xs font-medium"
-                        >
-                          <Check size={14} />
-                          {highlight}
-                        </Badge>
-                      ))}
+                    <div className="pt-2">
+                      <p className="text-sm font-semibold text-foreground mb-3">
+                        Key Features
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {program.highlights.map((highlight, i) => (
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="gap-2 py-2 px-3 text-xs font-medium"
+                          >
+                            <Check size={14} />
+                            {highlight}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
       {/* Teaching Methodology */}
-      <section className="py-16 md:py-24 bg-slate-50">
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -165,28 +233,38 @@ export default function Academics() {
           <div className="grid md:grid-cols-2 gap-8">
             {[
               {
+                icon: Users,
                 title: 'Interactive Learning',
                 description:
                   'Engaging classrooms with active participation, discussions, and collaborative projects that encourage critical thinking.',
               },
               {
+                icon: BookOpen,
                 title: 'Technology Integration',
                 description:
                   'Smart classrooms with digital resources, online learning platforms, and technology-enhanced teaching methods.',
               },
               {
+                icon: Award,
                 title: 'Assessment & Feedback',
                 description:
                   'Regular assessments combined with constructive feedback to help students understand their progress and areas for improvement.',
               },
               {
+                icon: Lightbulb,
                 title: 'Personalized Attention',
                 description:
                   'Small class sizes and individual attention to cater to diverse learning styles and ensure no student is left behind.',
               },
             ].map((method, index) => (
-              <Card key={index}>
-                <CardHeader>
+              <Card
+                key={index}
+                className="shadow-sm hover:shadow-md transition-shadow"
+              >
+                <CardHeader className="space-y-2">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <method.icon className="w-5 h-5" />
+                  </div>
                   <CardTitle>{method.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -201,12 +279,18 @@ export default function Academics() {
       {/* Curriculum Highlights */}
       <section id="curriculum" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Curriculum Highlights
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Curriculum Highlights
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3">
+              A balanced curriculum that builds strong fundamentals and life
+              skills.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <Card className="border-l-4 border-primary">
+            <Card className="border-l-4 border-primary bg-gradient-to-br from-card to-muted">
               <CardHeader>
                 <CardTitle>Core Subjects</CardTitle>
               </CardHeader>
@@ -220,7 +304,7 @@ export default function Academics() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-secondary">
+            <Card className="border-l-4 border-secondary bg-gradient-to-br from-card to-muted">
               <CardHeader>
                 <CardTitle>Skill Development</CardTitle>
               </CardHeader>
@@ -234,7 +318,7 @@ export default function Academics() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-accent">
+            <Card className="border-l-4 border-accent bg-gradient-to-br from-card to-muted">
               <CardHeader>
                 <CardTitle>Sports & Physical Education</CardTitle>
               </CardHeader>
@@ -246,7 +330,7 @@ export default function Academics() {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-primary/60">
+            <Card className="border-l-4 border-primary/60 bg-gradient-to-br from-card to-muted">
               <CardHeader>
                 <CardTitle>Arts & Culture</CardTitle>
               </CardHeader>
@@ -265,12 +349,13 @@ export default function Academics() {
       <section id="extracurricular" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="rounded-lg overflow-hidden shadow-lg">
+            <div className="rounded-xl overflow-hidden shadow-lg relative">
               <img
                 src="/all_images/page5_img17.jpeg"
                 alt="Students in Extracurricular Activities"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-slate-950/10 to-transparent" />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -290,8 +375,12 @@ export default function Academics() {
                   'Community service and social responsibility initiatives',
                 ].map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0" />
-                    <span className="text-muted-foreground">{item}</span>
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Check className="w-4 h-4" />
+                    </div>
+                    <span className="text-muted-foreground leading-relaxed">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -301,7 +390,7 @@ export default function Academics() {
       </section>
 
       {/* Co-curricular Activities */}
-      <section className="py-16 md:py-24 bg-slate-50">
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
             <div>
@@ -317,12 +406,13 @@ export default function Academics() {
                 build confidence, teamwork skills, and discover their passions.
               </p>
             </div>
-            <div className="rounded-lg overflow-hidden shadow-lg">
+            <div className="rounded-xl overflow-hidden shadow-lg relative">
               <img
                 src="/all_images/page5_img16.jpeg"
                 alt="Students in Sports and Extracurricular Activities"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-purple-500/10" />
             </div>
           </div>
 
@@ -342,11 +432,17 @@ export default function Academics() {
               'Art Exhibitions',
               'Hobby Classes',
             ].map((activity, index) => (
-              <Card key={index}>
-                <CardContent className="pt-6">
-                  <p className="text-center font-semibold text-foreground">
-                    {activity}
-                  </p>
+              <Card
+                key={index}
+                className="shadow-sm hover:shadow-md transition-shadow"
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <p className="font-semibold text-foreground">{activity}</p>
+                  </div>
                 </CardContent>
               </Card>
             ))}

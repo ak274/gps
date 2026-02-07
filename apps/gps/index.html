@@ -2,12 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Gps</title>
+    <title>Global Public School, Fatehpur</title>
     <base href="/" />
+
+    <meta
+      name="description"
+      content="Global Public School, Fatehpur — quality education with modern teaching methods and holistic development."
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Global Public School, Fatehpur" />
+    <meta
+      property="og:description"
+      content="Global Public School, Fatehpur — quality education with modern teaching methods and holistic development."
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Global Public School, Fatehpur" />
+    <meta
+      name="twitter:description"
+      content="Global Public School, Fatehpur — quality education with modern teaching methods and holistic development."
+    />
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/src/styles.css" />
+
+    <script>
+      (function () {
+        try {
+          var key = 'gps-theme';
+          var stored = localStorage.getItem(key);
+          var theme =
+            stored === 'dark' || stored === 'light'
+              ? stored
+              : window.matchMedia &&
+                  window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+
+          var root = document.documentElement;
+          if (theme === 'dark') root.classList.add('dark');
+          else root.classList.remove('dark');
+          root.style.colorScheme = theme;
+        } catch (e) {
+          // ignore
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+/* Tailwind v4: explicitly include sources so responsive variants like `sm:`/`md:`
+  are always generated in Nx/Vite builds. */
+@source "./**/*.{js,jsx,ts,tsx}";
+@source "../index.html";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

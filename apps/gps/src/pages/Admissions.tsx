@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-
+import type { ChangeEvent } from 'react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -11,7 +11,16 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { CheckCircle, Calendar, FileText, Users, Check } from 'lucide-react';
+import {
+  CheckCircle,
+  Calendar,
+  FileText,
+  Users,
+  Check,
+  ArrowRight,
+  Sparkles,
+} from 'lucide-react';
+import { PageMeta } from '../components/PageMeta';
 
 export default function Admissions() {
   const [formData, setFormData] = useState({
@@ -24,9 +33,7 @@ export default function Admissions() {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -65,35 +72,81 @@ export default function Admissions() {
 
   return (
     <div className="w-full">
+      <PageMeta
+        title="Admissions | Global Public School, Fatehpur"
+        description="Admissions at Global Public School, Fatehpur — requirements, admission process, enquiry form, and fee structure information."
+      />
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-950 via-emerald-900 to-slate-900 text-white py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-teal-500 rounded-full blur-3xl animate-pulse" />
+      <section className="relative bg-gradient-to-br from-slate-950 via-blue-900 to-slate-900 text-white py-24 md:py-36 overflow-hidden">
+        <img
+          src="/all_images/page12_img35.jpeg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" />
         </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm text-white/90">
+            <Sparkles className="w-4 h-4" />
+            Global Public School • Fatehpur
+          </div>
+
+          <h1 className="mt-6 text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
             Admissions
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Join our learning community and be part of Global Public School
+          <p className="text-xl text-slate-200 max-w-3xl mx-auto">
+            Join our learning community and be part of Global Public School — a
+            supportive campus with strong academics and values.
           </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              asChild
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 rounded-full shadow-lg"
+            >
+              <a
+                href="#requirements"
+                className="inline-flex items-center gap-2"
+              >
+                View Requirements <ArrowRight className="w-4 h-4" />
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-white/25 bg-white/10 text-white hover:bg-white/15 hover:text-white"
+            >
+              <a href="#enquiry">Enquiry Form</a>
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Admission Criteria */}
       <section id="requirements" className="py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Admission Requirements
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Admission Requirements
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3 max-w-3xl mx-auto">
+              Clear, simple, and transparent — so you know exactly what you
+              need.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="space-y-2">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <Users className="w-5 h-5" />
+                </div>
                 <CardTitle>Age & Class Requirements</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 text-sm">
                 <div>
                   <p className="font-semibold text-primary">
                     Play School (3-4 years)
@@ -129,8 +182,11 @@ export default function Admissions() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="space-y-2">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                  <FileText className="w-5 h-5" />
+                </div>
                 <CardTitle>Documents Required</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -143,8 +199,8 @@ export default function Admissions() {
                 ].map((doc, idx) => (
                   <Badge
                     key={idx}
-                    variant="outline"
-                    className="gap-2 py-2 px-3"
+                    variant="secondary"
+                    className="gap-2 py-2 px-3 text-xs font-medium"
                   >
                     <Check size={14} className="text-green-600" />
                     <span>{doc}</span>
@@ -153,19 +209,31 @@ export default function Admissions() {
               </CardContent>
             </Card>
           </div>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button asChild className="rounded-full">
+              <a href="#enquiry" className="inline-flex items-center gap-2">
+                Start Enquiry <ArrowRight className="w-4 h-4" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/contact">Contact Us</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
       {/* Admission Process */}
-      <section className="py-16 md:py-24 bg-slate-50">
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
-            <div className="rounded-lg overflow-hidden shadow-lg">
+            <div className="rounded-xl overflow-hidden shadow-lg relative">
               <img
                 src="/all_images/page7_img21.jpeg"
                 alt="Student Admission Process"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-slate-950/10 to-transparent" />
             </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -184,17 +252,25 @@ export default function Admissions() {
             </div>
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Admission Process
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Admission Process
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3">
+              Four simple steps to get started.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-4 gap-6">
             {admissionSteps.map((item, index) => (
               <div key={index} className="relative">
-                <Card>
-                  <CardContent className="pt-6 text-center">
-                    <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                <Card className="shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-6 text-center">
+                    <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-lg mx-auto mb-4">
                       {item.step}
+                    </div>
+                    <div className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4">
+                      <item.icon className="w-5 h-5" />
                     </div>
                     <h4 className="font-semibold text-foreground mb-2">
                       {item.title}
@@ -216,13 +292,33 @@ export default function Admissions() {
       </section>
 
       {/* Admission Enquiry Form */}
-      <section className="py-16 md:py-24">
+      <section id="enquiry" className="py-16 md:py-24">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
-            Admission Enquiry Form
-          </h2>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Admission Enquiry Form
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3">
+              Share your details and we’ll guide you through next steps.
+            </p>
+          </div>
 
-          <Card>
+          <Card className="overflow-hidden shadow-lg">
+            <div className="relative">
+              <img
+                src="/all_images/page8_img25.jpeg"
+                alt="Admissions"
+                className="w-full h-44 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
+              <div className="absolute bottom-4 left-5 right-5">
+                <p className="text-sm text-foreground/80">Admissions enquiry</p>
+                <h3 className="text-2xl font-bold text-foreground">
+                  Let’s get started
+                </h3>
+              </div>
+            </div>
+
             <CardContent className="pt-6">
               <form
                 action="https://formsubmit.co/globalpublicschoolfatehpur@gmail.com"
@@ -248,7 +344,7 @@ export default function Admissions() {
                       onChange={handleInputChange}
                       placeholder="Enter student name"
                       required
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                   <div>
@@ -262,7 +358,7 @@ export default function Admissions() {
                       onChange={handleInputChange}
                       placeholder="Enter parent name"
                       required
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -279,7 +375,7 @@ export default function Admissions() {
                       onChange={handleInputChange}
                       placeholder="Enter email address"
                       required
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                   <div>
@@ -293,7 +389,7 @@ export default function Admissions() {
                       onChange={handleInputChange}
                       placeholder="Enter phone number"
                       required
-                      className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                   </div>
                 </div>
@@ -307,7 +403,7 @@ export default function Admissions() {
                     value={formData.class}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <option value="">Select a class</option>
                     <option value="Play School">Play School</option>
@@ -333,7 +429,7 @@ export default function Admissions() {
                     onChange={handleInputChange}
                     placeholder="Share any additional information or questions"
                     rows={4}
-                    className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
                   />
                 </div>
 
@@ -350,17 +446,21 @@ export default function Admissions() {
       </section>
 
       {/* Fee Structure */}
-      <section id="fees" className="py-16 md:py-24 bg-slate-50">
+      <section id="fees" className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Fee Structure
-          </h2>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">Fee Structure</h2>
+            <p className="text-lg text-muted-foreground mt-3">
+              Transparent fee information — contact the office for exact
+              details.
+            </p>
+          </div>
 
-          <Card>
+          <Card className="shadow-lg">
             <CardContent className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-input">
+                  <tr className="border-b border-input bg-muted/40">
                     <th className="text-left py-3 px-4 font-semibold">Class</th>
                     <th className="text-left py-3 px-4 font-semibold">
                       Annual Fee
@@ -410,6 +510,14 @@ export default function Admissions() {
               </p>
             </CardContent>
           </Card>
+
+          <div className="mt-8 flex items-center justify-center">
+            <Button asChild className="rounded-full">
+              <Link to="/contact" className="inline-flex items-center gap-2">
+                Talk to Admissions <ArrowRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

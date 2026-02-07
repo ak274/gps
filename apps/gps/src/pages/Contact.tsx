@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-
+import type { ChangeEvent } from 'react';
 import { useState } from 'react';
 import { Button } from '../components/ui/button';
 import {
@@ -11,6 +10,7 @@ import {
   CardTitle,
 } from '../components/ui/card';
 import { contactInfo } from '../lib/contactInfo';
+import { PageMeta } from '../components/PageMeta';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -21,7 +21,7 @@ export default function Contact() {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -33,49 +33,139 @@ export default function Contact() {
 
   return (
     <div className="w-full">
+      <PageMeta
+        title="Contact | Global Public School, Fatehpur"
+        description="Contact Global Public School, Fatehpur — reach us by phone or email, send a message, and find campus directions."
+      />
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-slate-950 via-pink-900 to-slate-900 text-white py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-500 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-rose-500 rounded-full blur-3xl animate-pulse" />
+      <section className="relative bg-gradient-to-br from-slate-950 via-blue-900 to-slate-900 text-white py-24 md:py-32 overflow-hidden">
+        <img
+          src="/all_images/page12_img34.jpeg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm text-white/90">
+            Global Public School • Fatehpur
+          </div>
+
+          <h1 className="mt-6 text-5xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
             Contact Us
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            We'd love to hear from you. Get in touch with us for any queries or
-            information.
+          <p className="text-xl text-slate-200 max-w-2xl mx-auto">
+            Reach out for admissions, academics, or general queries — we’ll get
+            back to you quickly.
           </p>
         </div>
       </section>
 
       {/* Contact Information removed — consolidated in Find Us section below */}
 
-      {/* Contact Form and Map */}
-      <section className="py-16 md:py-24 bg-slate-50">
+      {/* Contact Details + Form */}
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-8">
-                Send us a Message
-              </h2>
-              <div className="rounded-lg overflow-hidden shadow-lg mb-8">
-                <img
-                  src="/all_images/page10_img30.jpeg"
-                  alt="Contact Us"
-                  className="w-full h-48 object-cover"
-                />
+          <div className="grid lg:grid-cols-5 gap-10 items-start">
+            {/* Contact Details */}
+            <div className="lg:col-span-2">
+              <div className="flex items-end justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-3xl md:text-4xl font-bold">Reach us</h2>
+                  <p className="text-muted-foreground mt-2">
+                    Call, email, or visit — whichever is easiest.
+                  </p>
+                </div>
               </div>
-              <Card>
+
+              <div className="space-y-4">
+                {contactInfo.map((c) => {
+                  const Icon = c.icon;
+                  return (
+                    <Card key={c.title} className="shadow-sm">
+                      <CardContent className="p-5">
+                        <div className="flex gap-4 items-start">
+                          <div
+                            className={`w-11 h-11 rounded-lg flex items-center justify-center text-white ${c.color}`}
+                          >
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-semibold text-foreground">
+                              {c.title}
+                            </p>
+                            <div className="text-sm text-muted-foreground mt-1 space-y-1">
+                              {c.links
+                                ? c.details.map((d: string, i: number) => (
+                                    <div key={i}>
+                                      <a
+                                        href={c.links?.[i] ?? '#'}
+                                        className="hover:underline"
+                                      >
+                                        {d}
+                                      </a>
+                                    </div>
+                                  ))
+                                : c.details.map((d: string, i: number) => (
+                                    <div key={i}>{d}</div>
+                                  ))}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Office Hours</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground space-y-1">
+                    <p>Mon - Fri: 9:00 AM - 4:00 PM</p>
+                    <p>Sat: 10:00 AM - 1:00 PM</p>
+                    <p>Sun: Closed</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Response Time</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">
+                    We aim to respond within 24 hours during business days. For
+                    urgent matters, please call the school office.
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="lg:col-span-3">
+              <Card className="overflow-hidden shadow-lg">
+                <div className="relative">
+                  <img
+                    src="/all_images/page10_img30.jpeg"
+                    alt="Contact"
+                    className="w-full h-44 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
+                  <div className="absolute bottom-4 left-5 right-5">
+                    <p className="text-sm text-foreground/80">Send a message</p>
+                    <h3 className="text-2xl font-bold text-foreground">
+                      We’re here to help
+                    </h3>
+                  </div>
+                </div>
+
                 <CardContent className="pt-6">
                   <form
                     action="https://formsubmit.co/globalpublicschoolfatehpur@gmail.com"
                     method="POST"
-                    className="space-y-6"
+                    className="space-y-5"
                   >
-                    {/* FormSubmit.co expects form fields; hidden inputs below help with subject and basic spam protection */}
                     <input
                       type="hidden"
                       name="_subject"
@@ -87,34 +177,37 @@ export default function Contact() {
                       name="_honey"
                       style={{ display: 'none' }}
                     />
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-2">
-                        Name *
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Your name"
-                        required
-                        className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-foreground mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="Your email"
-                        required
-                        className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      />
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Your name"
+                          required
+                          className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="Your email"
+                          required
+                          className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        />
+                      </div>
                     </div>
 
                     <div>
@@ -128,7 +221,7 @@ export default function Contact() {
                         onChange={handleInputChange}
                         placeholder="Message subject"
                         required
-                        className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
                       />
                     </div>
 
@@ -140,10 +233,10 @@ export default function Contact() {
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
-                        placeholder="Your message"
-                        rows={5}
+                        placeholder="Tell us how we can help"
+                        rows={6}
                         required
-                        className="w-full px-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                        className="w-full px-4 py-2.5 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
                       />
                     </div>
 
@@ -157,55 +250,6 @@ export default function Contact() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Additional Info */}
-            <div className="space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold">Get in Touch</h2>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>School Office</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-muted-foreground">
-                    <span className="font-semibold">Address:</span> Fatehpur,
-                    Rajasthan
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="font-semibold">Phone:</span> +91
-                    XXXX-XXX-XXX
-                  </p>
-                  <p className="text-muted-foreground">
-                    <span className="font-semibold">Email:</span>{' '}
-                    info@gps.edu.in
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Office Hours</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-muted-foreground">
-                  <p>Monday - Friday: 9:00 AM - 4:00 PM</p>
-                  <p>Saturday: 10:00 AM - 1:00 PM</p>
-                  <p>Sunday: Closed</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Response</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    We aim to respond to all inquiries within 24 hours during
-                    business days. For urgent matters, please call the school
-                    office directly.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </div>
       </section>
@@ -213,81 +257,42 @@ export default function Contact() {
       {/* Map / Find Us Section */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-8">Find Us</h2>
-
-          <div className="grid md:grid-cols-2 gap-8 items-start">
-            {/* Contact Details */}
-            <div className="space-y-4">
-              {contactInfo.map((c) => {
-                const Icon = c.icon;
-                return (
-                  <div
-                    key={c.title}
-                    className="flex gap-4 items-start bg-white rounded-lg shadow-sm border border-slate-100 p-4"
-                  >
-                    <div
-                      className={`w-12 h-12 rounded-lg flex items-center justify-center text-white ${c.color}`}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground">{c.title}</p>
-                      <div className="text-sm text-muted-foreground mt-1 space-y-1">
-                        {c.links
-                          ? c.details.map((d: string, i: number) => (
-                              <div key={i}>
-                                <a
-                                  href={c.links?.[i] ?? '#'}
-                                  className="hover:underline"
-                                >
-                                  {d}
-                                </a>
-                              </div>
-                            ))
-                          : c.details.map((d: string, i: number) => (
-                              <div key={i}>{d}</div>
-                            ))}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div className="mt-2 text-sm text-muted-foreground">
-                <p className="font-semibold">Office Hours</p>
-                <p>Mon - Fri: 9:00 AM - 4:00 PM</p>
-              </div>
+          <div className="flex items-end justify-between gap-6 mb-8">
+            <div>
+              <h2 className="text-3xl font-bold">Find us</h2>
+              <p className="text-muted-foreground mt-2">
+                Visit the campus — directions open in Google Maps.
+              </p>
             </div>
+          </div>
 
-            {/* Map / Image */}
-            <div className="rounded-lg overflow-hidden shadow-lg border border-input">
-              {/* Google maps place URLs often block embedding (X-Frame-Options).
-                  Use OpenStreetMap embed for reliable in-page map, and provide
-                  a link that opens the official Google Maps place in a new tab. */}
-              <iframe
-                title="GPS Location"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=75.945%2C32.0989%2C75.955%2C32.1089&layer=mapnik&marker=32.1039375%2C75.9501875"
-                className="w-full h-96"
-                loading="lazy"
-              />
+          <div className="rounded-xl overflow-hidden shadow-lg border border-input bg-background">
+            <iframe
+              title="GPS Location"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=75.945%2C32.0989%2C75.955%2C32.1089&layer=mapnik&marker=32.1039375%2C75.9501875"
+              className="w-full h-96"
+              loading="lazy"
+            />
 
-              <div className="p-3 bg-slate-50 border-t border-slate-100 text-sm">
-                <a
-                  href="https://www.google.com/maps/place/Global+Public+School,+Fatehpur/@32.0989459,56.4314015,5z/data=!4m10!1m3!11m2!2sVGd336yfjFT9AfXur7YVMrk2W4UeUw!3e1!3m5!1s0x391b6f9510ac9c5b:0xaa1f27acc122a731!8m2!3d32.1039375!4d75.9501875!16s%2Fg%2F11tfyv27m0?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  Open in Google Maps
-                </a>
-              </div>
+            <div className="p-4 bg-muted/30 border-t border-border text-sm flex items-center justify-between gap-4">
+              <p className="text-muted-foreground">
+                Prefer Google Maps for navigation?
+              </p>
+              <a
+                href="https://www.google.com/maps/place/Global+Public+School,+Fatehpur/@32.0989459,56.4314015,5z/data=!4m10!1m3!11m2!2sVGd336yfjFT9AfXur7YVMrk2W4UeUw!3e1!3m5!1s0x391b6f9510ac9c5b:0xaa1f27acc122a731!8m2!3d32.1039375!4d75.9501875!16s%2Fg%2F11tfyv27m0?entry=ttu&g_ep=EgoyMDI2MDIwNC4wIKXMDSoASAFQAw%3D%3D"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-medium hover:underline"
+              >
+                Open in Google Maps
+              </a>
             </div>
           </div>
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 md:py-24 bg-slate-50">
+      <section className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Frequently Asked Questions

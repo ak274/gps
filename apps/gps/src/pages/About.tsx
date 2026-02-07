@@ -1,4 +1,5 @@
-import { Award, Users, Heart, BookOpen } from 'lucide-react';
+import { Award, Users, Heart, BookOpen, Sparkles } from 'lucide-react';
+import { PageMeta } from '../components/PageMeta';
 
 export default function About() {
   const timeline = [
@@ -84,11 +85,29 @@ export default function About() {
 
   return (
     <div className="w-full">
+      <PageMeta
+        title="About | Global Public School, Fatehpur"
+        description="Learn about Global Public School, Fatehpur — our journey, core values, leadership, and facilities supporting student growth."
+      />
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-800 opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-900 to-slate-900 opacity-95" />
+        <img
+          src="/all_images/page12_img36.jpeg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover opacity-15 pointer-events-none select-none"
+        />
+        <div className="absolute inset-0 opacity-25">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500 rounded-full blur-3xl animate-pulse" />
+        </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 text-center">
-          <h1 className="text-5xl md:text-6xl font-extrabold text-white leading-tight">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm text-white/90">
+            <Sparkles className="w-4 h-4" />
+            Global Public School • Fatehpur
+          </div>
+
+          <h1 className="mt-6 text-5xl md:text-6xl font-extrabold leading-tight bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
             Global Public School
           </h1>
           <p className="mt-4 text-lg text-slate-200 max-w-3xl mx-auto">
@@ -111,7 +130,7 @@ export default function About() {
             </a>
           </div>
         </div>
-        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-40" />
+        <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-25" />
       </section>
 
       {/* About + Stats */}
@@ -128,13 +147,13 @@ export default function About() {
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <div className="p-4 bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-sm">
+              <div className="p-4 bg-gradient-to-br from-card to-muted rounded-xl shadow-sm">
                 <p className="text-2xl font-bold">500+</p>
                 <p className="text-sm text-muted-foreground">
                   Students enrolled
                 </p>
               </div>
-              <div className="p-4 bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm">
+              <div className="p-4 bg-gradient-to-br from-card to-muted rounded-xl shadow-sm">
                 <p className="text-2xl font-bold">50+</p>
                 <p className="text-sm text-muted-foreground">
                   Experienced staff
@@ -154,7 +173,7 @@ export default function About() {
       </section>
 
       {/* Timeline (alternating) */}
-      <section id="journey" className="py-16 md:py-24 bg-slate-50">
+      <section id="journey" className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Our Journey
@@ -180,9 +199,9 @@ export default function About() {
                   </div>
 
                   <div className="md:w-1/2">
-                    <div className="bg-white p-6 rounded-2xl shadow-md hover:shadow-xl transition-shadow">
+                    <div className="bg-card text-card-foreground p-6 rounded-2xl shadow-md hover:shadow-xl transition-shadow border border-border">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold">
+                        <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
                           {i + 1}
                         </div>
                         <div>
@@ -219,7 +238,7 @@ export default function About() {
             {values.map((v, idx) => (
               <div
                 key={idx}
-                className="rounded-2xl overflow-hidden bg-white shadow hover:shadow-xl transition-transform"
+                className="rounded-2xl overflow-hidden bg-card shadow hover:shadow-xl transition-transform border border-border"
               >
                 <div className="w-full h-40 relative">
                   <img
@@ -242,7 +261,7 @@ export default function About() {
       </section>
 
       {/* Leadership */}
-      <section id="leadership" className="py-16 md:py-24 bg-slate-50">
+      <section id="leadership" className="py-16 md:py-24 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Leadership
@@ -252,7 +271,7 @@ export default function About() {
               {team.map((t, idx) => (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow text-center"
+                  className="bg-card text-card-foreground rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow text-center border border-border"
                 >
                   <div className="w-28 h-28 rounded-full mx-auto overflow-hidden mb-4">
                     <img
@@ -269,7 +288,7 @@ export default function About() {
             </div>
           ) : (
             <div className="max-w-xl mx-auto">
-              <div className="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow text-center">
+              <div className="bg-card text-card-foreground rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow text-center border border-border">
                 <div className="w-36 h-36 rounded-full mx-auto overflow-hidden mb-6 ring-4 ring-primary/10">
                   <img
                     src={team[0].img}
@@ -312,7 +331,7 @@ export default function About() {
             {facilities.map((f, idx) => (
               <div
                 key={idx}
-                className="rounded-xl overflow-hidden bg-white shadow hover:shadow-lg transition"
+                className="rounded-xl overflow-hidden bg-card shadow hover:shadow-lg transition border border-border"
               >
                 <div className="relative w-full h-48">
                   <img
