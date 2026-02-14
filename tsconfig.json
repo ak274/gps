@@ -5,6 +5,63 @@
   "references": [
     {
       "path": "./apps/gps"
+    },
+    {
+      "path": "./apps/api-e2e"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./libs/shared/data-access-prisma"
+    },
+    {
+      "path": "./libs/shared/data-access-db"
+    },
+    {
+      "path": "./libs/server/feature-auth"
+    },
+    {
+      "path": "./libs/server/feature-students"
+    },
+    {
+      "path": "./libs/server/feature-schools"
+    },
+    {
+      "path": "./libs/server/feature-tenants"
+    },
+    {
+      "path": "./libs/server/feature-academics"
+    },
+    {
+      "path": "./libs/server/feature-attendance"
+    },
+    {
+      "path": "./libs/server/feature-transport"
+    },
+    {
+      "path": "./libs/server/feature-billing"
+    },
+    {
+      "path": "./libs/server/feature-communications"
+    },
+    {
+      "path": "./libs/server/feature-documents"
+    },
+    {
+      "path": "./libs/server/feature-rbac"
+    },
+    {
+      "path": "./libs/server/feature-timetable"
+    },
+    {
+      "path": "./libs/shared/server-errors"
+    },
+    {
+      "path": "./libs/server/feature-guardians"
+    },
+    {
+      "path": "./libs/server/feature-staff"
     }
   ]
 }

@@ -1,0 +1,72 @@
+{
+  "name": "@gps/data-access-prisma",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "nx": {
+    "targets": {
+      "prisma": {
+        "command": "pnpm prisma",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "generate": {
+        "command": "pnpm prisma generate",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "migrate-dev": {
+        "command": "pnpm prisma migrate dev",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "migrate-deploy": {
+        "command": "pnpm prisma migrate deploy",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "db-push": {
+        "command": "pnpm prisma db push",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "studio": {
+        "command": "pnpm prisma studio",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "format": {
+        "command": "pnpm prisma format",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      }
+    },
+    "tags": [
+      "scope:shared",
+      "type:data-access"
+    ]
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.16.3"
+  }
+}

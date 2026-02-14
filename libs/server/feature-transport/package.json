@@ -1,0 +1,31 @@
+{
+  "name": "@gps/feature-transport",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@gps/data-access-db": "workspace:*",
+    "@gps/data-access-prisma": "workspace:*",
+    "@gps/feature-auth": "workspace:*",
+    "@gps/server-errors": "workspace:*",
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/swagger": "^11.2.6",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3"
+  },
+  "nx": {
+    "tags": [
+      "scope:server",
+      "type:feature"
+    ]
+  }
+}
