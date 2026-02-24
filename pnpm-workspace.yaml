@@ -2,4 +2,5 @@ packages:
   - 'apps/*'
   - 'libs/shared/*'
   - 'libs/server/*'
+  - 'libs/web/*'
 autoInstallPeers: true

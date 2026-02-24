@@ -1,0 +1,26 @@
+{
+  "name": "@gps/web-auth",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@gps/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "tags": [
+      "scope:web",
+      "type:util"
+    ]
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}

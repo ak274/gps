@@ -114,6 +114,66 @@ enum NotificationTargetType {
   USER
 }
 
+enum ExamStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+  ARCHIVED
+}
+
+enum HomeworkStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum AdmissionStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWING
+  APPROVED
+  REJECTED
+  ENROLLED
+  WITHDRAWN
+}
+
+enum PromotionBatchStatus {
+  DRAFT
+  APPLIED
+  CANCELLED
+}
+
+enum PromotionAction {
+  PROMOTE
+  GRADUATE
+}
+
+enum PromotionDecision {
+  PROMOTE
+  DETAIN
+  GRADUATE
+  EXIT
+  TRANSFER
+}
+
+enum ExitReason {
+  TRANSFER
+  MIGRATION
+  DROPOUT
+  EXPELLED
+  FEES_UNPAID
+  OTHER
+}
+
+enum ExitRequestStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
 model Tenant {
   id          String       @id @default(cuid())
   code        String       @unique(map: "uq_tenants_code")
@@ -124,47 +184,60 @@ model Tenant {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  schools           School[]
-  academicYears     AcademicYear[]
-  terms             Term[]
-  users             UserTenant[]
-  roles             Role[]
-  students          Student[]
-  guardians         Guardian[]
-  staffProfiles     StaffProfile[]
-  teacherProfile    TeacherProfile[]
-  classRooms        ClassRoom[]
-  subjects          Subject[]
-  enrollments       Enrollment[]
-  feePlans          FeePlan[]
-  feeItems          FeeItem[]
-  studentFeePlan    StudentFeePlan[]
-  invoices          Invoice[]
-  invoiceLines      InvoiceLine[]
-  payments          Payment[]
-  paymentAlloc      PaymentAllocation[]
-  routes            TransportRoute[]
-  stops             TransportStop[]
-  vehicles          TransportVehicle[]
-  transportAsg      StudentTransportAssignment[]
-  docs              Document[]
-  auditLogs         AuditLog[]
-  Campus            Campus[]
-  StudentGuardian   StudentGuardian[]
-  ClassroomSubject  ClassroomSubject[]
-  AttendanceSession AttendanceSession[]
-  AttendanceRecord  AttendanceRecord[]
-  timetableEntries  TimetableEntry[]
-  teacherAttendance TeacherAttendance[]
-  notifications     Notification[]
-  userNotifications UserNotification[]
-  messages          Message[]
-  sessions          Session[]
+  schools               School[]
+  academicYears         AcademicYear[]
+  terms                 Term[]
+  users                 UserTenant[]
+  roles                 Role[]
+  students              Student[]
+  guardians             Guardian[]
+  staffProfiles         StaffProfile[]
+  teacherProfile        TeacherProfile[]
+  classRooms            ClassRoom[]
+  subjects              Subject[]
+  enrollments           Enrollment[]
+  feePlans              FeePlan[]
+  feeItems              FeeItem[]
+  studentFeePlan        StudentFeePlan[]
+  invoices              Invoice[]
+  invoiceLines          InvoiceLine[]
+  payments              Payment[]
+  paymentAlloc          PaymentAllocation[]
+  routes                TransportRoute[]
+  stops                 TransportStop[]
+  vehicles              TransportVehicle[]
+  transportAsg          StudentTransportAssignment[]
+  docs                  Document[]
+  auditLogs             AuditLog[]
+  Campus                Campus[]
+  StudentGuardian       StudentGuardian[]
+  ClassroomSubject      ClassroomSubject[]
+  AttendanceSession     AttendanceSession[]
+  AttendanceRecord      AttendanceRecord[]
+  timetableEntries      TimetableEntry[]
+  teacherAttendance     TeacherAttendance[]
+  notifications         Notification[]
+  userNotifications     UserNotification[]
+  messages              Message[]
+  sessions              Session[]
+  exams                 Exam[]
+  examSubjects          ExamSubject[]
+  studentAssess         StudentAssessment[]
+  homework              Homework[]
+  admissionApplications AdmissionApplication[]
+  promotionBatches      PromotionBatch[]
+  promotionMappings     PromotionMapping[]
+  promotionOverrides    PromotionStudentOverride[]
+  studentExitRequests   StudentExitRequest[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("TenantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_tenants_created_by_id_users")
+  updatedBy User? @relation("TenantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_tenants_updated_by_id_users")
+  deletedBy User? @relation("TenantDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_tenants_deleted_by_id_users")
 
   @@map("tenants")
 }
@@ -192,10 +265,167 @@ model User {
   messagesSent      Message[]          @relation("MessageSender")
   messagesReceived  Message[]          @relation("MessageRecipient")
 
+  academicYearsCreated               AcademicYear[]               @relation("AcademicYearCreatedBy")
+  academicYearsDeleted               AcademicYear[]               @relation("AcademicYearDeletedBy")
+  academicYearsUpdated               AcademicYear[]               @relation("AcademicYearUpdatedBy")
+  admissionApplicationsCreated       AdmissionApplication[]       @relation("AdmissionApplicationCreatedBy")
+  admissionApplicationsDeleted       AdmissionApplication[]       @relation("AdmissionApplicationDeletedBy")
+  admissionApplicationsUpdated       AdmissionApplication[]       @relation("AdmissionApplicationUpdatedBy")
+  attendanceRecordsCreated           AttendanceRecord[]           @relation("AttendanceRecordCreatedBy")
+  attendanceRecordsDeleted           AttendanceRecord[]           @relation("AttendanceRecordDeletedBy")
+  attendanceRecordsUpdated           AttendanceRecord[]           @relation("AttendanceRecordUpdatedBy")
+  attendanceSessionsCreated          AttendanceSession[]          @relation("AttendanceSessionCreatedBy")
+  attendanceSessionsDeleted          AttendanceSession[]          @relation("AttendanceSessionDeletedBy")
+  attendanceSessionsUpdated          AttendanceSession[]          @relation("AttendanceSessionUpdatedBy")
+  auditLogsCreated                   AuditLog[]                   @relation("AuditLogCreatedBy")
+  auditLogsDeleted                   AuditLog[]                   @relation("AuditLogDeletedBy")
+  auditLogsUpdated                   AuditLog[]                   @relation("AuditLogUpdatedBy")
+  campusesCreated                    Campus[]                     @relation("CampusCreatedBy")
+  campusesDeleted                    Campus[]                     @relation("CampusDeletedBy")
+  campusesUpdated                    Campus[]                     @relation("CampusUpdatedBy")
+  classRoomsCreated                  ClassRoom[]                  @relation("ClassRoomCreatedBy")
+  classRoomsDeleted                  ClassRoom[]                  @relation("ClassRoomDeletedBy")
+  classroomSubjectsCreated           ClassroomSubject[]           @relation("ClassroomSubjectCreatedBy")
+  classroomSubjectsDeleted           ClassroomSubject[]           @relation("ClassroomSubjectDeletedBy")
+  classroomSubjectsUpdated           ClassroomSubject[]           @relation("ClassroomSubjectUpdatedBy")
+  classRoomsUpdated                  ClassRoom[]                  @relation("ClassRoomUpdatedBy")
+  documentsCreated                   Document[]                   @relation("DocumentCreatedBy")
+  documentsDeleted                   Document[]                   @relation("DocumentDeletedBy")
+  documentsUpdated                   Document[]                   @relation("DocumentUpdatedBy")
+  enrollmentsCreated                 Enrollment[]                 @relation("EnrollmentCreatedBy")
+  enrollmentsDeleted                 Enrollment[]                 @relation("EnrollmentDeletedBy")
+  enrollmentsUpdated                 Enrollment[]                 @relation("EnrollmentUpdatedBy")
+  examsCreated                       Exam[]                       @relation("ExamCreatedBy")
+  examsDeleted                       Exam[]                       @relation("ExamDeletedBy")
+  examSubjectsCreated                ExamSubject[]                @relation("ExamSubjectCreatedBy")
+  examSubjectsDeleted                ExamSubject[]                @relation("ExamSubjectDeletedBy")
+  examSubjectsUpdated                ExamSubject[]                @relation("ExamSubjectUpdatedBy")
+  examsUpdated                       Exam[]                       @relation("ExamUpdatedBy")
+  feeItemsCreated                    FeeItem[]                    @relation("FeeItemCreatedBy")
+  feeItemsDeleted                    FeeItem[]                    @relation("FeeItemDeletedBy")
+  feeItemsUpdated                    FeeItem[]                    @relation("FeeItemUpdatedBy")
+  feePlansCreated                    FeePlan[]                    @relation("FeePlanCreatedBy")
+  feePlansDeleted                    FeePlan[]                    @relation("FeePlanDeletedBy")
+  feePlansUpdated                    FeePlan[]                    @relation("FeePlanUpdatedBy")
+  guardiansCreated                   Guardian[]                   @relation("GuardianCreatedBy")
+  guardiansDeleted                   Guardian[]                   @relation("GuardianDeletedBy")
+  guardiansUpdated                   Guardian[]                   @relation("GuardianUpdatedBy")
+  homeworksCreated                   Homework[]                   @relation("HomeworkCreatedBy")
+  homeworksDeleted                   Homework[]                   @relation("HomeworkDeletedBy")
+  homeworksUpdated                   Homework[]                   @relation("HomeworkUpdatedBy")
+  invoiceLinesCreated                InvoiceLine[]                @relation("InvoiceLineCreatedBy")
+  invoiceLinesDeleted                InvoiceLine[]                @relation("InvoiceLineDeletedBy")
+  invoiceLinesUpdated                InvoiceLine[]                @relation("InvoiceLineUpdatedBy")
+  invoicesCreated                    Invoice[]                    @relation("InvoiceCreatedBy")
+  invoicesDeleted                    Invoice[]                    @relation("InvoiceDeletedBy")
+  invoicesUpdated                    Invoice[]                    @relation("InvoiceUpdatedBy")
+  messagesCreated                    Message[]                    @relation("MessageCreatedBy")
+  messagesDeleted                    Message[]                    @relation("MessageDeletedBy")
+  messagesUpdated                    Message[]                    @relation("MessageUpdatedBy")
+  notificationsCreated               Notification[]               @relation("NotificationCreatedBy")
+  notificationsDeleted               Notification[]               @relation("NotificationDeletedBy")
+  notificationsUpdated               Notification[]               @relation("NotificationUpdatedBy")
+  paymentAllocationsCreated          PaymentAllocation[]          @relation("PaymentAllocationCreatedBy")
+  paymentAllocationsDeleted          PaymentAllocation[]          @relation("PaymentAllocationDeletedBy")
+  paymentAllocationsUpdated          PaymentAllocation[]          @relation("PaymentAllocationUpdatedBy")
+  paymentsCreated                    Payment[]                    @relation("PaymentCreatedBy")
+  paymentsDeleted                    Payment[]                    @relation("PaymentDeletedBy")
+  paymentsUpdated                    Payment[]                    @relation("PaymentUpdatedBy")
+  permissionsCreated                 Permission[]                 @relation("PermissionCreatedBy")
+  permissionsDeleted                 Permission[]                 @relation("PermissionDeletedBy")
+  permissionsUpdated                 Permission[]                 @relation("PermissionUpdatedBy")
+  rolePermissionsCreated             RolePermission[]             @relation("RolePermissionCreatedBy")
+  rolePermissionsDeleted             RolePermission[]             @relation("RolePermissionDeletedBy")
+  rolePermissionsUpdated             RolePermission[]             @relation("RolePermissionUpdatedBy")
+  rolesCreated                       Role[]                       @relation("RoleCreatedBy")
+  rolesDeleted                       Role[]                       @relation("RoleDeletedBy")
+  rolesUpdated                       Role[]                       @relation("RoleUpdatedBy")
+  schoolsCreated                     School[]                     @relation("SchoolCreatedBy")
+  schoolsDeleted                     School[]                     @relation("SchoolDeletedBy")
+  schoolsUpdated                     School[]                     @relation("SchoolUpdatedBy")
+  sessionsCreated                    Session[]                    @relation("SessionCreatedBy")
+  sessionsDeleted                    Session[]                    @relation("SessionDeletedBy")
+  sessionsUpdated                    Session[]                    @relation("SessionUpdatedBy")
+  staffProfilesCreated               StaffProfile[]               @relation("StaffProfileCreatedBy")
+  staffProfilesDeleted               StaffProfile[]               @relation("StaffProfileDeletedBy")
+  staffProfilesUpdated               StaffProfile[]               @relation("StaffProfileUpdatedBy")
+  studentAssessmentsCreated          StudentAssessment[]          @relation("StudentAssessmentCreatedBy")
+  studentAssessmentsDeleted          StudentAssessment[]          @relation("StudentAssessmentDeletedBy")
+  studentAssessmentsUpdated          StudentAssessment[]          @relation("StudentAssessmentUpdatedBy")
+  studentFeePlansCreated             StudentFeePlan[]             @relation("StudentFeePlanCreatedBy")
+  studentFeePlansDeleted             StudentFeePlan[]             @relation("StudentFeePlanDeletedBy")
+  studentFeePlansUpdated             StudentFeePlan[]             @relation("StudentFeePlanUpdatedBy")
+  studentGuardiansCreated            StudentGuardian[]            @relation("StudentGuardianCreatedBy")
+  studentGuardiansDeleted            StudentGuardian[]            @relation("StudentGuardianDeletedBy")
+  studentGuardiansUpdated            StudentGuardian[]            @relation("StudentGuardianUpdatedBy")
+  studentsCreated                    Student[]                    @relation("StudentCreatedBy")
+  studentsDeleted                    Student[]                    @relation("StudentDeletedBy")
+  studentsUpdated                    Student[]                    @relation("StudentUpdatedBy")
+  studentTransportAssignmentsCreated StudentTransportAssignment[] @relation("StudentTransportAssignmentCreatedBy")
+  studentTransportAssignmentsDeleted StudentTransportAssignment[] @relation("StudentTransportAssignmentDeletedBy")
+  studentTransportAssignmentsUpdated StudentTransportAssignment[] @relation("StudentTransportAssignmentUpdatedBy")
+  subjectsCreated                    Subject[]                    @relation("SubjectCreatedBy")
+  subjectsDeleted                    Subject[]                    @relation("SubjectDeletedBy")
+  subjectsUpdated                    Subject[]                    @relation("SubjectUpdatedBy")
+  teacherAttendancesCreated          TeacherAttendance[]          @relation("TeacherAttendanceCreatedBy")
+  teacherAttendancesDeleted          TeacherAttendance[]          @relation("TeacherAttendanceDeletedBy")
+  teacherAttendancesUpdated          TeacherAttendance[]          @relation("TeacherAttendanceUpdatedBy")
+  teacherProfilesCreated             TeacherProfile[]             @relation("TeacherProfileCreatedBy")
+  teacherProfilesDeleted             TeacherProfile[]             @relation("TeacherProfileDeletedBy")
+  teacherProfilesUpdated             TeacherProfile[]             @relation("TeacherProfileUpdatedBy")
+  tenantsCreated                     Tenant[]                     @relation("TenantCreatedBy")
+  tenantsDeleted                     Tenant[]                     @relation("TenantDeletedBy")
+  tenantsUpdated                     Tenant[]                     @relation("TenantUpdatedBy")
+  termsCreated                       Term[]                       @relation("TermCreatedBy")
+  termsDeleted                       Term[]                       @relation("TermDeletedBy")
+  termsUpdated                       Term[]                       @relation("TermUpdatedBy")
+  timetableEntrysCreated             TimetableEntry[]             @relation("TimetableEntryCreatedBy")
+  timetableEntrysDeleted             TimetableEntry[]             @relation("TimetableEntryDeletedBy")
+  timetableEntrysUpdated             TimetableEntry[]             @relation("TimetableEntryUpdatedBy")
+  transportRoutesCreated             TransportRoute[]             @relation("TransportRouteCreatedBy")
+  transportRoutesDeleted             TransportRoute[]             @relation("TransportRouteDeletedBy")
+  transportRoutesUpdated             TransportRoute[]             @relation("TransportRouteUpdatedBy")
+  transportStopsCreated              TransportStop[]              @relation("TransportStopCreatedBy")
+  transportStopsDeleted              TransportStop[]              @relation("TransportStopDeletedBy")
+  transportStopsUpdated              TransportStop[]              @relation("TransportStopUpdatedBy")
+  transportVehiclesCreated           TransportVehicle[]           @relation("TransportVehicleCreatedBy")
+  transportVehiclesDeleted           TransportVehicle[]           @relation("TransportVehicleDeletedBy")
+  transportVehiclesUpdated           TransportVehicle[]           @relation("TransportVehicleUpdatedBy")
+  userNotificationsCreated           UserNotification[]           @relation("UserNotificationCreatedBy")
+  userNotificationsDeleted           UserNotification[]           @relation("UserNotificationDeletedBy")
+  userNotificationsUpdated           UserNotification[]           @relation("UserNotificationUpdatedBy")
+  userRoleAssignmentsCreated         UserRoleAssignment[]         @relation("UserRoleAssignmentCreatedBy")
+  userRoleAssignmentsDeleted         UserRoleAssignment[]         @relation("UserRoleAssignmentDeletedBy")
+  userRoleAssignmentsUpdated         UserRoleAssignment[]         @relation("UserRoleAssignmentUpdatedBy")
+  usersCreated                       User[]                       @relation("UserCreatedBy")
+  usersDeleted                       User[]                       @relation("UserDeletedBy")
+  usersUpdated                       User[]                       @relation("UserUpdatedBy")
+  userTenantsCreated                 UserTenant[]                 @relation("UserTenantCreatedBy")
+  userTenantsDeleted                 UserTenant[]                 @relation("UserTenantDeletedBy")
+  userTenantsUpdated                 UserTenant[]                 @relation("UserTenantUpdatedBy")
+  promotionBatchesCreated            PromotionBatch[]             @relation("PromotionBatchCreatedBy")
+  promotionBatchesDeleted            PromotionBatch[]             @relation("PromotionBatchDeletedBy")
+  promotionBatchesUpdated            PromotionBatch[]             @relation("PromotionBatchUpdatedBy")
+  promotionMappingsCreated           PromotionMapping[]           @relation("PromotionMappingCreatedBy")
+  promotionMappingsDeleted           PromotionMapping[]           @relation("PromotionMappingDeletedBy")
+  promotionMappingsUpdated           PromotionMapping[]           @relation("PromotionMappingUpdatedBy")
+  promotionOverridesCreated          PromotionStudentOverride[]   @relation("PromotionStudentOverrideCreatedBy")
+  promotionOverridesDeleted          PromotionStudentOverride[]   @relation("PromotionStudentOverrideDeletedBy")
+  promotionOverridesUpdated          PromotionStudentOverride[]   @relation("PromotionStudentOverrideUpdatedBy")
+  studentExitRequestsCreated         StudentExitRequest[]         @relation("StudentExitRequestCreatedBy")
+  studentExitRequestsDeleted         StudentExitRequest[]         @relation("StudentExitRequestDeletedBy")
+  studentExitRequestsUpdated         StudentExitRequest[]         @relation("StudentExitRequestUpdatedBy")
+  studentExitRequestsRequested       StudentExitRequest[]         @relation("StudentExitRequestRequestedBy")
+  studentExitRequestsDecided         StudentExitRequest[]         @relation("StudentExitRequestDecidedBy")
+
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_users_created_by_id_users")
+  updatedBy User? @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_users_updated_by_id_users")
+  deletedBy User? @relation("UserDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_users_deleted_by_id_users")
 
   @@index([status], map: "idx_users_status")
   @@map("users")
@@ -219,6 +449,10 @@ model UserTenant {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("UserTenantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_user_tenants_created_by_id_users")
+  updatedBy User? @relation("UserTenantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_user_tenants_updated_by_id_users")
+  deletedBy User? @relation("UserTenantDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_user_tenants_deleted_by_id_users")
 
   @@unique([tenantId, userId], map: "uq_user_tenants_tenant_user")
   @@index([userId], map: "idx_user_tenants_user_id")
@@ -245,6 +479,10 @@ model Role {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("RoleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_roles_created_by_id_users")
+  updatedBy User? @relation("RoleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_roles_updated_by_id_users")
+  deletedBy User? @relation("RoleDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_roles_deleted_by_id_users")
+
   @@unique([tenantId, key], map: "uq_roles_tenant_key")
   @@index([tenantId], map: "idx_roles_tenant_id")
   @@map("roles")
@@ -264,6 +502,10 @@ model Permission {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("PermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_permissions_created_by_id_users")
+  updatedBy User? @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_permissions_updated_by_id_users")
+  deletedBy User? @relation("PermissionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_permissions_deleted_by_id_users")
+
   @@map("permissions")
 }
 
@@ -279,6 +521,10 @@ model RolePermission {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("RolePermissionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_role_permissions_created_by_id_users")
+  updatedBy User? @relation("RolePermissionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_role_permissions_updated_by_id_users")
+  deletedBy User? @relation("RolePermissionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_role_permissions_deleted_by_id_users")
 
   @@unique([roleId, permissionId], map: "uq_role_permissions_role_permission")
   @@index([permissionId], map: "idx_role_permissions_permission_id")
@@ -299,6 +545,10 @@ model UserRoleAssignment {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("UserRoleAssignmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_user_role_assignments_created_by_id_users")
+  updatedBy User? @relation("UserRoleAssignmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_user_role_assignments_updated_by_id_users")
+  deletedBy User? @relation("UserRoleAssignmentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_user_role_assignments_deleted_by_id_users")
+
   @@unique([userTenantId, roleId], map: "uq_user_role_assignments_user_tenant_role")
   @@index([roleId], map: "idx_user_role_assignments_role_id")
   @@map("user_role_assignments")
@@ -315,29 +565,38 @@ model School {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  campuses          Campus[]
-  academicYears     AcademicYear[]
-  terms             Term[]
-  students          Student[]
-  guardians         Guardian[]
-  staffProfiles     StaffProfile[]
-  classRooms        ClassRoom[]
-  subjects          Subject[]
-  feePlans          FeePlan[]
-  invoices          Invoice[]
-  payments          Payment[]
-  routes            TransportRoute[]
-  vehicles          TransportVehicle[]
-  timetableEntries  TimetableEntry[]
-  teacherAttendance TeacherAttendance[]
-  notifications     Notification[]
-  messages          Message[]
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campuses              Campus[]
+  academicYears         AcademicYear[]
+  terms                 Term[]
+  students              Student[]
+  guardians             Guardian[]
+  staffProfiles         StaffProfile[]
+  classRooms            ClassRoom[]
+  subjects              Subject[]
+  feePlans              FeePlan[]
+  invoices              Invoice[]
+  payments              Payment[]
+  routes                TransportRoute[]
+  vehicles              TransportVehicle[]
+  timetableEntries      TimetableEntry[]
+  teacherAttendance     TeacherAttendance[]
+  notifications         Notification[]
+  messages              Message[]
+  exams                 Exam[]
+  homework              Homework[]
+  admissionApplications AdmissionApplication[]
+  promotionBatches      PromotionBatch[]
+  studentExitRequests   StudentExitRequest[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("SchoolCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_schools_created_by_id_users")
+  updatedBy User? @relation("SchoolUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_schools_updated_by_id_users")
+  deletedBy User? @relation("SchoolDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_schools_deleted_by_id_users")
 
   @@unique([tenantId, code], map: "uq_schools_tenant_code")
   @@index([tenantId], map: "idx_schools_tenant_id")
@@ -358,16 +617,21 @@ model Campus {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  school        School         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  students      Student[]
-  staffProfiles StaffProfile[]
-  classRooms    ClassRoom[]
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school                School                 @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  students              Student[]
+  staffProfiles         StaffProfile[]
+  classRooms            ClassRoom[]
+  admissionApplications AdmissionApplication[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("CampusCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_campuses_created_by_id_users")
+  updatedBy User? @relation("CampusUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_campuses_updated_by_id_users")
+  deletedBy User? @relation("CampusDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_campuses_deleted_by_id_users")
 
   @@unique([schoolId, code], map: "uq_campuses_school_code")
   @@index([tenantId], map: "idx_campuses_tenant_id")
@@ -385,18 +649,26 @@ model AcademicYear {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  tenant       Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  school       School                       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  terms        Term[]
-  classRooms   ClassRoom[]
-  enrollments  Enrollment[]
-  feePlans     FeePlan[]
-  transportAsg StudentTransportAssignment[]
+  tenant                Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school                School                       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  terms                 Term[]
+  classRooms            ClassRoom[]
+  enrollments           Enrollment[]
+  feePlans              FeePlan[]
+  transportAsg          StudentTransportAssignment[]
+  exams                 Exam[]
+  admissionApplications AdmissionApplication[]
+  promotionBatchesFrom  PromotionBatch[]             @relation("PromotionBatchFromAcademicYear")
+  promotionBatchesTo    PromotionBatch[]             @relation("PromotionBatchToAcademicYear")
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("AcademicYearCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_academic_years_created_by_id_users")
+  updatedBy User? @relation("AcademicYearUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_academic_years_updated_by_id_users")
+  deletedBy User? @relation("AcademicYearDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_academic_years_deleted_by_id_users")
 
   @@unique([schoolId, name], map: "uq_academic_years_school_name")
   @@index([tenantId, schoolId, isCurrent], map: "idx_academic_years_current")
@@ -416,11 +688,16 @@ model Term {
   tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  exams        Exam[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("TermCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_terms_created_by_id_users")
+  updatedBy User? @relation("TermUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_terms_updated_by_id_users")
+  deletedBy User? @relation("TermDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_terms_deleted_by_id_users")
 
   @@unique([academicYearId, name], map: "uq_terms_academic_year_name")
   @@index([tenantId, schoolId], map: "idx_terms_tenant_school")
@@ -454,6 +731,10 @@ model StaffProfile {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("StaffProfileCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_staff_profiles_created_by_id_users")
+  updatedBy User? @relation("StaffProfileUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_staff_profiles_updated_by_id_users")
+  deletedBy User? @relation("StaffProfileDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_staff_profiles_deleted_by_id_users")
+
   @@unique([tenantId, employeeCode], map: "uq_staff_profiles_tenant_employee_code")
   @@unique([schoolId, userId], map: "uq_staff_profiles_school_user")
   @@index([tenantId, schoolId], map: "idx_staff_profiles_tenant_school")
@@ -475,11 +756,17 @@ model TeacherProfile {
   classroomSubject ClassroomSubject[]
   attendance       TeacherAttendance[]
   TimetableEntry   TimetableEntry[]
+  exams            Exam[]
+  homework         Homework[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("TeacherProfileCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_teacher_profiles_created_by_id_users")
+  updatedBy User? @relation("TeacherProfileUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_teacher_profiles_updated_by_id_users")
+  deletedBy User? @relation("TeacherProfileDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_teacher_profiles_deleted_by_id_users")
 
   @@index([tenantId], map: "idx_teacher_profiles_tenant_id")
   @@map("teacher_profiles")
@@ -510,6 +797,10 @@ model Guardian {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("GuardianCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_guardians_created_by_id_users")
+  updatedBy User? @relation("GuardianUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_guardians_updated_by_id_users")
+  deletedBy User? @relation("GuardianDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_guardians_deleted_by_id_users")
+
   @@unique([schoolId, userId], map: "uq_guardians_school_user")
   @@index([tenantId, schoolId], map: "idx_guardians_tenant_school")
   @@map("guardians")
@@ -536,22 +827,213 @@ model Student {
   school School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   campus Campus? @relation(fields: [campusId], references: [id], onDelete: SetNull)
 
-  guardians    StudentGuardian[]
-  enrollments  Enrollment[]
-  attendance   AttendanceRecord[]
-  feePlans     StudentFeePlan[]
-  invoices     Invoice[]
-  payments     Payment[]
-  transportAsg StudentTransportAssignment[]
+  guardians             StudentGuardian[]
+  enrollments           Enrollment[]
+  attendance            AttendanceRecord[]
+  feePlans              StudentFeePlan[]
+  invoices              Invoice[]
+  payments              Payment[]
+  transportAsg          StudentTransportAssignment[]
+  assessments           StudentAssessment[]
+  admissionApplications AdmissionApplication[]
+  promotionOverrides    PromotionStudentOverride[]
+  exitRequests          StudentExitRequest[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("StudentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_students_created_by_id_users")
+  updatedBy User? @relation("StudentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_students_updated_by_id_users")
+  deletedBy User? @relation("StudentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_students_deleted_by_id_users")
+
   @@unique([schoolId, admissionNo], map: "uq_students_school_admission_no")
   @@index([tenantId, schoolId, currentStatus], map: "idx_students_tenant_school_status")
   @@map("students")
+}
+
+model AdmissionApplication {
+  id             String          @id @default(cuid())
+  tenantId       String          @map("tenant_id")
+  schoolId       String          @map("school_id")
+  campusId       String?         @map("campus_id")
+  academicYearId String          @map("academic_year_id")
+  classRoomId    String?         @map("class_room_id")
+  studentId      String?         @map("student_id")
+  status         AdmissionStatus @default(DRAFT)
+
+  firstName   String   @map("first_name")
+  lastName    String?  @map("last_name")
+  gender      Gender   @default(UNDISCLOSED)
+  dateOfBirth DateTime @map("date_of_birth") @db.Date
+
+  guardianFirstName String  @map("guardian_first_name")
+  guardianLastName  String? @map("guardian_last_name")
+  guardianPhoneE164 String? @map("guardian_phone_e164")
+  guardianEmail     String? @map("guardian_email")
+  relationType      String  @map("relation_type")
+
+  notes       String?
+  submittedAt DateTime? @map("submitted_at")
+  reviewedAt  DateTime? @map("reviewed_at")
+  decidedAt   DateTime? @map("decided_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  campus       Campus?      @relation(fields: [campusId], references: [id], onDelete: SetNull)
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  classRoom    ClassRoom?   @relation(fields: [classRoomId], references: [id], onDelete: SetNull)
+  student      Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("AdmissionApplicationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_admission_applications_created_by_id_users")
+  updatedBy User? @relation("AdmissionApplicationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_admission_applications_updated_by_id_users")
+  deletedBy User? @relation("AdmissionApplicationDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_admission_applications_deleted_by_id_users")
+
+  @@index([tenantId, schoolId, status], map: "idx_admission_applications_tenant_school_status")
+  @@index([academicYearId, classRoomId], map: "idx_admission_applications_year_classroom")
+  @@index([studentId], map: "idx_admission_applications_student_id")
+  @@map("admission_applications")
+}
+
+model PromotionBatch {
+  id                 String               @id @default(cuid())
+  tenantId           String               @map("tenant_id")
+  schoolId           String               @map("school_id")
+  fromAcademicYearId String               @map("from_academic_year_id")
+  toAcademicYearId   String               @map("to_academic_year_id")
+  status             PromotionBatchStatus @default(DRAFT)
+  appliedAt          DateTime?            @map("applied_at")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+
+  tenant           Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school           School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  fromAcademicYear AcademicYear @relation("PromotionBatchFromAcademicYear", fields: [fromAcademicYearId], references: [id], onDelete: Restrict)
+  toAcademicYear   AcademicYear @relation("PromotionBatchToAcademicYear", fields: [toAcademicYearId], references: [id], onDelete: Restrict)
+
+  mappings  PromotionMapping[]
+  overrides PromotionStudentOverride[]
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("PromotionBatchCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_promotion_batches_created_by_id_users")
+  updatedBy User? @relation("PromotionBatchUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_promotion_batches_updated_by_id_users")
+  deletedBy User? @relation("PromotionBatchDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_promotion_batches_deleted_by_id_users")
+
+  @@unique([schoolId, fromAcademicYearId, toAcademicYearId], map: "uq_promotion_batches_school_year_pair")
+  @@index([tenantId, schoolId, status], map: "idx_promotion_batches_tenant_school_status")
+  @@map("promotion_batches")
+}
+
+model PromotionMapping {
+  id              String          @id @default(cuid())
+  tenantId        String          @map("tenant_id")
+  batchId         String          @map("batch_id")
+  fromClassRoomId String          @map("from_class_room_id")
+  toClassRoomId   String?         @map("to_class_room_id")
+  action          PromotionAction @default(PROMOTE)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batch         PromotionBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  fromClassRoom ClassRoom      @relation("PromotionMappingFromClassRoom", fields: [fromClassRoomId], references: [id], onDelete: Restrict)
+  toClassRoom   ClassRoom?     @relation("PromotionMappingToClassRoom", fields: [toClassRoomId], references: [id], onDelete: SetNull)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("PromotionMappingCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_promotion_mappings_created_by_id_users")
+  updatedBy User? @relation("PromotionMappingUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_promotion_mappings_updated_by_id_users")
+  deletedBy User? @relation("PromotionMappingDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_promotion_mappings_deleted_by_id_users")
+
+  @@unique([batchId, fromClassRoomId], map: "uq_promotion_mappings_batch_from_classroom")
+  @@index([tenantId, batchId], map: "idx_promotion_mappings_tenant_batch")
+  @@map("promotion_mappings")
+}
+
+model PromotionStudentOverride {
+  id            String            @id @default(cuid())
+  tenantId      String            @map("tenant_id")
+  batchId       String            @map("batch_id")
+  studentId     String            @map("student_id")
+  decision      PromotionDecision @default(PROMOTE)
+  toClassRoomId String?           @map("to_class_room_id")
+  remarks       String?
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batch       PromotionBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  student     Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  toClassRoom ClassRoom?     @relation("PromotionOverrideToClassRoom", fields: [toClassRoomId], references: [id], onDelete: SetNull)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("PromotionStudentOverrideCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_promotion_overrides_created_by_id_users")
+  updatedBy User? @relation("PromotionStudentOverrideUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_promotion_overrides_updated_by_id_users")
+  deletedBy User? @relation("PromotionStudentOverrideDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_promotion_overrides_deleted_by_id_users")
+
+  @@unique([batchId, studentId], map: "uq_promotion_overrides_batch_student")
+  @@index([tenantId, batchId], map: "idx_promotion_overrides_tenant_batch")
+  @@index([studentId], map: "idx_promotion_overrides_student_id")
+  @@map("promotion_student_overrides")
+}
+
+model StudentExitRequest {
+  id                      String            @id @default(cuid())
+  tenantId                String            @map("tenant_id")
+  schoolId                String            @map("school_id")
+  studentId               String            @map("student_id")
+  status                  ExitRequestStatus @default(REQUESTED)
+  reason                  ExitReason
+  forwardingSchoolName    String?           @map("forwarding_school_name")
+  forwardingSchoolAddress String?           @map("forwarding_school_address")
+  notes                   String?
+  decisionNotes           String?           @map("decision_notes")
+  requestedById           String            @map("requested_by_id")
+  decidedById             String?           @map("decided_by_id")
+  requestedAt             DateTime?         @map("requested_at")
+  decidedAt               DateTime?         @map("decided_at")
+  effectiveOn             DateTime?         @map("effective_on") @db.Date
+  completedAt             DateTime?         @map("completed_at")
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+
+  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school      School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  student     Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  requestedBy User    @relation("StudentExitRequestRequestedBy", fields: [requestedById], references: [id], onDelete: Restrict)
+  decidedBy   User?   @relation("StudentExitRequestDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("StudentExitRequestCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_student_exit_requests_created_by_id_users")
+  updatedBy User? @relation("StudentExitRequestUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_student_exit_requests_updated_by_id_users")
+  deletedBy User? @relation("StudentExitRequestDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_student_exit_requests_deleted_by_id_users")
+
+  @@index([tenantId, schoolId, status], map: "idx_student_exit_requests_tenant_school_status")
+  @@index([studentId], map: "idx_student_exit_requests_student_id")
+  @@map("student_exit_requests")
 }
 
 model StudentGuardian {
@@ -571,6 +1053,10 @@ model StudentGuardian {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("StudentGuardianCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_student_guardians_created_by_id_users")
+  updatedBy User? @relation("StudentGuardianUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_student_guardians_updated_by_id_users")
+  deletedBy User? @relation("StudentGuardianDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_student_guardians_deleted_by_id_users")
 
   @@unique([studentId, guardianId], map: "uq_student_guardians_student_guardian")
   @@index([tenantId], map: "idx_student_guardians_tenant_id")
@@ -597,15 +1083,25 @@ model ClassRoom {
   academicYear    AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
   homeRoomTeacher TeacherProfile? @relation("ClassRoomHomeRoomTeacher", fields: [homeRoomTeacherId], references: [id], onDelete: SetNull)
 
-  subjects         ClassroomSubject[]
-  enrollments      Enrollment[]
-  attendance       AttendanceSession[]
-  timetableEntries TimetableEntry[]
+  subjects              ClassroomSubject[]
+  enrollments           Enrollment[]
+  attendance            AttendanceSession[]
+  timetableEntries      TimetableEntry[]
+  exams                 Exam[]
+  homework              Homework[]
+  admissionApplications AdmissionApplication[]
+  promotionMappingsFrom PromotionMapping[]         @relation("PromotionMappingFromClassRoom")
+  promotionMappingsTo   PromotionMapping[]         @relation("PromotionMappingToClassRoom")
+  promotionTargets      PromotionStudentOverride[] @relation("PromotionOverrideToClassRoom")
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("ClassRoomCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_class_rooms_created_by_id_users")
+  updatedBy User? @relation("ClassRoomUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_class_rooms_updated_by_id_users")
+  deletedBy User? @relation("ClassRoomDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_class_rooms_deleted_by_id_users")
 
   @@unique([academicYearId, name], map: "uq_class_rooms_academic_year_name")
   @@index([tenantId, schoolId], map: "idx_class_rooms_tenant_school")
@@ -627,11 +1123,17 @@ model Subject {
   classRoom        ClassroomSubject[]
   sessions         AttendanceSession[]
   timetableEntries TimetableEntry[]
+  examSubjects     ExamSubject[]
+  homework         Homework[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("SubjectCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_subjects_created_by_id_users")
+  updatedBy User? @relation("SubjectUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_subjects_updated_by_id_users")
+  deletedBy User? @relation("SubjectDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_subjects_deleted_by_id_users")
 
   @@unique([schoolId, code], map: "uq_subjects_school_code")
   @@index([tenantId, schoolId], map: "idx_subjects_tenant_school")
@@ -655,6 +1157,10 @@ model ClassroomSubject {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("ClassroomSubjectCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_classroom_subjects_created_by_id_users")
+  updatedBy User? @relation("ClassroomSubjectUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_classroom_subjects_updated_by_id_users")
+  deletedBy User? @relation("ClassroomSubjectDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_classroom_subjects_deleted_by_id_users")
 
   @@unique([classRoomId, subjectId], map: "uq_classroom_subjects_class_room_subject")
   @@index([teacherId], map: "idx_classroom_subjects_teacher_id")
@@ -683,6 +1189,10 @@ model Enrollment {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("EnrollmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_enrollments_created_by_id_users")
+  updatedBy User? @relation("EnrollmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_enrollments_updated_by_id_users")
+  deletedBy User? @relation("EnrollmentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_enrollments_deleted_by_id_users")
+
   @@unique([studentId, academicYearId], map: "uq_enrollments_student_academic_year")
   @@index([tenantId, classRoomId, status], map: "idx_enrollments_tenant_class_room_status")
   @@map("enrollments")
@@ -709,6 +1219,10 @@ model AttendanceSession {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("AttendanceSessionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_attendance_sessions_created_by_id_users")
+  updatedBy User? @relation("AttendanceSessionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_attendance_sessions_updated_by_id_users")
+  deletedBy User? @relation("AttendanceSessionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_attendance_sessions_deleted_by_id_users")
+
   @@index([tenantId, classRoomId, attendanceOn], map: "idx_attendance_sessions_lookup")
   @@index([subjectId], map: "idx_attendance_sessions_subject_id")
   @@map("attendance_sessions")
@@ -731,6 +1245,10 @@ model AttendanceRecord {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("AttendanceRecordCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_attendance_records_created_by_id_users")
+  updatedBy User? @relation("AttendanceRecordUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_attendance_records_updated_by_id_users")
+  deletedBy User? @relation("AttendanceRecordDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_attendance_records_deleted_by_id_users")
 
   @@unique([attendanceSessionId, studentId], map: "uq_attendance_records_session_student")
   @@index([tenantId, studentId, status], map: "idx_attendance_records_student_status")
@@ -760,6 +1278,10 @@ model FeePlan {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("FeePlanCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_fee_plans_created_by_id_users")
+  updatedBy User? @relation("FeePlanUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_fee_plans_updated_by_id_users")
+  deletedBy User? @relation("FeePlanDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_fee_plans_deleted_by_id_users")
+
   @@unique([schoolId, academicYearId, name], map: "uq_fee_plans_school_year_name")
   @@index([tenantId, schoolId, isActive], map: "idx_fee_plans_tenant_school_active")
   @@map("fee_plans")
@@ -783,6 +1305,10 @@ model FeeItem {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("FeeItemCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_fee_items_created_by_id_users")
+  updatedBy User? @relation("FeeItemUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_fee_items_updated_by_id_users")
+  deletedBy User? @relation("FeeItemDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_fee_items_deleted_by_id_users")
+
   @@unique([feePlanId, code], map: "uq_fee_items_fee_plan_code")
   @@index([tenantId], map: "idx_fee_items_tenant_id")
   @@map("fee_items")
@@ -803,6 +1329,10 @@ model StudentFeePlan {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("StudentFeePlanCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_student_fee_plans_created_by_id_users")
+  updatedBy User? @relation("StudentFeePlanUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_student_fee_plans_updated_by_id_users")
+  deletedBy User? @relation("StudentFeePlanDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_student_fee_plans_deleted_by_id_users")
 
   @@unique([studentId, feePlanId], map: "uq_student_fee_plans_student_fee_plan")
   @@index([tenantId], map: "idx_student_fee_plans_tenant_id")
@@ -837,6 +1367,10 @@ model Invoice {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("InvoiceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_invoices_created_by_id_users")
+  updatedBy User? @relation("InvoiceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_invoices_updated_by_id_users")
+  deletedBy User? @relation("InvoiceDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_invoices_deleted_by_id_users")
+
   @@unique([schoolId, invoiceNumber], map: "uq_invoices_school_invoice_number")
   @@index([tenantId, studentId, status], map: "idx_invoices_student_status")
   @@index([tenantId, issueDate], map: "idx_invoices_issue_date")
@@ -861,6 +1395,10 @@ model InvoiceLine {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("InvoiceLineCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_invoice_lines_created_by_id_users")
+  updatedBy User? @relation("InvoiceLineUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_invoice_lines_updated_by_id_users")
+  deletedBy User? @relation("InvoiceLineDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_invoice_lines_deleted_by_id_users")
 
   @@index([invoiceId], map: "idx_invoice_lines_invoice_id")
   @@index([tenantId], map: "idx_invoice_lines_tenant_id")
@@ -891,6 +1429,10 @@ model Payment {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("PaymentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_payments_created_by_id_users")
+  updatedBy User? @relation("PaymentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_payments_updated_by_id_users")
+  deletedBy User? @relation("PaymentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_payments_deleted_by_id_users")
+
   @@unique([schoolId, receiptNumber], map: "uq_payments_school_receipt_number")
   @@index([tenantId, studentId, paidAt], map: "idx_payments_student_paid_at")
   @@map("payments")
@@ -911,6 +1453,10 @@ model PaymentAllocation {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("PaymentAllocationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_payment_allocations_created_by_id_users")
+  updatedBy User? @relation("PaymentAllocationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_payment_allocations_updated_by_id_users")
+  deletedBy User? @relation("PaymentAllocationDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_payment_allocations_deleted_by_id_users")
 
   @@unique([paymentId, invoiceId], map: "uq_payment_allocations_payment_invoice")
   @@index([invoiceId], map: "idx_payment_allocations_invoice_id")
@@ -938,6 +1484,10 @@ model TransportVehicle {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("TransportVehicleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_transport_vehicles_created_by_id_users")
+  updatedBy User? @relation("TransportVehicleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_transport_vehicles_updated_by_id_users")
+  deletedBy User? @relation("TransportVehicleDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_transport_vehicles_deleted_by_id_users")
+
   @@unique([schoolId, vehicleNumber], map: "uq_transport_vehicles_school_vehicle_number")
   @@index([tenantId], map: "idx_transport_vehicles_tenant_id")
   @@map("transport_vehicles")
@@ -964,6 +1514,10 @@ model TransportRoute {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("TransportRouteCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_transport_routes_created_by_id_users")
+  updatedBy User? @relation("TransportRouteUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_transport_routes_updated_by_id_users")
+  deletedBy User? @relation("TransportRouteDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_transport_routes_deleted_by_id_users")
+
   @@unique([schoolId, code], map: "uq_transport_routes_school_code")
   @@index([tenantId], map: "idx_transport_routes_tenant_id")
   @@map("transport_routes")
@@ -986,6 +1540,10 @@ model TransportStop {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("TransportStopCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_transport_stops_created_by_id_users")
+  updatedBy User? @relation("TransportStopUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_transport_stops_updated_by_id_users")
+  deletedBy User? @relation("TransportStopDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_transport_stops_deleted_by_id_users")
 
   @@unique([routeId, sequenceNo], map: "uq_transport_stops_route_sequence")
   @@index([tenantId], map: "idx_transport_stops_tenant_id")
@@ -1014,6 +1572,10 @@ model StudentTransportAssignment {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("StudentTransportAssignmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_student_transport_assignments_created_by_id_users")
+  updatedBy User? @relation("StudentTransportAssignmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_student_transport_assignments_updated_by_id_users")
+  deletedBy User? @relation("StudentTransportAssignmentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_student_transport_assignments_deleted_by_id_users")
 
   @@unique([studentId, academicYearId], map: "uq_student_transport_assignments_student_year")
   @@index([tenantId, routeId, status], map: "idx_student_transport_assignments_route_status")
@@ -1044,6 +1606,10 @@ model Document {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("DocumentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_documents_created_by_id_users")
+  updatedBy User? @relation("DocumentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_documents_updated_by_id_users")
+  deletedBy User? @relation("DocumentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_documents_deleted_by_id_users")
+
   @@index([tenantId, entityType, entityId], map: "idx_documents_entity_lookup")
   @@index([storageKey], map: "idx_documents_storage_key")
   @@map("documents")
@@ -1073,10 +1639,154 @@ model TimetableEntry {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("TimetableEntryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_timetable_entries_created_by_id_users")
+  updatedBy User? @relation("TimetableEntryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_timetable_entries_updated_by_id_users")
+  deletedBy User? @relation("TimetableEntryDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_timetable_entries_deleted_by_id_users")
+
   @@unique([classRoomId, dayOfWeek, startTime], map: "uq_timetable_entries_class_day_start")
   @@index([tenantId, schoolId], map: "idx_timetable_entries_tenant_school")
   @@index([teacherId, dayOfWeek], map: "idx_timetable_entries_teacher_day")
   @@map("timetable_entries")
+}
+
+model Exam {
+  id             String     @id @default(cuid())
+  tenantId       String     @map("tenant_id")
+  schoolId       String     @map("school_id")
+  academicYearId String     @map("academic_year_id")
+  termId         String?    @map("term_id")
+  classRoomId    String     @map("class_room_id")
+  teacherId      String?    @map("teacher_id")
+  code           String
+  name           String
+  examType       String     @map("exam_type")
+  startsOn       DateTime   @map("starts_on") @db.Date
+  endsOn         DateTime?  @map("ends_on") @db.Date
+  status         ExamStatus @default(DRAFT)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school       School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  term         Term?           @relation(fields: [termId], references: [id], onDelete: SetNull)
+  classRoom    ClassRoom       @relation(fields: [classRoomId], references: [id], onDelete: Restrict)
+  teacher      TeacherProfile? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  subjects    ExamSubject[]
+  assessments StudentAssessment[]
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("ExamCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_exams_created_by_id_users")
+  updatedBy User? @relation("ExamUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_exams_updated_by_id_users")
+  deletedBy User? @relation("ExamDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_exams_deleted_by_id_users")
+
+  @@unique([schoolId, code], map: "uq_exams_school_code")
+  @@index([tenantId, schoolId, classRoomId], map: "idx_exams_tenant_school_classroom")
+  @@index([academicYearId, termId], map: "idx_exams_year_term")
+  @@map("exams")
+}
+
+model ExamSubject {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  examId    String   @map("exam_id")
+  subjectId String   @map("subject_id")
+  maxMarks  Decimal  @map("max_marks") @db.Decimal(10, 2)
+  passMarks Decimal? @map("pass_marks") @db.Decimal(10, 2)
+  weightage Decimal? @db.Decimal(5, 2)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Restrict)
+
+  assessments StudentAssessment[]
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("ExamSubjectCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_exam_subjects_created_by_id_users")
+  updatedBy User? @relation("ExamSubjectUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_exam_subjects_updated_by_id_users")
+  deletedBy User? @relation("ExamSubjectDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_exam_subjects_deleted_by_id_users")
+
+  @@unique([examId, subjectId], map: "uq_exam_subjects_exam_subject")
+  @@index([tenantId, subjectId], map: "idx_exam_subjects_tenant_subject")
+  @@map("exam_subjects")
+}
+
+model StudentAssessment {
+  id            String    @id @default(cuid())
+  tenantId      String    @map("tenant_id")
+  examId        String    @map("exam_id")
+  examSubjectId String    @map("exam_subject_id")
+  studentId     String    @map("student_id")
+  marksObtained Decimal?  @map("marks_obtained") @db.Decimal(10, 2)
+  grade         String?
+  remarks       String?
+  publishedAt   DateTime? @map("published_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  exam        Exam        @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examSubject ExamSubject @relation(fields: [examSubjectId], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("StudentAssessmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_student_assessments_created_by_id_users")
+  updatedBy User? @relation("StudentAssessmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_student_assessments_updated_by_id_users")
+  deletedBy User? @relation("StudentAssessmentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_student_assessments_deleted_by_id_users")
+
+  @@unique([examSubjectId, studentId], map: "uq_student_assessments_exam_subject_student")
+  @@index([tenantId, examId, studentId], map: "idx_student_assessments_tenant_exam_student")
+  @@map("student_assessments")
+}
+
+model Homework {
+  id          String         @id @default(cuid())
+  tenantId    String         @map("tenant_id")
+  schoolId    String         @map("school_id")
+  classRoomId String         @map("class_room_id")
+  subjectId   String?        @map("subject_id")
+  teacherId   String?        @map("teacher_id")
+  title       String
+  description String?
+  assignedOn  DateTime       @map("assigned_on") @db.Date
+  dueOn       DateTime?      @map("due_on") @db.Date
+  status      HomeworkStatus @default(DRAFT)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school    School          @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  classRoom ClassRoom       @relation(fields: [classRoomId], references: [id], onDelete: Cascade)
+  subject   Subject?        @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  teacher   TeacherProfile? @relation(fields: [teacherId], references: [id], onDelete: SetNull)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("HomeworkCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_homework_created_by_id_users")
+  updatedBy User? @relation("HomeworkUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_homework_updated_by_id_users")
+  deletedBy User? @relation("HomeworkDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_homework_deleted_by_id_users")
+
+  @@index([tenantId, schoolId, classRoomId], map: "idx_homework_tenant_school_classroom")
+  @@index([subjectId, assignedOn], map: "idx_homework_subject_assigned_on")
+  @@map("homework")
 }
 
 model TeacherAttendance {
@@ -1097,6 +1807,10 @@ model TeacherAttendance {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("TeacherAttendanceCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_teacher_attendance_created_by_id_users")
+  updatedBy User? @relation("TeacherAttendanceUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_teacher_attendance_updated_by_id_users")
+  deletedBy User? @relation("TeacherAttendanceDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_teacher_attendance_deleted_by_id_users")
 
   @@unique([teacherId, attendanceOn], map: "uq_teacher_attendance_teacher_date")
   @@index([tenantId, schoolId, attendanceOn], map: "idx_teacher_attendance_tenant_school_date")
@@ -1125,6 +1839,10 @@ model Notification {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("NotificationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_notifications_created_by_id_users")
+  updatedBy User? @relation("NotificationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_notifications_updated_by_id_users")
+  deletedBy User? @relation("NotificationDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_notifications_deleted_by_id_users")
+
   @@index([tenantId, schoolId, createdAt], map: "idx_notifications_tenant_school_created_at")
   @@index([targetType, targetId], map: "idx_notifications_target")
   @@map("notifications")
@@ -1147,6 +1865,10 @@ model UserNotification {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("UserNotificationCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_user_notifications_created_by_id_users")
+  updatedBy User? @relation("UserNotificationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_user_notifications_updated_by_id_users")
+  deletedBy User? @relation("UserNotificationDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_user_notifications_deleted_by_id_users")
 
   @@unique([notificationId, userId], map: "uq_user_notifications_notification_user")
   @@index([tenantId, userId, isRead], map: "idx_user_notifications_user_is_read")
@@ -1172,6 +1894,10 @@ model Message {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
+  createdBy User? @relation("MessageCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_messages_created_by_id_users")
+  updatedBy User? @relation("MessageUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_messages_updated_by_id_users")
+  deletedBy User? @relation("MessageDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_messages_deleted_by_id_users")
+
   @@index([tenantId, schoolId, sentAt], map: "idx_messages_tenant_school_sent_at")
   @@index([senderId, recipientId], map: "idx_messages_sender_recipient")
   @@map("messages")
@@ -1194,6 +1920,10 @@ model Session {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("SessionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_sessions_created_by_id_users")
+  updatedBy User? @relation("SessionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_sessions_updated_by_id_users")
+  deletedBy User? @relation("SessionDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_sessions_deleted_by_id_users")
 
   @@index([userId, expiresAt], map: "idx_sessions_user_expires_at")
   @@index([tenantId, userId], map: "idx_sessions_tenant_user")
@@ -1221,6 +1951,10 @@ model AuditLog {
   updatedById String?   @map("updated_by_id")
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
+
+  createdBy User? @relation("AuditLogCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_audit_logs_created_by_id_users")
+  updatedBy User? @relation("AuditLogUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_audit_logs_updated_by_id_users")
+  deletedBy User? @relation("AuditLogDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_audit_logs_deleted_by_id_users")
 
   @@index([tenantId, createdAt], map: "idx_audit_logs_tenant_created_at")
   @@index([tenantId, entityType, entityId], map: "idx_audit_logs_entity_lookup")

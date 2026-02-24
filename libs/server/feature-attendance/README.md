@@ -9,6 +9,11 @@ Attendance domain APIs for student attendance sessions/records and teacher atten
 - `GET /api/attendance/sessions/:sessionId` (`attendance.sessions.read`)
 - `POST /api/attendance/sessions` (`attendance.sessions.write`)
 - `POST /api/attendance/sessions/:sessionId/records:bulk-upsert` (`attendance.records.write`)
+- `POST /api/attendance/sessions/:sessionId/records:mark` (`attendance.records.write`)
+  - One-click marking helper:
+    - If `studentIds` is omitted, applies `status` to all active students in the class.
+    - If `studentIds` is provided, applies `status` to selected students.
+    - If `remainingStatus` is also provided, applies it to all other active students in the class.
 
 ### Student Attendance Records
 - `GET /api/attendance/records` (`attendance.records.read`)

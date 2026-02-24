@@ -9,7 +9,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
+    "types": ["node", "express", "multer"],
     "target": "es2021",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

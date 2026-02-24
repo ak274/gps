@@ -8,7 +8,7 @@ This file maps your MVP plan modules to the current backend implementation statu
 - RBAC (roles, permissions, user-tenant role assignment)
 - Tenants (current tenant)
 - Schools
-- Students (read APIs)
+- Students (read APIs; full CRUD pending)
 - Academics: classrooms, subjects, enrollments
 - Timetable entries
 - Attendance (students + teachers)
@@ -16,6 +16,8 @@ This file maps your MVP plan modules to the current backend implementation statu
 - Billing (fee plans, invoices, payments, allocations)
 - Communications (notifications, direct messaging)
 - Documents metadata module
+- Exams (CRUD + exam subjects on create; assessments endpoints pending)
+- Homework/diary (CRUD)
 
 ## Newly Added in this pass
 
@@ -26,14 +28,15 @@ This file maps your MVP plan modules to the current backend implementation statu
 
 ## Missing or Partial (High Priority)
 
-- Student + Guardian full lifecycle (CRUD + linking + sibling views) ✅
+- Student + Guardian full lifecycle:
+  - Guardians CRUD + linking + sibling views ✅
+  - Students CRUD + bulk import pending
 - Admissions workflows (online registration, verification state machine)
 - Teacher/Staff profile management APIs ✅
 - Parent-facing views (child profile/attendance/fees aggregates)
 - Timetable substitutions + conflict workflow APIs
 - Attendance reports/export/alerts workflows
-- Exam & assessment module (exam plans, marks, report cards)
-- Homework/diary module
+- Exam & assessment module (marks entry, report cards)
 
 ## Missing (Next Priority)
 
@@ -47,4 +50,3 @@ This file maps your MVP plan modules to the current backend implementation statu
 
 - Kept intact.
 - Existing schema and APIs remain tenant-scoped with school/campus support.
-

@@ -26,24 +26,50 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
+  const port = Number(process.env.PORT || 3000);
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('GPS API')
     .setDescription('School management backend APIs')
     .setVersion('1.0.0')
-    .addBearerAuth()
+    .addServer(`http://localhost:${port}`, 'local')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT access token',
+      },
+      'bearer',
+    )
     .build();
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig, {
+    deepScanRoutes: true,
+    operationIdFactory: (controllerKey: string, methodKey: string) =>
+      `${controllerKey}_${methodKey}`,
+  });
   SwaggerModule.setup(`${globalPrefix}/docs`, app, swaggerDocument, {
-    swaggerOptions: { persistAuthorization: true },
+    customSiteTitle: 'GPS API Docs',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      docExpansion: 'none',
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
   });
 
-  const port = process.env.PORT || 3000;
   await app.listen(port);
   app.get(Logger).log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
+    `Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
   app.get(Logger).log(
-    `📘 Swagger docs available at: http://localhost:${port}/${globalPrefix}/docs`,
+    `Swagger docs available at: http://localhost:${port}/${globalPrefix}/docs`,
+  );
+  app.get(Logger).log(
+    `OpenAPI JSON available at: http://localhost:${port}/${globalPrefix}/docs-json`,
   );
 }
 

@@ -9,6 +9,10 @@ import { CommunicationsModule } from '@gps/feature-communications';
 import { DocumentsModule } from '@gps/feature-documents';
 import { AuthModule } from '@gps/feature-auth';
 import { GuardiansModule } from '@gps/feature-guardians';
+import { ExamsModule } from '@gps/feature-exams';
+import { HomeworkModule } from '@gps/feature-homework';
+import { AdmissionsModule } from '@gps/feature-admissions';
+import { StudentLifecycleModule } from '@gps/feature-student-lifecycle';
 import { RbacModule } from '@gps/feature-rbac';
 import { SchoolsModule } from '@gps/feature-schools';
 import { StaffModule } from '@gps/feature-staff';
@@ -17,6 +21,7 @@ import { TenantsModule } from '@gps/feature-tenants';
 import { TimetableModule } from '@gps/feature-timetable';
 import { TransportModule } from '@gps/feature-transport';
 import { LoggerErrorInterceptor, LoggerModule } from 'nestjs-pino';
+import type { DestinationStream } from 'pino';
 import { AppController } from './app.controller';
 import { validateEnv } from './config/env.schema';
 import { AppService } from './app.service';
@@ -28,30 +33,41 @@ import { AppService } from './app.service';
       validate: validateEnv,
     }),
     LoggerModule.forRoot({
-      pinoHttp: {
-        level: process.env.LOG_LEVEL ?? 'info',
-        redact: {
-          paths: [
-            'req.headers.authorization',
-            'req.headers.cookie',
-            'req.body.password',
-            'req.body.passwordHash',
-            'req.body.refreshToken',
-          ],
-          remove: true,
-        },
-        transport:
-          process.env.NODE_ENV !== 'production'
-            ? {
-                target: 'pino-pretty',
-                options: {
-                  singleLine: true,
-                  colorize: true,
-                  translateTime: 'SYS:standard',
-                },
-              }
-            : undefined,
-      },
+      pinoHttp: (() => {
+        const isProd = process.env.NODE_ENV === 'production';
+        const redactPaths: string[] = [
+          'req.headers.authorization',
+          'req.headers.cookie',
+          'req.body.password',
+          'req.body.passwordHash',
+          'req.body.refreshToken',
+        ];
+
+        const base = {
+          level: process.env.LOG_LEVEL ?? 'info',
+          redact: {
+            paths: redactPaths,
+            remove: true,
+          },
+        };
+
+        if (isProd) {
+          return base;
+        }
+
+        // Avoid pino "transport" in bundled builds (worker files are not emitted by webpack).
+        const pinoPretty = require('pino-pretty') as (
+          opts: Record<string, unknown>,
+        ) => DestinationStream;
+        return {
+          ...base,
+          stream: pinoPretty({
+            singleLine: true,
+            colorize: true,
+            translateTime: 'SYS:standard',
+          }),
+        };
+      })(),
     }),
     PrismaModule,
     AcademicsModule,
@@ -61,6 +77,10 @@ import { AppService } from './app.service';
     DocumentsModule,
     AuthModule,
     GuardiansModule,
+    ExamsModule,
+    HomeworkModule,
+    AdmissionsModule,
+    StudentLifecycleModule,
     RbacModule,
     TenantsModule,
     SchoolsModule,

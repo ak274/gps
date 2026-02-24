@@ -18,22 +18,34 @@
       "path": "../../libs/server/feature-transport/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/server/feature-timetable/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/server/feature-tenants/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/server/feature-timetable/tsconfig.lib.json"
+      "path": "../../libs/server/feature-student-lifecycle/tsconfig.lib.json"
     },
     {
       "path": "../../libs/server/feature-students/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/server/feature-schools/tsconfig.lib.json"
-    },
-    {
       "path": "../../libs/server/feature-staff/tsconfig.lib.json"
     },
     {
+      "path": "../../libs/server/feature-schools/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/server/feature-rbac/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/server/feature-admissions/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/server/feature-homework/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/server/feature-exams/tsconfig.lib.json"
     },
     {
       "path": "../../libs/server/feature-guardians/tsconfig.lib.json"

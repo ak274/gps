@@ -15,6 +15,7 @@ import { BulkUpsertAttendanceRecordsDto } from './dto/bulk-upsert-attendance-rec
 import { CreateAttendanceSessionDto } from './dto/create-attendance-session.dto';
 import { ListAttendanceRecordsQueryDto } from './dto/list-attendance-records-query.dto';
 import { ListAttendanceSessionsQueryDto } from './dto/list-attendance-sessions-query.dto';
+import { MarkAttendanceRecordsDto } from './dto/mark-attendance-records.dto';
 
 @ApiTags('attendance')
 @ApiBearerAuth()
@@ -67,6 +68,23 @@ export class AttendanceController {
     @Body() dto: BulkUpsertAttendanceRecordsDto,
   ) {
     return this.attendanceService.bulkUpsertSessionRecords(user, sessionId, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Mark attendance in one click (all students or selected students)',
+    description:
+      'If studentIds is omitted, marks all active students in the session class. If studentIds is provided, marks those students; if remainingStatus is also provided, marks all other active students with remainingStatus.',
+  })
+  @ApiOkResponse({ type: [AttendanceRecordResponseDto] })
+  @ApiNotFoundResponse({ description: 'Attendance session not found' })
+  @Scopes('attendance.records.write')
+  @Post('sessions/:sessionId/records:mark')
+  markSessionRecords(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param('sessionId') sessionId: string,
+    @Body() dto: MarkAttendanceRecordsDto,
+  ) {
+    return this.attendanceService.markSessionRecords(user, sessionId, dto);
   }
 
   @ApiOperation({ summary: 'List attendance records in authenticated tenant' })

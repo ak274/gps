@@ -22,7 +22,15 @@
         }
       },
       "generate": {
+        "cache": true,
         "command": "pnpm prisma generate",
+        "inputs": [
+          "{projectRoot}/package.json",
+          "{projectRoot}/prisma/schema.prisma",
+          "{projectRoot}/prisma/migrations/**",
+          "{workspaceRoot}/pnpm-lock.yaml"
+        ],
+        "outputs": ["{projectRoot}/src/generated/client"],
         "options": {
           "cwd": "libs/shared/data-access-prisma"
         }

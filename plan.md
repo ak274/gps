@@ -455,3 +455,59 @@ As a developer, I want an extensible design so that if a new entity type or docu
 Each story would have acceptance criteria, e.g. an “Upload Document” feature might require that after uploading, a download link appears in the teacher’s profile and the database has a new entry pointing to that file.
 Sources: Following best practices for file storage and DB design
 ensures the system remains robust, performant, and easy to maintain.
+
+📌 1. Class Promotion Workflow
+
+Goal: Promote eligible students to the next class/section in bulk at the end of the academic year.
+
+👤 Persona: School Administrator
+
+User Story: As a School Administrator, I want to promote all students of a class (e.g., Grade 5A) to the next class (Grade 6A) in one action so that the new academic session starts smoothly.
+
+User Story: As a School Administrator, I want to view a list of all students with their promotion eligibility and remarks before confirming promotion so that I can handle detentions or reassignments.
+
+User Story: As a School Administrator, I want to preview and edit promotion mappings (Grade 5A → Grade 6B instead of A) before applying them in bulk so that section reshuffling can be done efficiently.
+
+User Story: As a School Administrator, I want to generate promotion letters or academic history slips for students after promotion so that records are formalized.
+
+📌 2. Graduation & Completion Management
+
+Goal: Properly handle students completing their final year (e.g., Grade 12), marking them as graduated and archiving their records.
+
+👤 Persona: School Administrator
+
+User Story: As a School Administrator, I want to mark a batch of students as "Graduated" from the school when they complete the final academic level so that they are archived from active rosters.
+
+User Story: As a School Administrator, I want to generate school leaving certificates and final transcripts for graduating students so they can apply for further studies.
+
+User Story: As a School Administrator, I want to export or back up records of graduated students so that we retain data for legal or alumni use.
+
+📌 3. Exit / Transfer & Relieving Certificate
+
+Goal: Handle student exits before course completion — due to transfer, drop-out, expulsion, etc.
+
+👤 Persona: Admin / Principal
+
+User Story: As a Principal, I want to approve student exit requests with a reason (e.g., transfer, migration, fees unpaid) so that school records stay clean and audited.
+
+User Story: As an Admin, I want to generate a standardized relieving certificate or transfer form when a student exits so that it can be shared with the next institution.
+
+User Story: As an Admin, I want to track and store the reason for exit and attach related documents (TC requests, fee clearance, etc.) so that exit processing is smooth.
+
+👤 Persona: Parent
+
+User Story: As a Parent, I want to request a Transfer Certificate and update forwarding school details so that the school initiates the exit process.
+
+User Story: As a Parent, I want to receive the digitally signed TC or exit certificate from the portal so that I can submit it to the new school.
+
+📌 4. New Admission Mapping & Session Rollover
+
+Goal: Prepare the school database for the new academic year — carry over structures, promote students, open new admissions.
+
+👤 Persona: Admin / Academic Coordinator
+
+User Story: As an Admin, I want to copy the current year’s academic structure (classes, sections, subjects) into the next year so that I don't have to manually recreate everything.
+
+User Story: As an Academic Coordinator, I want to pre-configure admissions for the new session while still finishing the current year so that we can start early enrollment.
+
+User Story: As an Admin, I want to close down current year modifications and open next year’s data cleanly so there is no overlap or data corruption.

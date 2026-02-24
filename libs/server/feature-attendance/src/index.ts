@@ -8,6 +8,7 @@ export * from './lib/attendance/dto/bulk-upsert-attendance-records.dto';
 export * from './lib/attendance/dto/create-attendance-session.dto';
 export * from './lib/attendance/dto/list-attendance-records-query.dto';
 export * from './lib/attendance/dto/list-attendance-sessions-query.dto';
+export * from './lib/attendance/dto/mark-attendance-records.dto';
 export * from './lib/attendance/dto/upsert-attendance-record.dto';
 
 export * from './lib/teacher-attendance/teacher-attendance.controller';

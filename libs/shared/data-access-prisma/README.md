@@ -118,6 +118,42 @@ Prisma schema and migration workspace for the school SaaS backend.
     - `uq_guardians_school_user`
     - `uq_student_guardians_student_guardian`.
 
+- `admission_applications`
+  - Objective: admissions workflow record used to capture applicant details before enrollment.
+  - FK:
+    - `tenant_id -> tenants.id`
+    - `school_id -> schools.id`
+    - optional `campus_id -> campuses.id`
+    - `academic_year_id -> academic_years.id`
+    - optional `class_room_id -> class_rooms.id`
+    - optional `student_id -> students.id` (set when application is enrolled).
+  - Key constraints/indexes:
+    - `idx_admission_applications_tenant_school_status`
+    - `idx_admission_applications_year_classroom`
+    - `idx_admission_applications_student_id`.
+
+### Student Lifecycle (Promotion, Graduation, Exit)
+
+- `promotion_batches`, `promotion_mappings`, `promotion_student_overrides`
+  - Objective: bulk promotion/graduation workflow between academic years with editable class mappings and per-student overrides (detain/reassign/graduate).
+  - FK:
+    - `promotion_batches -> tenants/schools/academic_years (from/to)`
+    - `promotion_mappings -> promotion_batches + from/to class_rooms`
+    - `promotion_student_overrides -> promotion_batches + students + optional target class_rooms`.
+  - Key constraints/indexes:
+    - `uq_promotion_batches_school_year_pair`
+    - `uq_promotion_mappings_batch_from_classroom`
+    - `uq_promotion_overrides_batch_student`
+    - tenant/school/status and batch lookup indexes.
+
+- `student_exit_requests`
+  - Objective: audited exit/transfer requests (parent request -> approval -> completion), used for transfer/leaving certificates and cleanup of active rosters.
+  - FK:
+    - `student_exit_requests -> tenants/schools/students`
+    - actor links: `requested_by_id -> users.id`, optional `decided_by_id -> users.id`.
+  - Key constraints/indexes:
+    - tenant/school/status index and student lookup index.
+
 ### 4) Attendance
 
 - `attendance_sessions`, `attendance_records`
@@ -218,6 +254,20 @@ Prisma schema and migration workspace for the school SaaS backend.
     - `idx_audit_logs_tenant_created_at`
     - `idx_audit_logs_entity_lookup`.
 
+### 8) Exams & Assessment
+
+- `exams`, `exam_subjects`, `student_assessments`
+  - Objective: exam setup, subject maxima/weightage, and per-student marks entry.
+  - FK:
+    - `exams -> tenants/schools/academic_years/terms/class_rooms/teacher_profiles`
+    - `exam_subjects -> exams/subjects/tenants`
+    - `student_assessments -> exams/exam_subjects/students/tenants`.
+  - Key constraints/indexes:
+    - `uq_exams_school_code`
+    - `uq_exam_subjects_exam_subject`
+    - `uq_student_assessments_exam_subject_student`
+    - common lookup indexes on tenant/school/classroom and exam/student paths.
+
 ## High-Value Relationship Paths
 
 - Tenant graph: `tenants -> schools -> campuses -> class_rooms -> enrollments -> students`.
@@ -240,6 +290,7 @@ Prisma schema and migration workspace for the school SaaS backend.
 
 - Covered:
   - Multi-tenancy, RBAC, students/guardians, staff/teachers, classes/subjects, timetable, attendance, transport, fees/invoices/payments, notifications/messages, sessions, documents, audit logs.
+  - Admissions workflow (`admission_applications`) and exam/assessment (`exams`, `exam_subjects`, `student_assessments`).
 
 - Partially covered:
   - `school_id` on every table:

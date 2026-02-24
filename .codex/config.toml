@@ -1,0 +1,11 @@
+[mcp_servers.nx-mcp]
+command = "npx"
+args = [ "nx-mcp@latest", "--minimal" ]
+
+[mcp_servers.tanstack]
+command = "npx"
+args = [ "@tanstack/cli", "mcp" ]
+
+mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]

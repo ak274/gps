@@ -2,7 +2,37 @@
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Local Development (API)
+
+### 1) Start Postgres (Docker)
+
+```sh
+nx run infra:db-up
+```
+
+Default port mapping is `localhost:5433 -> container:5432`. See `docker-compose.yml`.
+
+### 2) Run migrations + generate Prisma Client
+
+```sh
+nx run @gps/data-access-prisma:migrate-dev
+nx run @gps/data-access-prisma:generate
+```
+
+### 3) Serve the API
+
+```sh
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/gps?schema=public" \
+JWT_SECRET="dev_secret_dev_secret_dev_secret" \
+nx run @gps/api:serve
+```
+
+Swagger UI: `http://localhost:3000/api/docs`  
+OpenAPI JSON: `http://localhost:3000/api/docs-json`
+
+---
+
+✨ Your [Nx workspace](https://nx.dev) is ready ✨.
 
 [Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/react-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 

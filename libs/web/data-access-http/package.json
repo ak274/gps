@@ -1,0 +1,29 @@
+{
+  "name": "@gps/web-data-access-http",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "@gps/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "nx": {
+    "tags": [
+      "scope:web",
+      "type:data-access"
+    ]
+  },
+  "dependencies": {
+    "tslib": "^2.3.0",
+    "zod": "^3.25.76",
+    "vitest": "^4.0.0"
+  }
+}

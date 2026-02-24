@@ -1,0 +1,8 @@
+**/node_modules
+**/.nx
+**/dist
+.git
+.DS_Store
+pnpm-store
+.pnpm-store
+

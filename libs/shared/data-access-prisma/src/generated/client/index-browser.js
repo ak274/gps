@@ -354,6 +354,108 @@ exports.Prisma.StudentScalarFieldEnum = {
   deletedById: 'deletedById'
 };
 
+exports.Prisma.AdmissionApplicationScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  campusId: 'campusId',
+  academicYearId: 'academicYearId',
+  classRoomId: 'classRoomId',
+  studentId: 'studentId',
+  status: 'status',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  gender: 'gender',
+  dateOfBirth: 'dateOfBirth',
+  guardianFirstName: 'guardianFirstName',
+  guardianLastName: 'guardianLastName',
+  guardianPhoneE164: 'guardianPhoneE164',
+  guardianEmail: 'guardianEmail',
+  relationType: 'relationType',
+  notes: 'notes',
+  submittedAt: 'submittedAt',
+  reviewedAt: 'reviewedAt',
+  decidedAt: 'decidedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.PromotionBatchScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  fromAcademicYearId: 'fromAcademicYearId',
+  toAcademicYearId: 'toAcademicYearId',
+  status: 'status',
+  appliedAt: 'appliedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.PromotionMappingScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  batchId: 'batchId',
+  fromClassRoomId: 'fromClassRoomId',
+  toClassRoomId: 'toClassRoomId',
+  action: 'action',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.PromotionStudentOverrideScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  batchId: 'batchId',
+  studentId: 'studentId',
+  decision: 'decision',
+  toClassRoomId: 'toClassRoomId',
+  remarks: 'remarks',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.StudentExitRequestScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  studentId: 'studentId',
+  status: 'status',
+  reason: 'reason',
+  forwardingSchoolName: 'forwardingSchoolName',
+  forwardingSchoolAddress: 'forwardingSchoolAddress',
+  notes: 'notes',
+  decisionNotes: 'decisionNotes',
+  requestedById: 'requestedById',
+  decidedById: 'decidedById',
+  requestedAt: 'requestedAt',
+  decidedAt: 'decidedAt',
+  effectiveOn: 'effectiveOn',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
 exports.Prisma.StudentGuardianScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -667,6 +769,82 @@ exports.Prisma.TimetableEntryScalarFieldEnum = {
   deletedById: 'deletedById'
 };
 
+exports.Prisma.ExamScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  academicYearId: 'academicYearId',
+  termId: 'termId',
+  classRoomId: 'classRoomId',
+  teacherId: 'teacherId',
+  code: 'code',
+  name: 'name',
+  examType: 'examType',
+  startsOn: 'startsOn',
+  endsOn: 'endsOn',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.ExamSubjectScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  examId: 'examId',
+  subjectId: 'subjectId',
+  maxMarks: 'maxMarks',
+  passMarks: 'passMarks',
+  weightage: 'weightage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.StudentAssessmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  examId: 'examId',
+  examSubjectId: 'examSubjectId',
+  studentId: 'studentId',
+  marksObtained: 'marksObtained',
+  grade: 'grade',
+  remarks: 'remarks',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.HomeworkScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  classRoomId: 'classRoomId',
+  subjectId: 'subjectId',
+  teacherId: 'teacherId',
+  title: 'title',
+  description: 'description',
+  assignedOn: 'assignedOn',
+  dueOn: 'dueOn',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
 exports.Prisma.TeacherAttendanceScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -820,6 +998,52 @@ exports.EnrollmentStatus = exports.$Enums.EnrollmentStatus = {
   COMPLETED: 'COMPLETED'
 };
 
+exports.AdmissionStatus = exports.$Enums.AdmissionStatus = {
+  DRAFT: 'DRAFT',
+  SUBMITTED: 'SUBMITTED',
+  REVIEWING: 'REVIEWING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  ENROLLED: 'ENROLLED',
+  WITHDRAWN: 'WITHDRAWN'
+};
+
+exports.PromotionBatchStatus = exports.$Enums.PromotionBatchStatus = {
+  DRAFT: 'DRAFT',
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.PromotionAction = exports.$Enums.PromotionAction = {
+  PROMOTE: 'PROMOTE',
+  GRADUATE: 'GRADUATE'
+};
+
+exports.PromotionDecision = exports.$Enums.PromotionDecision = {
+  PROMOTE: 'PROMOTE',
+  DETAIN: 'DETAIN',
+  GRADUATE: 'GRADUATE',
+  EXIT: 'EXIT',
+  TRANSFER: 'TRANSFER'
+};
+
+exports.ExitRequestStatus = exports.$Enums.ExitRequestStatus = {
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.ExitReason = exports.$Enums.ExitReason = {
+  TRANSFER: 'TRANSFER',
+  MIGRATION: 'MIGRATION',
+  DROPOUT: 'DROPOUT',
+  EXPELLED: 'EXPELLED',
+  FEES_UNPAID: 'FEES_UNPAID',
+  OTHER: 'OTHER'
+};
+
 exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
   PRESENT: 'PRESENT',
   ABSENT: 'ABSENT',
@@ -871,6 +1095,20 @@ exports.DocumentEntityType = exports.$Enums.DocumentEntityType = {
   OTHER: 'OTHER'
 };
 
+exports.ExamStatus = exports.$Enums.ExamStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  COMPLETED: 'COMPLETED',
+  ARCHIVED: 'ARCHIVED'
+};
+
+exports.HomeworkStatus = exports.$Enums.HomeworkStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  CLOSED: 'CLOSED',
+  ARCHIVED: 'ARCHIVED'
+};
+
 exports.NotificationTargetType = exports.$Enums.NotificationTargetType = {
   ALL: 'ALL',
   STUDENTS: 'STUDENTS',
@@ -908,6 +1146,11 @@ exports.Prisma.ModelName = {
   TeacherProfile: 'TeacherProfile',
   Guardian: 'Guardian',
   Student: 'Student',
+  AdmissionApplication: 'AdmissionApplication',
+  PromotionBatch: 'PromotionBatch',
+  PromotionMapping: 'PromotionMapping',
+  PromotionStudentOverride: 'PromotionStudentOverride',
+  StudentExitRequest: 'StudentExitRequest',
   StudentGuardian: 'StudentGuardian',
   ClassRoom: 'ClassRoom',
   Subject: 'Subject',
@@ -928,6 +1171,10 @@ exports.Prisma.ModelName = {
   StudentTransportAssignment: 'StudentTransportAssignment',
   Document: 'Document',
   TimetableEntry: 'TimetableEntry',
+  Exam: 'Exam',
+  ExamSubject: 'ExamSubject',
+  StudentAssessment: 'StudentAssessment',
+  Homework: 'Homework',
   TeacherAttendance: 'TeacherAttendance',
   Notification: 'Notification',
   UserNotification: 'UserNotification',

@@ -62,6 +62,39 @@
     },
     {
       "path": "./libs/server/feature-staff"
+    },
+    {
+      "path": "./libs/server/feature-homework"
+    },
+    {
+      "path": "./libs/server/feature-exams"
+    },
+    {
+      "path": "./libs/server/feature-admissions"
+    },
+    {
+      "path": "./libs/server/feature-student-lifecycle"
+    },
+    {
+      "path": "./apps/portal-e2e"
+    },
+    {
+      "path": "./apps/portal"
+    },
+    {
+      "path": "./libs/web/ui"
+    },
+    {
+      "path": "./libs/web/router"
+    },
+    {
+      "path": "./libs/web/query"
+    },
+    {
+      "path": "./libs/web/auth"
+    },
+    {
+      "path": "./libs/web/data-access-http"
     }
   ]
 }
