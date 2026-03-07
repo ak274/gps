@@ -24,6 +24,11 @@ Billing domain APIs for fee plans, invoices, and payments.
 - Every operation is tenant-scoped using JWT `tenantId`.
 - Soft-deleted rows are excluded.
 - Decimal fields use Prisma Decimal to avoid floating-point errors.
+- Fee plan item pricing supports:
+  - flat amount
+  - attribute-based amount breakdown (`attributes[]`) aggregated into base amount
+  - optional per-item discount (`PERCENTAGE` or `FIXED`)
+- Fee item pricing metadata is persisted in `fee_items.meta` for auditability.
 - Payment creation supports optional invoice allocations.
 - Invoice balance/status is recalculated after allocations:
   - `PAID` when balance is zero

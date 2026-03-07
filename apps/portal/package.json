@@ -7,16 +7,32 @@
     "tags": [
       "scope:web",
       "type:app"
-    ]
+    ],
+    "targets": {
+      "build": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      },
+      "dev": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      },
+      "serve": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      }
+    }
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
     "@fontsource-variable/geist": "^5.2.8",
-    "@gps/web-auth": "workspace:*",
     "@gps/web-data-access-http": "workspace:*",
     "@gps/web-query": "workspace:*",
     "@gps/web-router": "workspace:*",
     "@gps/web-ui": "workspace:*",
+    "@gps/web-feature-auth": "workspace:*",
+    "@gps/web-feature-attendance": "workspace:*",
+    "@gps/web-feature-students": "workspace:*",
+    "@gps/web-feature-classes": "workspace:*",
+    "@gps/web-feature-teachers": "workspace:*",
+    "@gps/auth": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.87.4",
     "@tanstack/react-query-devtools": "^5.87.4",

@@ -95,6 +95,24 @@
     },
     {
       "path": "./libs/web/data-access-http"
+    },
+    {
+      "path": "./packages/auth"
+    },
+    {
+      "path": "./libs/web/feature-auth"
+    },
+    {
+      "path": "./libs/web/feature-students"
+    },
+    {
+      "path": "./libs/web/feature-teachers"
+    },
+    {
+      "path": "./libs/web/feature-attendance"
+    },
+    {
+      "path": "./libs/web/feature-classes"
     }
   ]
 }

@@ -1,8 +1,9 @@
-import { AuthProvider } from '@gps/web-auth';
+import { AuthProvider } from '@gps/auth';
 import { AppQueryProvider, createQueryClient } from '@gps/web-query';
 import { AppRouterDevtools } from '@gps/web-router';
 import { RouterProvider } from '@tanstack/react-router';
 import { useState } from 'react';
+import { authPolicy } from './auth-policy';
 import { router } from './router';
 
 export function App() {
@@ -10,7 +11,7 @@ export function App() {
 
   return (
     <AppQueryProvider client={queryClient}>
-      <AuthProvider>
+      <AuthProvider policy={authPolicy}>
         <RouterProvider router={router} />
         <AppRouterDevtools router={router} />
       </AuthProvider>

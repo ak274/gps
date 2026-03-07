@@ -10,4 +10,5 @@ export * from './lib/dto/login-response.dto';
 export * from './lib/dto/me-response.dto';
 export * from './lib/dto/refresh-token.dto';
 export * from './lib/dto/logout.dto';
+export * from './lib/dto/signup.dto';
 export * from './lib/interfaces/authenticated-user.interface';

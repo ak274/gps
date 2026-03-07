@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { AuthenticatedUserDto } from './dto/me-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { SignUpDto } from './dto/signup.dto';
 import type { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @ApiTags('auth')
@@ -31,6 +32,16 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @ApiOperation({ summary: 'Create user account and issue access/refresh tokens' })
+  @ApiBody({ type: SignUpDto })
+  @ApiOkResponse({ type: LoginResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Tenant invalid or disabled' })
+  @Public()
+  @Post('signup')
+  signUp(@Body() dto: SignUpDto) {
+    return this.authService.signUp(dto);
   }
 
   @ApiOperation({ summary: 'Refresh JWT using refresh token rotation' })

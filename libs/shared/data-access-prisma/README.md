@@ -45,6 +45,14 @@ Prisma schema and migration workspace for the school SaaS backend.
   - FK: `tenant_id -> tenants.id`, `user_id -> users.id`.
   - Key constraints/indexes: `uq_user_tenants_tenant_user`, `idx_user_tenants_user_id`, `idx_user_tenants_tenant_status`.
 
+- `user_tenant_school_assignments`
+  - Objective: optional scoping of a tenant membership to one or more schools.
+  - FK: `tenant_id -> tenants.id`, `user_tenant_id -> user_tenants.id`, `school_id -> schools.id`.
+  - Key constraints/indexes:
+    - `uq_user_tenant_school_assignments_user_tenant_school`
+    - `idx_user_tenant_school_assignments_tenant_school`
+    - `idx_user_tenant_school_assignments_tenant_user_tenant`.
+
 - `roles`, `permissions`, `role_permissions`, `user_role_assignments`
   - Objective: tenant-scoped RBAC.
   - FK chain: `roles -> tenants`, `role_permissions -> roles/permissions`, `user_role_assignments -> user_tenants/roles`.
@@ -271,6 +279,7 @@ Prisma schema and migration workspace for the school SaaS backend.
 ## High-Value Relationship Paths
 
 - Tenant graph: `tenants -> schools -> campuses -> class_rooms -> enrollments -> students`.
+- Tenant admin school scope: `user_tenants -> user_tenant_school_assignments -> schools -> campuses`.
 - Academic ops: `class_rooms -> classroom_subjects -> subjects/teacher_profiles`.
 - Attendance: `attendance_sessions -> attendance_records -> students`.
 - Billing: `students -> invoices -> invoice_lines` and `payments -> payment_allocations -> invoices`.
@@ -319,3 +328,27 @@ Prisma schema and migration workspace for the school SaaS backend.
 
 - `transport-shape-decision`:
   - keep current `transport_stops(route_id)` or migrate to `route_stops` join model.
+
+## Seeding Demo Data
+
+Run:
+
+```bash
+pnpm nx run @gps/data-access-prisma:seed
+```
+
+The seed creates:
+
+- Permissions from API `@Scopes(...)` keys.
+- Tenant roles and role-permission mapping.
+- Two tenants:
+  - `GPSSOLO` (single school / single campus baseline flow)
+  - `GPSMULTI` (multiple schools, and one school with multiple campuses)
+- School entities: schools, campuses, academic year, terms, subjects, classes/sections.
+- People entities: admins, teachers, students, guardians, staff (driver/helper/peon/accountant).
+- Academic/ops entities: classroom-subject mapping, enrollments, attendance sample, timetable sample.
+- Transport entities: vehicles, routes, stops, student transport assignments.
+- Billing entities: fee plan/items, student fee assignment, invoice, payment, allocation.
+- School admin assignment rows (when table `user_tenant_school_assignments` is present).
+
+Default password for all seeded users: `Pass@12345`

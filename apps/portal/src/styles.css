@@ -1,5 +1,18 @@
 @import '@gps/web-ui/styles.css';
 @import 'tailwindcss';
+
+/* nx-tailwind-sources:start */
+@source "../../../libs/web/data-access-http";
+@source "../../../libs/web/feature-attendance";
+@source "../../../libs/web/feature-auth";
+@source "../../../libs/web/feature-classes";
+@source "../../../libs/web/feature-students";
+@source "../../../libs/web/feature-teachers";
+@source "../../../libs/web/query";
+@source "../../../libs/web/router";
+@source "../../../libs/web/ui";
+@source "../../../packages/auth";
+/* nx-tailwind-sources:end */
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";

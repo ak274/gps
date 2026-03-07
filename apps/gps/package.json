@@ -3,7 +3,18 @@
   "version": "0.0.1",
   "private": true,
   "nx": {
-    "tags": ["scope:web", "type:app"]
+    "tags": ["scope:web", "type:app"],
+    "targets": {
+      "build": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      },
+      "dev": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      },
+      "serve": {
+        "syncGenerators": ["@juristr/nx-tailwind-sync:source-directives"]
+      }
+    }
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

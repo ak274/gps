@@ -7,7 +7,7 @@ import {
   PaymentStatus,
   Prisma,
 } from '@gps/data-access-prisma';
-import { apiConflict, apiNotFound } from '@gps/server-errors';
+import { apiConflict, apiNotFound, apiUnprocessable } from '@gps/server-errors';
 import { Injectable } from '@nestjs/common';
 import type { AuthenticatedUser } from '@gps/feature-auth';
 import { CreateFeePlanDto } from './dto/create-fee-plan.dto';
@@ -22,6 +22,7 @@ import { PaymentResponseDto } from './dto/payment-response.dto';
 import { UpdateFeePlanDto } from './dto/update-fee-plan.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { FeeDiscountType } from './dto/fee-item-discount-input.dto';
 
 @Injectable()
 export class BillingService {
@@ -80,12 +81,16 @@ export class BillingService {
         currencyCode: dto.currencyCode ?? 'INR',
         isActive: dto.isActive ?? true,
         items: {
-          create: dto.items.map((item) => ({
-            tenantId: user.tenantId,
-            code: item.code,
-            name: item.name,
-            amount: this.decimal(item.amount),
-          })),
+          create: dto.items.map((item) => {
+            const computed = this.computeFeeItemAmount(item);
+            return {
+              tenantId: user.tenantId,
+              code: item.code,
+              name: item.name,
+              amount: computed.finalAmount,
+              meta: computed.meta,
+            };
+          }),
         },
       },
       include: {
@@ -447,7 +452,13 @@ export class BillingService {
 
   private toFeePlanResponse(
     row: FeePlan & {
-      items: Array<{ id: string; code: string; name: string; amount: Prisma.Decimal }>;
+      items: Array<{
+        id: string;
+        code: string;
+        name: string;
+        amount: Prisma.Decimal;
+        meta: Prisma.JsonValue | null;
+      }>;
     },
   ): FeePlanResponseDto {
     return {
@@ -463,10 +474,77 @@ export class BillingService {
         code: item.code,
         name: item.name,
         amount: this.toMoney(item.amount),
+        meta: (item.meta as unknown as FeePlanResponseDto['items'][number]['meta']) ?? undefined,
       })),
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     };
+  }
+
+  private computeFeeItemAmount(item: {
+    amount?: string;
+    attributes?: Array<{ key: string; label: string; amount: string }>;
+    discount?: { type: FeeDiscountType; value: string; reason?: string };
+  }): { finalAmount: Prisma.Decimal; meta: Prisma.InputJsonValue } {
+    const attributes = item.attributes ?? [];
+    const hasAttributes = attributes.length > 0;
+    const baseAmount = hasAttributes
+      ? attributes.reduce((acc, attribute) => acc.add(this.decimal(attribute.amount)), this.decimal(0))
+      : this.decimal(item.amount ?? '0');
+
+    if (baseAmount.lte(0)) {
+      throw apiUnprocessable(
+        'BILLING_INVALID_FEE_ITEM_AMOUNT',
+        'Fee item amount must be greater than zero',
+      );
+    }
+
+    let discountAmount = this.decimal(0);
+    if (item.discount) {
+      const discountValue = this.decimal(item.discount.value);
+      if (item.discount.type === FeeDiscountType.PERCENTAGE) {
+        if (discountValue.lt(0) || discountValue.gt(100)) {
+          throw apiUnprocessable(
+            'BILLING_INVALID_DISCOUNT_PERCENTAGE',
+            'Percentage discount must be between 0 and 100',
+          );
+        }
+        discountAmount = baseAmount.mul(discountValue).div(100);
+      } else {
+        discountAmount = discountValue;
+      }
+    }
+
+    const finalAmount = baseAmount.sub(discountAmount);
+    if (finalAmount.lt(0)) {
+      throw apiUnprocessable(
+        'BILLING_INVALID_DISCOUNT',
+        'Discount cannot make final amount negative',
+      );
+    }
+
+    const meta: Prisma.InputJsonValue = {
+      pricingModel: hasAttributes ? 'ATTRIBUTE_SUM' : 'FLAT',
+      baseAmount: this.toMoney(baseAmount),
+      attributes: hasAttributes
+        ? attributes.map((attribute) => ({
+            key: attribute.key,
+            label: attribute.label,
+            amount: this.toMoney(this.decimal(attribute.amount)),
+          }))
+        : undefined,
+      discount: item.discount
+        ? {
+            type: item.discount.type,
+            value: item.discount.value,
+            reason: item.discount.reason,
+            appliedAmount: this.toMoney(discountAmount),
+          }
+        : undefined,
+      finalAmount: this.toMoney(finalAmount),
+    };
+
+    return { finalAmount, meta };
   }
 
   private toInvoiceResponse(

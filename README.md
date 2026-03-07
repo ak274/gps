@@ -30,6 +30,12 @@ nx run @gps/api:serve
 Swagger UI: `http://localhost:3000/api/docs`  
 OpenAPI JSON: `http://localhost:3000/api/docs-json`
 
+## Frontend Conventions
+
+- Use `react-hook-form` with `zodResolver` for forms.
+- Use shared shadcn/Base UI components from `@gps/web-ui` for inputs/fields/form controls.
+- Parse runtime data with `safeParse` in production and strict `parse` in development.
+
 ---
 
 ✨ Your [Nx workspace](https://nx.dev) is ready ✨.

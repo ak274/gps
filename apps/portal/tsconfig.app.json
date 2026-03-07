@@ -36,6 +36,24 @@
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
+      "path": "../../packages/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/web/feature-teachers/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/web/feature-students/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/web/feature-classes/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/web/feature-attendance/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/web/feature-auth/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/web/ui/tsconfig.lib.json"
     },
     {

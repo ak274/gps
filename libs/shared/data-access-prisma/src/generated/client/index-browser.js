@@ -167,6 +167,20 @@ exports.Prisma.UserTenantScalarFieldEnum = {
   deletedById: 'deletedById'
 };
 
+exports.Prisma.UserTenantSchoolAssignmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  userTenantId: 'userTenantId',
+  schoolId: 'schoolId',
+  canManageAllCampuses: 'canManageAllCampuses',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
 exports.Prisma.RoleScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -584,6 +598,7 @@ exports.Prisma.FeeItemScalarFieldEnum = {
   code: 'code',
   name: 'name',
   amount: 'amount',
+  meta: 'meta',
   createdAt: 'createdAt',
   createdById: 'createdById',
   updatedById: 'updatedById',
@@ -1134,6 +1149,7 @@ exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   User: 'User',
   UserTenant: 'UserTenant',
+  UserTenantSchoolAssignment: 'UserTenantSchoolAssignment',
   Role: 'Role',
   Permission: 'Permission',
   RolePermission: 'RolePermission',

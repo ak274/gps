@@ -13,6 +13,9 @@
     },
     "./package.json": "./package.json"
   },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  },
   "nx": {
     "targets": {
       "prisma": {
@@ -61,6 +64,12 @@
       },
       "format": {
         "command": "pnpm prisma format",
+        "options": {
+          "cwd": "libs/shared/data-access-prisma"
+        }
+      },
+      "seed": {
+        "command": "pnpm prisma db seed",
         "options": {
           "cwd": "libs/shared/data-access-prisma"
         }

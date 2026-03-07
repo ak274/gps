@@ -5,13 +5,13 @@ export default [
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
   {
-    ignores: [
-      '**/dist',
-      '**/out-tsc',
-      '**/vite.config.*.timestamp*',
-      '**/vitest.config.*.timestamp*',
-      '**/test-output',
-    ],
+      "ignores": [
+        "**/dist",
+        "**/out-tsc",
+        "**/vite.config.*.timestamp*",
+        "**/vitest.config.*.timestamp*",
+        "**/test-output"
+      ]
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
@@ -45,7 +45,11 @@ export default [
             },
             {
               sourceTag: 'type:feature',
-              onlyDependOnLibsWithTags: ['type:ui', 'type:data-access', 'type:util'],
+              onlyDependOnLibsWithTags: [
+                'type:ui',
+                'type:data-access',
+                'type:util',
+              ],
             },
             {
               sourceTag: 'type:data-access',

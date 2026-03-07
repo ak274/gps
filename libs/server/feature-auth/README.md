@@ -4,6 +4,12 @@ NestJS auth feature library for JWT authentication, tenant-aware authorization s
 
 ## Endpoints
 
+- `POST /api/auth/signup` (public)
+  - Creates a new active user in an active/trial tenant.
+  - Creates active tenant membership (`user_tenants`).
+  - Issues access token + refresh token and creates initial session.
+  - Prevents duplicate emails with `AUTH_EMAIL_ALREADY_EXISTS`.
+
 - `POST /api/auth/login` (public)
   - Validates user credentials.
   - Resolves active tenant membership.

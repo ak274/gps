@@ -6,6 +6,9 @@ export * from './lib/dto/create-fee-plan.dto';
 export * from './lib/dto/update-fee-plan.dto';
 export * from './lib/dto/list-fee-plans-query.dto';
 export * from './lib/dto/fee-item-input.dto';
+export * from './lib/dto/fee-item-attribute-input.dto';
+export * from './lib/dto/fee-item-discount-input.dto';
+export * from './lib/dto/fee-item-meta-response.dto';
 export * from './lib/dto/fee-item-response.dto';
 export * from './lib/dto/fee-plan-response.dto';
 

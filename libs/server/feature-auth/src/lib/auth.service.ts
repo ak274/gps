@@ -1,9 +1,10 @@
 import { randomBytes, createHash } from 'node:crypto';
 import {
   MembershipStatus,
+  TenantStatus,
   UserStatus,
 } from '@gps/data-access-prisma';
-import { apiUnauthorized } from '@gps/server-errors';
+import { apiConflict, apiUnauthorized } from '@gps/server-errors';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +12,7 @@ import { PrismaService } from '@gps/data-access-db';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { SignUpDto } from './dto/signup.dto';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 
 @Injectable()
@@ -101,6 +103,94 @@ export class AuthService {
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     });
+
+    return {
+      accessToken,
+      refreshToken,
+      tokenType: 'Bearer',
+      expiresIn: this.config.get<string>('JWT_EXPIRES_IN', '15m'),
+      refreshExpiresIn: this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d'),
+      user: payload,
+    };
+  }
+
+  async signUp(dto: SignUpDto) {
+    const tenant = await this.prisma.tenant.findFirst({
+      where: {
+        code: dto.tenantCode,
+        status: {
+          in: [TenantStatus.ACTIVE, TenantStatus.TRIAL],
+        },
+        deletedAt: null,
+      },
+    });
+
+    if (!tenant) {
+      throw apiUnauthorized(
+        'AUTH_TENANT_NOT_FOUND',
+        'Tenant not found or inactive',
+        { tenantCode: dto.tenantCode },
+      );
+    }
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+      select: { id: true },
+    });
+    if (existingUser) {
+      throw apiConflict('AUTH_EMAIL_ALREADY_EXISTS', 'Email already exists');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.password, 10);
+    const refreshToken = this.generateRefreshToken();
+    const refreshExpiryDate = this.calculateExpiryDate(
+      this.config.get<string>('JWT_REFRESH_EXPIRES_IN', '30d'),
+    );
+
+    const { user, session } = await this.prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email: dto.email.toLowerCase(),
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          status: UserStatus.ACTIVE,
+          passwordHash,
+          lastLoginAt: new Date(),
+        },
+      });
+
+      await tx.userTenant.create({
+        data: {
+          tenantId: tenant.id,
+          userId: createdUser.id,
+          status: MembershipStatus.ACTIVE,
+          joinedAt: new Date(),
+        },
+      });
+
+      const createdSession = await tx.session.create({
+        data: {
+          tenantId: tenant.id,
+          userId: createdUser.id,
+          token: this.hashToken(refreshToken),
+          expiresAt: refreshExpiryDate,
+          lastUsedAt: new Date(),
+        },
+      });
+
+      return { user: createdUser, session: createdSession };
+    });
+
+    const payload = this.buildPayload({
+      userId: user.id,
+      email: user.email,
+      tenantId: tenant.id,
+      tenantCode: tenant.code,
+      sessionId: session.id,
+      roleAssignments: [],
+    });
+
+    const accessToken = await this.jwt.signAsync(payload);
 
     return {
       accessToken,

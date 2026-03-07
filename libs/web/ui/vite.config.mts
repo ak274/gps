@@ -7,6 +7,11 @@ import * as path from 'path';
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../../node_modules/.vite/libs/web/ui',
+  resolve: {
+    alias: {
+      '@': path.join(import.meta.dirname, 'src'),
+    },
+  },
   plugins: [
     react(),
     dts({

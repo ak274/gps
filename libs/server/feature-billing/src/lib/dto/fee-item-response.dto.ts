@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { FeeItemMetaResponseDto } from './fee-item-meta-response.dto';
 
 export class FeeItemResponseDto {
   @ApiProperty()
@@ -12,4 +13,7 @@ export class FeeItemResponseDto {
 
   @ApiProperty({ example: '25000.00' })
   amount!: string;
+
+  @ApiPropertyOptional({ type: FeeItemMetaResponseDto })
+  meta?: FeeItemMetaResponseDto;
 }
