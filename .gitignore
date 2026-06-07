@@ -50,3 +50,8 @@ vitest.config.*.timestamp*
 !.env.example
 
 test-output
+
+.claude/worktrees
+.nx/polygraph
+.nx/self-healing
+.claude/settings.local.json

@@ -1,0 +1,3164 @@
+{
+  "version": "1.0.0",
+  "kind": "codebase",
+  "project": {
+    "name": "GPS School Management Domain Graph",
+    "languages": [
+      "TypeScript",
+      "TSX",
+      "Prisma",
+      "SQL"
+    ],
+    "frameworks": [
+      "Nx",
+      "NestJS",
+      "React",
+      "Prisma",
+      "Vite"
+    ],
+    "description": "Business-domain flow graph for the GPS school management application, covering tenant access, institution setup, student lifecycle, learning operations, finance and operations, and the portal experience.",
+    "analyzedAt": "2026-06-07T13:10:25.958Z",
+    "gitCommitHash": "2b51892d1fe61bdee5781d8ae424cc4f3e1e9d5f"
+  },
+  "nodes": [
+    {
+      "id": "domain:identity-and-access",
+      "type": "domain",
+      "name": "Identity and Access",
+      "summary": "Handles signup, login, JWT sessions, refresh-token rotation, tenant membership resolution, permissions, roles, and route-level scope checks. This domain is the access gate used by almost every other GPS domain.",
+      "tags": [
+        "business-domain",
+        "identity-and-access"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "User",
+          "Tenant",
+          "Session",
+          "Role",
+          "Permission",
+          "UserTenant",
+          "JWT payload"
+        ],
+        "businessRules": [
+          "Refresh tokens are stored as hashes, not plaintext.",
+          "Route access is enforced by JWT tenant context and scope checks.",
+          "Role and permission assignment uses tenant-scoped replace semantics."
+        ],
+        "crossDomainInteractions": [
+          "Provides authenticated tenant context to all tenant-scoped domains.",
+          "Supplies scopes used by portal ABAC and NestJS route guards."
+        ]
+      }
+    },
+    {
+      "id": "domain:institution-setup",
+      "type": "domain",
+      "name": "Institution Setup",
+      "summary": "Manages the tenant, school, campus, academic structure, classrooms, sections, subjects, timetable, transport network, and staff or teacher profiles that define how a school operates.",
+      "tags": [
+        "business-domain",
+        "institution-setup"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "Tenant",
+          "School",
+          "Campus",
+          "AcademicYear",
+          "Classroom",
+          "Section",
+          "Subject",
+          "Enrollment",
+          "StaffProfile",
+          "TeacherProfile",
+          "TimetableEntry",
+          "Vehicle",
+          "Route",
+          "Stop"
+        ],
+        "businessRules": [
+          "All records are tenant-scoped.",
+          "School and campus codes are unique in their owning scope.",
+          "Timetable slots prevent duplicate class/day/start-time collisions.",
+          "Transport assignments are unique per student and academic year."
+        ],
+        "crossDomainInteractions": [
+          "Provides schools, classes, teachers, and routes used by student, attendance, homework, exams, billing, and transport flows."
+        ]
+      }
+    },
+    {
+      "id": "domain:student-lifecycle",
+      "type": "domain",
+      "name": "Student Lifecycle",
+      "summary": "Covers the path from admission application through enrollment, student profile management, guardian linkage, class assignment, promotion, and exit handling.",
+      "tags": [
+        "business-domain",
+        "student-lifecycle"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "AdmissionApplication",
+          "Student",
+          "Guardian",
+          "StudentGuardian",
+          "Enrollment",
+          "PromotionBatch",
+          "ExitRequest"
+        ],
+        "businessRules": [
+          "Admission applications follow allowed status transitions.",
+          "Student admission numbers are unique per school.",
+          "Soft-deleted students and guardians are excluded from reads and links.",
+          "Guardian-student links must belong to the same school context."
+        ],
+        "crossDomainInteractions": [
+          "Consumes school and classroom structure from Institution Setup.",
+          "Feeds attendance, exams, billing, communications, documents, transport, and portal search."
+        ]
+      }
+    },
+    {
+      "id": "domain:learning-operations",
+      "type": "domain",
+      "name": "Learning Operations",
+      "summary": "Coordinates day-to-day academic activity: student and teacher attendance, homework, exams, assessments, and result publication.",
+      "tags": [
+        "business-domain",
+        "learning-operations"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "AttendanceSession",
+          "AttendanceRecord",
+          "TeacherAttendance",
+          "Homework",
+          "Exam",
+          "ExamSubject",
+          "StudentAssessment"
+        ],
+        "businessRules": [
+          "Attendance record writes use bulk upsert keyed by session and student.",
+          "Teacher attendance allows one record per teacher per date.",
+          "Exam status moves from draft to published to completed.",
+          "Student assessments are unique per exam subject and student."
+        ],
+        "crossDomainInteractions": [
+          "Depends on students, classes, subjects, and teachers.",
+          "Produces academic progress and daily operational records shown in the portal."
+        ]
+      }
+    },
+    {
+      "id": "domain:finance-and-operations",
+      "type": "domain",
+      "name": "Finance and Operations",
+      "summary": "Handles fee plans, invoices, payments, document metadata, communications, and operational records around school administration.",
+      "tags": [
+        "business-domain",
+        "finance-and-operations"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "FeePlan",
+          "FeeItem",
+          "Invoice",
+          "InvoiceLine",
+          "Payment",
+          "PaymentAllocation",
+          "Document",
+          "Notification",
+          "Message"
+        ],
+        "businessRules": [
+          "Decimal financial values use Prisma Decimal.",
+          "Payment allocation recalculates invoice balance and status.",
+          "Documents store metadata and link polymorphically to business entities.",
+          "Direct-message recipients are validated before sending."
+        ],
+        "crossDomainInteractions": [
+          "Uses student, school, staff, and tenant identities to scope billing, documents, and communications."
+        ]
+      }
+    },
+    {
+      "id": "domain:portal-experience",
+      "type": "domain",
+      "name": "Portal Experience",
+      "summary": "Provides the React administrative interface for login, signup, dashboard onboarding, class setup, student management, teacher directory, and attendance marking.",
+      "tags": [
+        "business-domain",
+        "portal-experience"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "LoginPage",
+          "SignUpPage",
+          "StudentsPage",
+          "ClassesPage",
+          "TeachersPage",
+          "AttendancePage",
+          "AuthProvider"
+        ],
+        "businessRules": [
+          "Forms use react-hook-form and zod validation.",
+          "Runtime API data is parsed with zod schemas.",
+          "Portal access checks use auth guards and ABAC policy."
+        ],
+        "crossDomainInteractions": [
+          "Calls API flows through authenticated HTTP clients.",
+          "Surfaces key Institution Setup, Student Lifecycle, and Learning Operations workflows to staff users."
+        ]
+      }
+    },
+    {
+      "id": "flow:user-signup",
+      "type": "flow",
+      "name": "User Signup",
+      "summary": "Creates a user in an active or trial tenant, creates membership, and issues initial access and refresh tokens.",
+      "tags": [
+        "business-flow",
+        "auth",
+        "tenant"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/auth/signup",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:user-signup:validate-signup-payload",
+      "type": "step",
+      "name": "Validate signup payload",
+      "summary": "Validate user identity, email, password, and tenant code input.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.controller.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-signup:create-active-tenant-membership",
+      "type": "step",
+      "name": "Create active tenant membership",
+      "summary": "Create the user and user_tenants membership for the resolved tenant.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-signup:issue-initial-token-pair",
+      "type": "step",
+      "name": "Issue initial token pair",
+      "summary": "Create access and refresh tokens for the new user session.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-signup:persist-hashed-session-token",
+      "type": "step",
+      "name": "Persist hashed session token",
+      "summary": "Store the refresh token hash and expiry in the sessions table.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:user-login-and-session-refresh",
+      "type": "flow",
+      "name": "User Login and Session Refresh",
+      "summary": "Authenticates credentials, resolves tenant membership, rotates refresh sessions, and exposes the current JWT payload.",
+      "tags": [
+        "business-flow",
+        "auth",
+        "session"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/auth/login, POST /api/auth/refresh, GET /api/auth/me",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:user-login-and-session-refresh:validate-credentials-and-tenant-membership",
+      "type": "step",
+      "name": "Validate credentials and tenant membership",
+      "summary": "Check user password and active tenant membership for the login request.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-login-and-session-refresh:compute-roles-and-scopes",
+      "type": "step",
+      "name": "Compute roles and scopes",
+      "summary": "Resolve role assignments and permission scopes for the JWT payload.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-login-and-session-refresh:create-authenticated-session",
+      "type": "step",
+      "name": "Create authenticated session",
+      "summary": "Issue token pair and persist a hashed refresh token session.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-login-and-session-refresh:rotate-refresh-token",
+      "type": "step",
+      "name": "Rotate refresh token",
+      "summary": "On refresh, revoke the old session and create a new token-backed session.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:user-login-and-session-refresh:return-current-user-context",
+      "type": "step",
+      "name": "Return current user context",
+      "summary": "Expose the authenticated JWT payload through the me endpoint.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-auth/src/lib/auth.controller.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:rbac-administration",
+      "type": "flow",
+      "name": "RBAC Administration",
+      "summary": "Manages permission catalog, tenant roles, role permissions, and user membership assignments.",
+      "tags": [
+        "business-flow",
+        "rbac",
+        "permissions"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH/PUT /api/rbac/*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:rbac-administration:list-permission-catalog",
+      "type": "step",
+      "name": "List permission catalog",
+      "summary": "Return global non-deleted permission records.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-rbac/src/lib/rbac.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:rbac-administration:create-or-update-tenant-roles",
+      "type": "step",
+      "name": "Create or update tenant roles",
+      "summary": "Maintain tenant-scoped role metadata with conflict checks.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-rbac/src/lib/rbac.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:rbac-administration:replace-role-permissions",
+      "type": "step",
+      "name": "Replace role permissions",
+      "summary": "Validate permission keys and replace the role-permission set transactionally.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-rbac/src/lib/rbac.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:rbac-administration:replace-membership-roles",
+      "type": "step",
+      "name": "Replace membership roles",
+      "summary": "Validate role keys and replace a user-tenant membership role set.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-rbac/src/lib/rbac.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:tenant-and-school-setup",
+      "type": "flow",
+      "name": "Tenant and School Setup",
+      "summary": "Maintains current tenant details, schools, campuses, and school-admin assignments.",
+      "tags": [
+        "business-flow",
+        "tenant",
+        "school"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/PATCH /api/tenants/current and /api/schools/*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:tenant-and-school-setup:resolve-current-tenant",
+      "type": "step",
+      "name": "Resolve current tenant",
+      "summary": "Load the current non-deleted tenant using JWT tenantId.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-tenants/src/lib/tenants.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:tenant-and-school-setup:create-or-update-schools",
+      "type": "step",
+      "name": "Create or update schools",
+      "summary": "Maintain tenant-scoped school records with unique school code checks.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-schools/src/lib/schools.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:tenant-and-school-setup:maintain-campuses",
+      "type": "step",
+      "name": "Maintain campuses",
+      "summary": "Create and update campuses with school-level unique campus codes.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-schools/src/lib/schools.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:tenant-and-school-setup:assign-school-administrators",
+      "type": "step",
+      "name": "Assign school administrators",
+      "summary": "Validate admin membership roles and maintain school admin assignments.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-schools/src/lib/schools.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:classroom-and-subject-setup",
+      "type": "flow",
+      "name": "Classroom and Subject Setup",
+      "summary": "Creates classrooms, sections, subjects, and student enrollments for an academic year.",
+      "tags": [
+        "business-flow",
+        "academics",
+        "classrooms"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH /api/classrooms, /api/subjects, /api/enrollments",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:classroom-and-subject-setup:list-academic-structures",
+      "type": "step",
+      "name": "List academic structures",
+      "summary": "Read tenant-scoped classrooms, sections, subjects, and enrollments while excluding soft-deleted rows.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-academics/src/lib/academics.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:classroom-and-subject-setup:create-classrooms-with-sections",
+      "type": "step",
+      "name": "Create classrooms with sections",
+      "summary": "Create a class and multiple sections with duplicate checks for class/year/section.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-academics/src/lib/academics.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:classroom-and-subject-setup:create-subjects",
+      "type": "step",
+      "name": "Create subjects",
+      "summary": "Create school-scoped subjects with unique subject code validation.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-academics/src/lib/academics.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:classroom-and-subject-setup:assign-student-enrollment",
+      "type": "step",
+      "name": "Assign student enrollment",
+      "summary": "Create or update the student academic-year enrollment and prevent duplicate enrollment.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-academics/src/lib/academics.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:staff-and-teacher-management",
+      "type": "flow",
+      "name": "Staff and Teacher Management",
+      "summary": "Maintains staff profiles and creates teacher profiles from existing staff records.",
+      "tags": [
+        "business-flow",
+        "staff",
+        "teachers"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH /api/staff and /api/staff/teachers",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:staff-and-teacher-management:list-staff-and-teachers",
+      "type": "step",
+      "name": "List staff and teachers",
+      "summary": "Read tenant-scoped staff and teacher records for directory views.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-staff/src/lib/staff.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:staff-and-teacher-management:create-staff-profile",
+      "type": "step",
+      "name": "Create staff profile",
+      "summary": "Create staff with employee-code and school/user uniqueness checks.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-staff/src/lib/staff.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:staff-and-teacher-management:update-staff-profile",
+      "type": "step",
+      "name": "Update staff profile",
+      "summary": "Patch staff metadata for an authenticated tenant.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-staff/src/lib/staff.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:staff-and-teacher-management:create-teacher-profile",
+      "type": "step",
+      "name": "Create teacher profile",
+      "summary": "Create a teacher profile from an existing staff profile.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-staff/src/lib/staff.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:timetable-planning",
+      "type": "flow",
+      "name": "Timetable Planning",
+      "summary": "Maintains weekly class schedules and rejects conflicting class/day/start-time slots.",
+      "tags": [
+        "business-flow",
+        "timetable",
+        "schedule"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH/DELETE /api/timetable/entries",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:timetable-planning:list-timetable-entries",
+      "type": "step",
+      "name": "List timetable entries",
+      "summary": "Read tenant-scoped active timetable entries.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-timetable/src/lib/timetable.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:timetable-planning:derive-school-from-classroom",
+      "type": "step",
+      "name": "Derive school from classroom",
+      "summary": "Resolve the owning school from classRoomId to keep timetable records consistent.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-timetable/src/lib/timetable.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:timetable-planning:create-or-update-slot",
+      "type": "step",
+      "name": "Create or update slot",
+      "summary": "Persist timetable entries with validated HH:mm or HH:mm:ss inputs.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-timetable/src/lib/timetable.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:timetable-planning:map-slot-collision-errors",
+      "type": "step",
+      "name": "Map slot collision errors",
+      "summary": "Translate unique class/day/start-time conflicts into stable API errors.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-timetable/src/lib/timetable.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:transport-route-assignment",
+      "type": "flow",
+      "name": "Transport Route Assignment",
+      "summary": "Maintains vehicles, routes, stops, and student transport assignments.",
+      "tags": [
+        "business-flow",
+        "transport"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH /api/transport/*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:transport-route-assignment:maintain-vehicles",
+      "type": "step",
+      "name": "Maintain vehicles",
+      "summary": "Create or update school-scoped vehicles with unique vehicle numbers.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-transport/src/lib/transport.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:transport-route-assignment:maintain-routes-and-stops",
+      "type": "step",
+      "name": "Maintain routes and stops",
+      "summary": "Create or update route codes and stops in the tenant transport network.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-transport/src/lib/transport.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:transport-route-assignment:assign-students-to-routes",
+      "type": "step",
+      "name": "Assign students to routes",
+      "summary": "Create or update student route assignments for an academic year.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-transport/src/lib/transport.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:transport-route-assignment:enforce-transport-uniqueness",
+      "type": "step",
+      "name": "Enforce transport uniqueness",
+      "summary": "Reject duplicate vehicles, routes, and student assignment combinations.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-transport/src/lib/transport.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:admission-to-enrollment",
+      "type": "flow",
+      "name": "Admission to Enrollment",
+      "summary": "Tracks applications through review decisions and converts approved applications into enrolled student records.",
+      "tags": [
+        "business-flow",
+        "admissions",
+        "enrollment"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "POST /api/admissions/applications and /api/admissions/applications/:applicationId/enroll",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:admission-to-enrollment:create-admission-application",
+      "type": "step",
+      "name": "Create admission application",
+      "summary": "Capture applicant and guardian information in an admission application.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:admission-to-enrollment:validate-status-transition",
+      "type": "step",
+      "name": "Validate status transition",
+      "summary": "Enforce allowed transitions from draft through submitted, reviewing, approved, rejected, and enrolled.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:admission-to-enrollment:stamp-workflow-dates",
+      "type": "step",
+      "name": "Stamp workflow dates",
+      "summary": "Fill submittedAt, reviewedAt, and decidedAt timestamps when status changes require them.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:admission-to-enrollment:create-student-and-guardian-records",
+      "type": "step",
+      "name": "Create student and guardian records",
+      "summary": "On enrollment, create Student, Guardian, and StudentGuardian records.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:admission-to-enrollment:create-optional-enrollment",
+      "type": "step",
+      "name": "Create optional enrollment",
+      "summary": "Create the Enrollment record when class or academic-year handoff data is present.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:admission-to-enrollment:mark-application-enrolled",
+      "type": "step",
+      "name": "Mark application enrolled",
+      "summary": "Set the application status to ENROLLED after the handoff completes.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-admissions/src/lib/admissions.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:student-records-management",
+      "type": "flow",
+      "name": "Student Records Management",
+      "summary": "Lists, creates, updates, soft deletes, and bulk imports tenant-scoped student records.",
+      "tags": [
+        "business-flow",
+        "students"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH/DELETE /api/students and /api/students/bulk-import*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:student-records-management:filter-tenant-student-list",
+      "type": "step",
+      "name": "Filter tenant student list",
+      "summary": "List non-deleted students by school, status, search, and pagination.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-students/src/lib/students.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-records-management:create-student-with-admission-number",
+      "type": "step",
+      "name": "Create student with admission number",
+      "summary": "Create a student while enforcing unique admission number per school.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-students/src/lib/students.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-records-management:update-student-profile",
+      "type": "step",
+      "name": "Update student profile",
+      "summary": "Patch student details inside the authenticated tenant.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-students/src/lib/students.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-records-management:soft-delete-student",
+      "type": "step",
+      "name": "Soft delete student",
+      "summary": "Mark a student deleted instead of removing the row.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-students/src/lib/students.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-records-management:bulk-import-students",
+      "type": "step",
+      "name": "Bulk import students",
+      "summary": "Import student rows from JSON or CSV with required field validation.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-students/src/lib/students.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:guardian-linking",
+      "type": "flow",
+      "name": "Guardian Linking",
+      "summary": "Creates guardians, links them to students, manages primary guardian semantics, and exposes sibling lookups.",
+      "tags": [
+        "business-flow",
+        "guardians",
+        "students"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH/DELETE /api/guardians/*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:guardian-linking:create-or-update-guardian",
+      "type": "step",
+      "name": "Create or update guardian",
+      "summary": "Maintain guardian identity and contact records.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-guardians/src/lib/guardians.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:guardian-linking:validate-same-school-relationship",
+      "type": "step",
+      "name": "Validate same-school relationship",
+      "summary": "Ensure guardian and student records can be linked in the same school context.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-guardians/src/lib/guardians.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:guardian-linking:link-guardian-to-student",
+      "type": "step",
+      "name": "Link guardian to student",
+      "summary": "Create or update the StudentGuardian relationship and primary guardian flag.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-guardians/src/lib/guardians.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:guardian-linking:unlink-guardian-from-student",
+      "type": "step",
+      "name": "Unlink guardian from student",
+      "summary": "Remove a guardian-student link while preserving tenant boundaries.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-guardians/src/lib/guardians.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:guardian-linking:find-siblings-by-guardian",
+      "type": "step",
+      "name": "Find siblings by guardian",
+      "summary": "Return sibling relationships through shared guardian links.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-guardians/src/lib/guardians.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:student-promotion-and-exit",
+      "type": "flow",
+      "name": "Student Promotion and Exit",
+      "summary": "Provides exported DTOs and module boundaries for promotion batches, mappings, overrides, and exit requests.",
+      "tags": [
+        "business-flow",
+        "student-lifecycle"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Student lifecycle module exports",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:student-promotion-and-exit:create-promotion-batch-request",
+      "type": "step",
+      "name": "Create promotion batch request",
+      "summary": "Capture a promotion batch request for student progression.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-student-lifecycle/src/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-promotion-and-exit:update-promotion-mappings",
+      "type": "step",
+      "name": "Update promotion mappings",
+      "summary": "Represent class or section mapping updates for promotion processing.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-student-lifecycle/src/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-promotion-and-exit:update-promotion-overrides",
+      "type": "step",
+      "name": "Update promotion overrides",
+      "summary": "Represent per-student override decisions for promotion processing.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-student-lifecycle/src/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-promotion-and-exit:create-exit-request",
+      "type": "step",
+      "name": "Create exit request",
+      "summary": "Capture student exit workflow input for lifecycle completion.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-student-lifecycle/src/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:student-attendance-marking",
+      "type": "flow",
+      "name": "Student Attendance Marking",
+      "summary": "Creates attendance sessions and marks attendance for all, selected, or remaining students in a class.",
+      "tags": [
+        "business-flow",
+        "attendance"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /api/attendance/sessions and /api/attendance/sessions/:sessionId/records:mark",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:student-attendance-marking:create-attendance-session",
+      "type": "step",
+      "name": "Create attendance session",
+      "summary": "Create a tenant-scoped class/date attendance session.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/attendance/attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-attendance-marking:choose-target-students",
+      "type": "step",
+      "name": "Choose target students",
+      "summary": "Use provided student IDs or all active students in the class.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/attendance/attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-attendance-marking:apply-selected-status",
+      "type": "step",
+      "name": "Apply selected status",
+      "summary": "Mark selected students with present, absent, late, or excused status.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/attendance/attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-attendance-marking:apply-remaining-status",
+      "type": "step",
+      "name": "Apply remaining status",
+      "summary": "Optionally apply a different status to the rest of the active class.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/attendance/attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:student-attendance-marking:bulk-upsert-records",
+      "type": "step",
+      "name": "Bulk upsert records",
+      "summary": "Write attendance records by attendanceSessionId and studentId.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/attendance/attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:teacher-attendance",
+      "type": "flow",
+      "name": "Teacher Attendance",
+      "summary": "Lists, creates, and updates teacher attendance records with one record per teacher per date.",
+      "tags": [
+        "business-flow",
+        "attendance",
+        "teachers"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH /api/teacher-attendance",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:teacher-attendance:list-teacher-attendance",
+      "type": "step",
+      "name": "List teacher attendance",
+      "summary": "Filter attendance by school, teacher, date range, and tenant.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/teacher-attendance/teacher-attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:teacher-attendance:check-daily-duplicate",
+      "type": "step",
+      "name": "Check daily duplicate",
+      "summary": "Prevent more than one teacher attendance record per teacher/date.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/teacher-attendance/teacher-attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:teacher-attendance:create-teacher-attendance",
+      "type": "step",
+      "name": "Create teacher attendance",
+      "summary": "Persist school, teacher, date, status, and remarks.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/teacher-attendance/teacher-attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:teacher-attendance:update-teacher-attendance",
+      "type": "step",
+      "name": "Update teacher attendance",
+      "summary": "Patch an existing non-deleted tenant-scoped teacher attendance row.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-attendance/src/lib/teacher-attendance/teacher-attendance.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:homework-assignment",
+      "type": "flow",
+      "name": "Homework Assignment",
+      "summary": "Creates, updates, lists, and soft deletes homework or diary assignments for classes and subjects.",
+      "tags": [
+        "business-flow",
+        "homework"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH/DELETE /api/homework",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:homework-assignment:list-homework",
+      "type": "step",
+      "name": "List homework",
+      "summary": "Read tenant-scoped active homework records.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-homework/src/lib/homework.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:homework-assignment:create-homework",
+      "type": "step",
+      "name": "Create homework",
+      "summary": "Create a teacher assignment for a class and subject.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-homework/src/lib/homework.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:homework-assignment:update-homework",
+      "type": "step",
+      "name": "Update homework",
+      "summary": "Patch homework details for the authenticated tenant.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-homework/src/lib/homework.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:homework-assignment:soft-delete-homework",
+      "type": "step",
+      "name": "Soft delete homework",
+      "summary": "Mark homework deleted while retaining metadata.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-homework/src/lib/homework.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:exam-and-assessment-publishing",
+      "type": "flow",
+      "name": "Exam and Assessment Publishing",
+      "summary": "Creates exams and exam subjects, bulk-upserts student assessments, publishes results, and completes exams.",
+      "tags": [
+        "business-flow",
+        "exams",
+        "assessments"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "POST /api/exams, /api/exams/:examId/publish, /api/exams/:examId/assessments:bulk-upsert",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:exam-and-assessment-publishing:create-exam-with-subjects",
+      "type": "step",
+      "name": "Create exam with subjects",
+      "summary": "Create an exam definition with school, exam type, teacher, and exam subject rows.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-exams/src/lib/exams.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:exam-and-assessment-publishing:publish-exam",
+      "type": "step",
+      "name": "Publish exam",
+      "summary": "Move an exam from DRAFT to PUBLISHED, idempotently handling already-published states.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-exams/src/lib/exams.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:exam-and-assessment-publishing:bulk-upsert-assessments",
+      "type": "step",
+      "name": "Bulk upsert assessments",
+      "summary": "Enter marks for students while enforcing unique examSubjectId and studentId.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-exams/src/lib/exams.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:exam-and-assessment-publishing:publish-assessments",
+      "type": "step",
+      "name": "Publish assessments",
+      "summary": "Set publishedAt on all assessments for the exam.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-exams/src/lib/exams.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:exam-and-assessment-publishing:complete-exam",
+      "type": "step",
+      "name": "Complete exam",
+      "summary": "Move published exams to completed status when assessment publication is finished.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-exams/src/lib/exams.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:fee-plan-and-invoice-management",
+      "type": "flow",
+      "name": "Fee Plan and Invoice Management",
+      "summary": "Creates fee plans, invoices, invoice lines, and recalculates invoice state from payments.",
+      "tags": [
+        "business-flow",
+        "billing",
+        "invoices"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "GET/POST/PATCH /api/billing/fee-plans and /api/billing/invoices",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:fee-plan-and-invoice-management:create-fee-plan",
+      "type": "step",
+      "name": "Create fee plan",
+      "summary": "Persist fee plan item pricing with flat, attribute-based, and discount metadata.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fee-plan-and-invoice-management:create-invoice",
+      "type": "step",
+      "name": "Create invoice",
+      "summary": "Create invoice header and lines for a student or billing target.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fee-plan-and-invoice-management:maintain-decimal-amounts",
+      "type": "step",
+      "name": "Maintain decimal amounts",
+      "summary": "Use Prisma Decimal to avoid floating-point financial errors.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:fee-plan-and-invoice-management:update-invoice-metadata",
+      "type": "step",
+      "name": "Update invoice metadata",
+      "summary": "Patch invoice data and preserve line or balance integrity.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:payment-allocation",
+      "type": "flow",
+      "name": "Payment Allocation",
+      "summary": "Records payments and optionally allocates them to invoices while recalculating invoice balance and status.",
+      "tags": [
+        "business-flow",
+        "billing",
+        "payments"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "POST/PATCH /api/billing/payments",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:payment-allocation:create-payment",
+      "type": "step",
+      "name": "Create payment",
+      "summary": "Persist tenant-scoped payment records for a payer or invoice context.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:payment-allocation:apply-allocations",
+      "type": "step",
+      "name": "Apply allocations",
+      "summary": "Create payment allocations against invoices when allocation input is provided.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:payment-allocation:recalculate-balance",
+      "type": "step",
+      "name": "Recalculate balance",
+      "summary": "Recompute invoice balance from allocations after payment changes.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:payment-allocation:update-invoice-status",
+      "type": "step",
+      "name": "Update invoice status",
+      "summary": "Set invoice status to PAID, PARTIAL, or ISSUED based on remaining balance.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-billing/src/lib/billing.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:document-metadata-linking",
+      "type": "flow",
+      "name": "Document Metadata Linking",
+      "summary": "Stores document metadata and links object-storage files to arbitrary business entities.",
+      "tags": [
+        "business-flow",
+        "documents"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST/DELETE /api/documents",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:document-metadata-linking:create-document-metadata",
+      "type": "step",
+      "name": "Create document metadata",
+      "summary": "Store bucket, key, and metadata for an externally stored document binary.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-documents/src/lib/documents.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:document-metadata-linking:link-to-business-entity",
+      "type": "step",
+      "name": "Link to business entity",
+      "summary": "Associate the document using entityType and entityId polymorphic fields.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-documents/src/lib/documents.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:document-metadata-linking:build-download-placeholder",
+      "type": "step",
+      "name": "Build download placeholder",
+      "summary": "Return a download URL placeholder from bucket and key.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-documents/src/lib/documents.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:document-metadata-linking:soft-delete-metadata",
+      "type": "step",
+      "name": "Soft delete metadata",
+      "summary": "Retain document metadata while marking it deleted.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-documents/src/lib/documents.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:notifications-and-messages",
+      "type": "flow",
+      "name": "Notifications and Messages",
+      "summary": "Creates notifications, marks per-user reads, sends messages, and lists inbox, sent, or all message views.",
+      "tags": [
+        "business-flow",
+        "communications"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET/POST /api/communications/*",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:notifications-and-messages:create-notification",
+      "type": "step",
+      "name": "Create notification",
+      "summary": "Create a notification and seed user_notifications for recipients.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-communications/src/lib/communications.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:notifications-and-messages:mark-notification-read",
+      "type": "step",
+      "name": "Mark notification read",
+      "summary": "Upsert a per-user notification read mark.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-communications/src/lib/communications.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:notifications-and-messages:validate-message-recipients",
+      "type": "step",
+      "name": "Validate message recipients",
+      "summary": "Ensure direct-message recipients are valid tenant members.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-communications/src/lib/communications.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:notifications-and-messages:send-direct-message",
+      "type": "step",
+      "name": "Send direct message",
+      "summary": "Create a direct message from the current user to validated recipients.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-communications/src/lib/communications.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:notifications-and-messages:list-mailbox-view",
+      "type": "step",
+      "name": "List mailbox view",
+      "summary": "Return inbox, sent, or all messages for the current user.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/server/feature-communications/src/lib/communications.service.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:portal-authentication-ux",
+      "type": "flow",
+      "name": "Portal Authentication UX",
+      "summary": "Presents login and signup forms, calls auth APIs, stores session state, and redirects protected users.",
+      "tags": [
+        "business-flow",
+        "portal",
+        "auth"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Routes /login and /signup",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:portal-authentication-ux:render-login-form",
+      "type": "step",
+      "name": "Render login form",
+      "summary": "Collect email, password, and optional tenant code with zod validation.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-auth/src/lib/login-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-authentication-ux:submit-login-request",
+      "type": "step",
+      "name": "Submit login request",
+      "summary": "Call the auth package login API and store returned session data.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "packages/auth/src/lib/auth.context.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-authentication-ux:render-signup-form",
+      "type": "step",
+      "name": "Render signup form",
+      "summary": "Collect name, tenant code, email, and password for signup.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-auth/src/lib/signup-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-authentication-ux:protect-app-routes",
+      "type": "step",
+      "name": "Protect app routes",
+      "summary": "Redirect unauthenticated users from app routes to login with redirect state.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "apps/portal/src/app/router.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:portal-school-setup-dashboard",
+      "type": "flow",
+      "name": "Portal School Setup Dashboard",
+      "summary": "Loads setup signals for schools, classes, students, teachers, staff, billing, and attendance to guide administrators.",
+      "tags": [
+        "business-flow",
+        "portal",
+        "dashboard"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Route /app",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:portal-school-setup-dashboard:load-school-context",
+      "type": "step",
+      "name": "Load school context",
+      "summary": "Fetch schools, classrooms, campuses, students, teachers, staff, fee plans, and attendance sessions.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "apps/portal/src/app/router.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-school-setup-dashboard:compute-setup-progress",
+      "type": "step",
+      "name": "Compute setup progress",
+      "summary": "Mark setup steps complete when backing records exist.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "apps/portal/src/app/router.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-school-setup-dashboard:render-navigation-shell",
+      "type": "step",
+      "name": "Render navigation shell",
+      "summary": "Expose dashboard, classes, students, teachers, and attendance routes.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "apps/portal/src/app/router.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-school-setup-dashboard:expose-command-search",
+      "type": "step",
+      "name": "Expose command search",
+      "summary": "Search students, teachers, schools, attendance, and navigation targets.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "apps/portal/src/app/router.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:portal-student-administration",
+      "type": "flow",
+      "name": "Portal Student Administration",
+      "summary": "Lets administrators search students, view class and section context, and assign unassigned students.",
+      "tags": [
+        "business-flow",
+        "portal",
+        "students"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Route /app/students",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:portal-student-administration:authorize-student-view",
+      "type": "step",
+      "name": "Authorize student view",
+      "summary": "Require students.read and redirect if not authenticated.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-students/src/lib/students-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-student-administration:filter-student-list",
+      "type": "step",
+      "name": "Filter student list",
+      "summary": "Submit school, status, and search filters to the students API.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-students/src/lib/api.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-student-administration:load-classroom-context",
+      "type": "step",
+      "name": "Load classroom context",
+      "summary": "Fetch classrooms and enrollments to show current class and section.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-students/src/lib/api.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-student-administration:assign-unassigned-students",
+      "type": "step",
+      "name": "Assign unassigned students",
+      "summary": "Create enrollment records for students missing class or section placement.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-students/src/lib/students-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:portal-classes-and-attendance",
+      "type": "flow",
+      "name": "Portal Classes and Attendance",
+      "summary": "Lets staff create classes with sections, inspect teacher directories, and mark attendance from the portal.",
+      "tags": [
+        "business-flow",
+        "portal",
+        "academics",
+        "attendance"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Routes /app/classes, /app/teachers, /app/attendance",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:portal-classes-and-attendance:create-classes-with-sections",
+      "type": "step",
+      "name": "Create classes with sections",
+      "summary": "Submit class and section creation requests through the classes feature API.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-classes/src/lib/classes-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-classes-and-attendance:list-teachers",
+      "type": "step",
+      "name": "List teachers",
+      "summary": "Fetch teacher directory data for authorized portal users.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-teachers/src/lib/teachers-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-classes-and-attendance:list-attendance-sessions",
+      "type": "step",
+      "name": "List attendance sessions",
+      "summary": "Fetch attendance session rows for marking and review.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-attendance/src/lib/attendance-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:portal-classes-and-attendance:mark-attendance-from-ui",
+      "type": "step",
+      "name": "Mark attendance from UI",
+      "summary": "Submit selected, remaining, status, and remarks input to the records mark endpoint.",
+      "tags": [
+        "business-step"
+      ],
+      "complexity": "moderate",
+      "filePath": "libs/web/feature-attendance/src/lib/attendance-page.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain:identity-and-access",
+      "target": "flow:user-signup",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:user-signup",
+      "target": "step:user-signup:validate-signup-payload",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:user-signup",
+      "target": "step:user-signup:create-active-tenant-membership",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:user-signup",
+      "target": "step:user-signup:issue-initial-token-pair",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:user-signup",
+      "target": "step:user-signup:persist-hashed-session-token",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "flow:user-login-and-session-refresh",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:user-login-and-session-refresh",
+      "target": "step:user-login-and-session-refresh:validate-credentials-and-tenant-membership",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:user-login-and-session-refresh",
+      "target": "step:user-login-and-session-refresh:compute-roles-and-scopes",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:user-login-and-session-refresh",
+      "target": "step:user-login-and-session-refresh:create-authenticated-session",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:user-login-and-session-refresh",
+      "target": "step:user-login-and-session-refresh:rotate-refresh-token",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:user-login-and-session-refresh",
+      "target": "step:user-login-and-session-refresh:return-current-user-context",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "flow:rbac-administration",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:rbac-administration",
+      "target": "step:rbac-administration:list-permission-catalog",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:rbac-administration",
+      "target": "step:rbac-administration:create-or-update-tenant-roles",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:rbac-administration",
+      "target": "step:rbac-administration:replace-role-permissions",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:rbac-administration",
+      "target": "step:rbac-administration:replace-membership-roles",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "flow:tenant-and-school-setup",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:tenant-and-school-setup",
+      "target": "step:tenant-and-school-setup:resolve-current-tenant",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:tenant-and-school-setup",
+      "target": "step:tenant-and-school-setup:create-or-update-schools",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:tenant-and-school-setup",
+      "target": "step:tenant-and-school-setup:maintain-campuses",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:tenant-and-school-setup",
+      "target": "step:tenant-and-school-setup:assign-school-administrators",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "flow:classroom-and-subject-setup",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:classroom-and-subject-setup",
+      "target": "step:classroom-and-subject-setup:list-academic-structures",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:classroom-and-subject-setup",
+      "target": "step:classroom-and-subject-setup:create-classrooms-with-sections",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:classroom-and-subject-setup",
+      "target": "step:classroom-and-subject-setup:create-subjects",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:classroom-and-subject-setup",
+      "target": "step:classroom-and-subject-setup:assign-student-enrollment",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "flow:staff-and-teacher-management",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:staff-and-teacher-management",
+      "target": "step:staff-and-teacher-management:list-staff-and-teachers",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:staff-and-teacher-management",
+      "target": "step:staff-and-teacher-management:create-staff-profile",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:staff-and-teacher-management",
+      "target": "step:staff-and-teacher-management:update-staff-profile",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:staff-and-teacher-management",
+      "target": "step:staff-and-teacher-management:create-teacher-profile",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "flow:timetable-planning",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:timetable-planning",
+      "target": "step:timetable-planning:list-timetable-entries",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:timetable-planning",
+      "target": "step:timetable-planning:derive-school-from-classroom",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:timetable-planning",
+      "target": "step:timetable-planning:create-or-update-slot",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:timetable-planning",
+      "target": "step:timetable-planning:map-slot-collision-errors",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "flow:transport-route-assignment",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:transport-route-assignment",
+      "target": "step:transport-route-assignment:maintain-vehicles",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:transport-route-assignment",
+      "target": "step:transport-route-assignment:maintain-routes-and-stops",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:transport-route-assignment",
+      "target": "step:transport-route-assignment:assign-students-to-routes",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:transport-route-assignment",
+      "target": "step:transport-route-assignment:enforce-transport-uniqueness",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "flow:admission-to-enrollment",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:create-admission-application",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:validate-status-transition",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:stamp-workflow-dates",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:create-student-and-guardian-records",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:create-optional-enrollment",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:admission-to-enrollment",
+      "target": "step:admission-to-enrollment:mark-application-enrolled",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "flow:student-records-management",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:student-records-management",
+      "target": "step:student-records-management:filter-tenant-student-list",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:student-records-management",
+      "target": "step:student-records-management:create-student-with-admission-number",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:student-records-management",
+      "target": "step:student-records-management:update-student-profile",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:student-records-management",
+      "target": "step:student-records-management:soft-delete-student",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:student-records-management",
+      "target": "step:student-records-management:bulk-import-students",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "flow:guardian-linking",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:guardian-linking",
+      "target": "step:guardian-linking:create-or-update-guardian",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:guardian-linking",
+      "target": "step:guardian-linking:validate-same-school-relationship",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:guardian-linking",
+      "target": "step:guardian-linking:link-guardian-to-student",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:guardian-linking",
+      "target": "step:guardian-linking:unlink-guardian-from-student",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:guardian-linking",
+      "target": "step:guardian-linking:find-siblings-by-guardian",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "flow:student-promotion-and-exit",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:student-promotion-and-exit",
+      "target": "step:student-promotion-and-exit:create-promotion-batch-request",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:student-promotion-and-exit",
+      "target": "step:student-promotion-and-exit:update-promotion-mappings",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:student-promotion-and-exit",
+      "target": "step:student-promotion-and-exit:update-promotion-overrides",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:student-promotion-and-exit",
+      "target": "step:student-promotion-and-exit:create-exit-request",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:learning-operations",
+      "target": "flow:student-attendance-marking",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:student-attendance-marking",
+      "target": "step:student-attendance-marking:create-attendance-session",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:student-attendance-marking",
+      "target": "step:student-attendance-marking:choose-target-students",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:student-attendance-marking",
+      "target": "step:student-attendance-marking:apply-selected-status",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:student-attendance-marking",
+      "target": "step:student-attendance-marking:apply-remaining-status",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:student-attendance-marking",
+      "target": "step:student-attendance-marking:bulk-upsert-records",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:learning-operations",
+      "target": "flow:teacher-attendance",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:teacher-attendance",
+      "target": "step:teacher-attendance:list-teacher-attendance",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:teacher-attendance",
+      "target": "step:teacher-attendance:check-daily-duplicate",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:teacher-attendance",
+      "target": "step:teacher-attendance:create-teacher-attendance",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:teacher-attendance",
+      "target": "step:teacher-attendance:update-teacher-attendance",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:learning-operations",
+      "target": "flow:homework-assignment",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:homework-assignment",
+      "target": "step:homework-assignment:list-homework",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:homework-assignment",
+      "target": "step:homework-assignment:create-homework",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:homework-assignment",
+      "target": "step:homework-assignment:update-homework",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:homework-assignment",
+      "target": "step:homework-assignment:soft-delete-homework",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:learning-operations",
+      "target": "flow:exam-and-assessment-publishing",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:exam-and-assessment-publishing",
+      "target": "step:exam-and-assessment-publishing:create-exam-with-subjects",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:exam-and-assessment-publishing",
+      "target": "step:exam-and-assessment-publishing:publish-exam",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:exam-and-assessment-publishing",
+      "target": "step:exam-and-assessment-publishing:bulk-upsert-assessments",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:exam-and-assessment-publishing",
+      "target": "step:exam-and-assessment-publishing:publish-assessments",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:exam-and-assessment-publishing",
+      "target": "step:exam-and-assessment-publishing:complete-exam",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:finance-and-operations",
+      "target": "flow:fee-plan-and-invoice-management",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:fee-plan-and-invoice-management",
+      "target": "step:fee-plan-and-invoice-management:create-fee-plan",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:fee-plan-and-invoice-management",
+      "target": "step:fee-plan-and-invoice-management:create-invoice",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:fee-plan-and-invoice-management",
+      "target": "step:fee-plan-and-invoice-management:maintain-decimal-amounts",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:fee-plan-and-invoice-management",
+      "target": "step:fee-plan-and-invoice-management:update-invoice-metadata",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:finance-and-operations",
+      "target": "flow:payment-allocation",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:payment-allocation",
+      "target": "step:payment-allocation:create-payment",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:payment-allocation",
+      "target": "step:payment-allocation:apply-allocations",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:payment-allocation",
+      "target": "step:payment-allocation:recalculate-balance",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:payment-allocation",
+      "target": "step:payment-allocation:update-invoice-status",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:finance-and-operations",
+      "target": "flow:document-metadata-linking",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:document-metadata-linking",
+      "target": "step:document-metadata-linking:create-document-metadata",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:document-metadata-linking",
+      "target": "step:document-metadata-linking:link-to-business-entity",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:document-metadata-linking",
+      "target": "step:document-metadata-linking:build-download-placeholder",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:document-metadata-linking",
+      "target": "step:document-metadata-linking:soft-delete-metadata",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:finance-and-operations",
+      "target": "flow:notifications-and-messages",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:notifications-and-messages",
+      "target": "step:notifications-and-messages:create-notification",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.2
+    },
+    {
+      "source": "flow:notifications-and-messages",
+      "target": "step:notifications-and-messages:mark-notification-read",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "flow:notifications-and-messages",
+      "target": "step:notifications-and-messages:validate-message-recipients",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:notifications-and-messages",
+      "target": "step:notifications-and-messages:send-direct-message",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:notifications-and-messages",
+      "target": "step:notifications-and-messages:list-mailbox-view",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "flow:portal-authentication-ux",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:portal-authentication-ux",
+      "target": "step:portal-authentication-ux:render-login-form",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:portal-authentication-ux",
+      "target": "step:portal-authentication-ux:submit-login-request",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:portal-authentication-ux",
+      "target": "step:portal-authentication-ux:render-signup-form",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:portal-authentication-ux",
+      "target": "step:portal-authentication-ux:protect-app-routes",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "flow:portal-school-setup-dashboard",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:portal-school-setup-dashboard",
+      "target": "step:portal-school-setup-dashboard:load-school-context",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:portal-school-setup-dashboard",
+      "target": "step:portal-school-setup-dashboard:compute-setup-progress",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:portal-school-setup-dashboard",
+      "target": "step:portal-school-setup-dashboard:render-navigation-shell",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:portal-school-setup-dashboard",
+      "target": "step:portal-school-setup-dashboard:expose-command-search",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "flow:portal-student-administration",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:portal-student-administration",
+      "target": "step:portal-student-administration:authorize-student-view",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:portal-student-administration",
+      "target": "step:portal-student-administration:filter-student-list",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:portal-student-administration",
+      "target": "step:portal-student-administration:load-classroom-context",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:portal-student-administration",
+      "target": "step:portal-student-administration:assign-unassigned-students",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "flow:portal-classes-and-attendance",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "flow:portal-classes-and-attendance",
+      "target": "step:portal-classes-and-attendance:create-classes-with-sections",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:portal-classes-and-attendance",
+      "target": "step:portal-classes-and-attendance:list-teachers",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:portal-classes-and-attendance",
+      "target": "step:portal-classes-and-attendance:list-attendance-sessions",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:portal-classes-and-attendance",
+      "target": "step:portal-classes-and-attendance:mark-attendance-from-ui",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "domain:institution-setup",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Identity and Access supplies tenant identity and scopes for tenant, school, staff, timetable, and transport administration.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "domain:student-lifecycle",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Student and guardian operations use JWT tenant context and route scopes.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "domain:learning-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Attendance, homework, and exams are protected by scopes resolved from roles and permissions.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:identity-and-access",
+      "target": "domain:finance-and-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Billing, documents, notifications, and messages are all tenant/user scoped through authenticated context.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "domain:student-lifecycle",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Schools, classrooms, academic years, and enrollments define where students belong.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "domain:learning-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Learning operations consume student rosters, enrollments, guardians, classes, and teachers.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:student-lifecycle",
+      "target": "domain:finance-and-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Student records anchor invoices, documents, notifications, and transport assignments.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "domain:learning-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Classrooms, subjects, timetable entries, and teachers drive attendance, homework, and exams.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:institution-setup",
+      "target": "domain:finance-and-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "School and tenant setup scopes fee plans, invoices, document links, and communications.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "domain:identity-and-access",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Portal authentication UX calls Identity and Access APIs and applies ABAC checks.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "domain:institution-setup",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Portal setup screens expose school, class, staff, and teacher administration.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "domain:student-lifecycle",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Portal student pages expose student search, class placement, and enrollment management.",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:portal-experience",
+      "target": "domain:learning-operations",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Portal attendance pages call attendance session and marking flows.",
+      "weight": 0.6
+    }
+  ],
+  "layers": [],
+  "tour": []
+}

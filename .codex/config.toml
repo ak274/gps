@@ -1,11 +1,18 @@
 [mcp_servers.nx-mcp]
 command = "npx"
-args = [ "nx-mcp@latest", "--minimal" ]
+args = [ "nx", "mcp", "--minimal" ]
 
 [mcp_servers.tanstack]
 command = "npx"
 args = [ "@tanstack/cli", "mcp" ]
 
-mcp_servers.shadcn]
+[mcp_servers.shadcn]
 command = "npx"
-args = ["shadcn@latest", "mcp"]
+args = [ "shadcn@latest", "mcp" ]
+
+[features]
+multi_agent = true
+
+[agents.ci-monitor-subagent]
+description = "CI helper for /monitor-ci. Fetches CI status, retrieves fix details, or updates self-healing fixes. Executes one MCP tool call and returns the result."
+config_file = "agents/ci-monitor-subagent.toml"

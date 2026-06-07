@@ -1,0 +1,1704 @@
+{
+  "version": "1.0.0",
+  "kind": "codebase",
+  "project": {
+    "name": "GPS School Management App",
+    "languages": [
+      "TypeScript",
+      "TSX",
+      "JavaScript",
+      "Prisma",
+      "SQL",
+      "Markdown",
+      "YAML",
+      "Dockerfile"
+    ],
+    "frameworks": [
+      "Nx",
+      "NestJS",
+      "React",
+      "Vite",
+      "Prisma",
+      "Tailwind CSS",
+      "Vitest",
+      "Playwright"
+    ],
+    "description": "GPS is a pnpm Nx monorepo for school management. It contains 39 Nx projects, 118 project dependency edges, and 805 scanned repository files.",
+    "analyzedAt": "2026-06-07T13:01:10.471Z",
+    "gitCommitHash": "2b51892d1fe61bdee5781d8ae424cc4f3e1e9d5f"
+  },
+  "nodes": [
+    {
+      "id": "project:prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70",
+      "type": "module",
+      "name": "prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70",
+      "filePath": "libs/shared/data-access-prisma/src/generated/client",
+      "summary": "lib project in the workspace scope at libs/shared/data-access-prisma/src/generated/client. Targets: lint.",
+      "tags": [
+        "root:libs/shared/data-access-prisma/src/generated/client"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-student-lifecycle",
+      "type": "module",
+      "name": "@gps/feature-student-lifecycle",
+      "filePath": "libs/server/feature-student-lifecycle",
+      "summary": "feature project in the server scope at libs/server/feature-student-lifecycle. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-student-lifecycle"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-communications",
+      "type": "module",
+      "name": "@gps/feature-communications",
+      "filePath": "libs/server/feature-communications",
+      "summary": "feature project in the server scope at libs/server/feature-communications. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-communications"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/data-access-prisma",
+      "type": "service",
+      "name": "@gps/data-access-prisma",
+      "filePath": "libs/shared/data-access-prisma",
+      "summary": "data-access project in the shared scope at libs/shared/data-access-prisma. Targets: typecheck, lint, prisma, generate, migrate-dev, migrate-deploy, db-push, studio, format, seed.",
+      "tags": [
+        "npm:private",
+        "scope:shared",
+        "type:data-access",
+        "root:libs/shared/data-access-prisma"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-admissions",
+      "type": "module",
+      "name": "@gps/feature-admissions",
+      "filePath": "libs/server/feature-admissions",
+      "summary": "feature project in the server scope at libs/server/feature-admissions. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-admissions"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-attendance",
+      "type": "module",
+      "name": "@gps/feature-attendance",
+      "filePath": "libs/server/feature-attendance",
+      "summary": "feature project in the server scope at libs/server/feature-attendance. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-attendance"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-academics",
+      "type": "module",
+      "name": "@gps/feature-academics",
+      "filePath": "libs/server/feature-academics",
+      "summary": "feature project in the server scope at libs/server/feature-academics. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-academics"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-documents",
+      "type": "module",
+      "name": "@gps/feature-documents",
+      "filePath": "libs/server/feature-documents",
+      "summary": "feature project in the server scope at libs/server/feature-documents. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-documents"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-guardians",
+      "type": "module",
+      "name": "@gps/feature-guardians",
+      "filePath": "libs/server/feature-guardians",
+      "summary": "feature project in the server scope at libs/server/feature-guardians. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-guardians"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-timetable",
+      "type": "module",
+      "name": "@gps/feature-timetable",
+      "filePath": "libs/server/feature-timetable",
+      "summary": "feature project in the server scope at libs/server/feature-timetable. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-timetable"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-transport",
+      "type": "module",
+      "name": "@gps/feature-transport",
+      "filePath": "libs/server/feature-transport",
+      "summary": "feature project in the server scope at libs/server/feature-transport. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-transport"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-homework",
+      "type": "module",
+      "name": "@gps/feature-homework",
+      "filePath": "libs/server/feature-homework",
+      "summary": "feature project in the server scope at libs/server/feature-homework. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-homework"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-students",
+      "type": "module",
+      "name": "@gps/feature-students",
+      "filePath": "libs/server/feature-students",
+      "summary": "feature project in the server scope at libs/server/feature-students. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-students"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-billing",
+      "type": "module",
+      "name": "@gps/feature-billing",
+      "filePath": "libs/server/feature-billing",
+      "summary": "feature project in the server scope at libs/server/feature-billing. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-billing"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-schools",
+      "type": "module",
+      "name": "@gps/feature-schools",
+      "filePath": "libs/server/feature-schools",
+      "summary": "feature project in the server scope at libs/server/feature-schools. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-schools"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-tenants",
+      "type": "module",
+      "name": "@gps/feature-tenants",
+      "filePath": "libs/server/feature-tenants",
+      "summary": "feature project in the server scope at libs/server/feature-tenants. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-tenants"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-feature-attendance",
+      "type": "module",
+      "name": "@gps/web-feature-attendance",
+      "filePath": "libs/web/feature-attendance",
+      "summary": "feature project in the web scope at libs/web/feature-attendance. Targets: typecheck, build, build-deps, watch-deps, lint, test, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:feature",
+        "root:libs/web/feature-attendance"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/data-access-db",
+      "type": "service",
+      "name": "@gps/data-access-db",
+      "filePath": "libs/shared/data-access-db",
+      "summary": "data-access project in the shared scope at libs/shared/data-access-db. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:shared",
+        "type:data-access",
+        "root:libs/shared/data-access-db"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-exams",
+      "type": "module",
+      "name": "@gps/feature-exams",
+      "filePath": "libs/server/feature-exams",
+      "summary": "feature project in the server scope at libs/server/feature-exams. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-exams"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-staff",
+      "type": "module",
+      "name": "@gps/feature-staff",
+      "filePath": "libs/server/feature-staff",
+      "summary": "feature project in the server scope at libs/server/feature-staff. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-staff"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/server-errors",
+      "type": "module",
+      "name": "@gps/server-errors",
+      "filePath": "libs/shared/server-errors",
+      "summary": "util project in the server scope at libs/shared/server-errors. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:util",
+        "root:libs/shared/server-errors"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-data-access-http",
+      "type": "service",
+      "name": "@gps/web-data-access-http",
+      "filePath": "libs/web/data-access-http",
+      "summary": "data-access project in the web scope at libs/web/data-access-http. Targets: typecheck, build, build-deps, watch-deps, lint, test, test-ci--src/lib/data-access-http.spec.ts, test-ci.",
+      "tags": [
+        "npm:private",
+        "scope:web",
+        "type:data-access",
+        "root:libs/web/data-access-http"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-feature-students",
+      "type": "module",
+      "name": "@gps/web-feature-students",
+      "filePath": "libs/web/feature-students",
+      "summary": "feature project in the web scope at libs/web/feature-students. Targets: typecheck, build, build-deps, watch-deps, lint, test, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:feature",
+        "root:libs/web/feature-students"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-feature-teachers",
+      "type": "module",
+      "name": "@gps/web-feature-teachers",
+      "filePath": "libs/web/feature-teachers",
+      "summary": "feature project in the web scope at libs/web/feature-teachers. Targets: typecheck, build, build-deps, watch-deps, lint, test, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:feature",
+        "root:libs/web/feature-teachers"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-auth",
+      "type": "module",
+      "name": "@gps/feature-auth",
+      "filePath": "libs/server/feature-auth",
+      "summary": "feature project in the server scope at libs/server/feature-auth. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-auth"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/feature-rbac",
+      "type": "module",
+      "name": "@gps/feature-rbac",
+      "filePath": "libs/server/feature-rbac",
+      "summary": "feature project in the server scope at libs/server/feature-rbac. Targets: typecheck, lint.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:feature",
+        "root:libs/server/feature-rbac"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-feature-classes",
+      "type": "module",
+      "name": "@gps/web-feature-classes",
+      "filePath": "libs/web/feature-classes",
+      "summary": "feature project in the web scope at libs/web/feature-classes. Targets: typecheck, build, build-deps, watch-deps, lint, test, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:feature",
+        "root:libs/web/feature-classes"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-feature-auth",
+      "type": "module",
+      "name": "@gps/web-feature-auth",
+      "filePath": "libs/web/feature-auth",
+      "summary": "feature project in the web scope at libs/web/feature-auth. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:feature",
+        "root:libs/web/feature-auth"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-router",
+      "type": "module",
+      "name": "@gps/web-router",
+      "filePath": "libs/web/router",
+      "summary": "util project in the web scope at libs/web/router. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:util",
+        "root:libs/web/router"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:portal-e2e",
+      "type": "module",
+      "name": "portal-e2e",
+      "filePath": "apps/portal-e2e",
+      "summary": "app project in the workspace scope at apps/portal-e2e. Targets: typecheck, lint, e2e, e2e-ci--src/example.spec.ts, e2e-ci, e2e-ci--merge-reports.",
+      "tags": [
+        "npm:private",
+        "root:apps/portal-e2e"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-query",
+      "type": "module",
+      "name": "@gps/web-query",
+      "filePath": "libs/web/query",
+      "summary": "util project in the web scope at libs/web/query. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:util",
+        "root:libs/web/query"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/auth",
+      "type": "module",
+      "name": "@gps/auth",
+      "filePath": "packages/auth",
+      "summary": "util project in the web scope at packages/auth. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:util",
+        "root:packages/auth"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-auth",
+      "type": "module",
+      "name": "@gps/web-auth",
+      "filePath": "libs/web/auth",
+      "summary": "util project in the web scope at libs/web/auth. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:util",
+        "root:libs/web/auth"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/api-e2e",
+      "type": "module",
+      "name": "@gps/api-e2e",
+      "filePath": "apps/api-e2e",
+      "summary": "app project in the workspace scope at apps/api-e2e. Targets: typecheck, lint, e2e.",
+      "tags": [
+        "npm:private",
+        "root:apps/api-e2e"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/web-ui",
+      "type": "module",
+      "name": "@gps/web-ui",
+      "filePath": "libs/web/ui",
+      "summary": "ui project in the web scope at libs/web/ui. Targets: typecheck, build, build-deps, watch-deps, lint, test, serve, dev, preview, serve-static, nx-release-publish.",
+      "tags": [
+        "npm:public",
+        "scope:web",
+        "type:ui",
+        "root:libs/web/ui"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:infra",
+      "type": "resource",
+      "name": "infra",
+      "filePath": "tools/infra",
+      "summary": "infra project in the tools scope at tools/infra. Targets: db-up, db-down, db-reset, db-logs.",
+      "tags": [
+        "scope:tools",
+        "type:infra",
+        "root:tools/infra"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:portal",
+      "type": "service",
+      "name": "portal",
+      "filePath": "apps/portal",
+      "summary": "app project in the web scope at apps/portal. Targets: typecheck, lint, test, build, serve, dev, preview, serve-static, build-deps, watch-deps, test-ci--src/app/app.spec.tsx, test-ci.",
+      "tags": [
+        "npm:private",
+        "scope:web",
+        "type:app",
+        "root:apps/portal"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/api",
+      "type": "service",
+      "name": "@gps/api",
+      "filePath": "apps/api",
+      "summary": "app project in the server scope at apps/api. Targets: typecheck, lint, build, serve, preview, serve-static, build-deps, watch-deps, docker:build, docker:run, nx-release-publish, prune-lockfile, copy-workspace-modules, prune.",
+      "tags": [
+        "npm:private",
+        "scope:server",
+        "type:app",
+        "root:apps/api"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    },
+    {
+      "id": "project:@gps/gps",
+      "type": "service",
+      "name": "@gps/gps",
+      "filePath": "apps/gps",
+      "summary": "app project in the web scope at apps/gps. Targets: typecheck, lint, test, build, serve, dev, preview, serve-static, build-deps, watch-deps, test-ci--src/app/app.spec.tsx, test-ci.",
+      "tags": [
+        "npm:private",
+        "scope:web",
+        "type:app",
+        "root:apps/gps"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Generated from the Nx resolved project graph and deterministic repository scan."
+    }
+  ],
+  "edges": [
+    {
+      "source": "project:@gps/feature-student-lifecycle",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-student-lifecycle depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-student-lifecycle",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-student-lifecycle depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-student-lifecycle",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-student-lifecycle depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-student-lifecycle",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-student-lifecycle depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-communications",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-communications depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-communications",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-communications depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-communications",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-communications depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-communications",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-communications depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/data-access-prisma",
+      "target": "project:prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/data-access-prisma depends on prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70 in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-admissions",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-admissions depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-admissions",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-admissions depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-admissions",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-admissions depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-admissions",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-admissions depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-attendance",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-attendance depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-attendance",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-attendance depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-attendance",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-attendance depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-attendance",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-attendance depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-academics",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-academics depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-academics",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-academics depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-academics",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-academics depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-academics",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-academics depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-documents",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-documents depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-documents",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-documents depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-documents",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-documents depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-documents",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-documents depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-guardians",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-guardians depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-guardians",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-guardians depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-guardians",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-guardians depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-guardians",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-guardians depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-timetable",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-timetable depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-timetable",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-timetable depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-timetable",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-timetable depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-timetable",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-timetable depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-transport",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-transport depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-transport",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-transport depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-transport",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-transport depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-transport",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-transport depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-homework",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-homework depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-homework",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-homework depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-homework",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-homework depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-homework",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-homework depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-students",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-students depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-students",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-students depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-students",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-students depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-students",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-students depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-billing",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-billing depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-billing",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-billing depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-billing",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-billing depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-billing",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-billing depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-schools",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-schools depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-schools",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-schools depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-schools",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-schools depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-schools",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-schools depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-tenants",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-tenants depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-tenants",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-tenants depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-tenants",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-tenants depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-tenants",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-tenants depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-attendance",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-attendance depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-attendance",
+      "target": "project:@gps/web-data-access-http",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-attendance depends on @gps/web-data-access-http in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-attendance",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-attendance depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/data-access-db",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/data-access-db depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-exams",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-exams depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-exams",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-exams depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-exams",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-exams depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-exams",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-exams depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-staff",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-staff depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-staff",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-staff depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-staff",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-staff depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-staff",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-staff depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-students",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-students depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-students",
+      "target": "project:@gps/web-data-access-http",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-students depends on @gps/web-data-access-http in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-students",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-students depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-teachers",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-teachers depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-teachers",
+      "target": "project:@gps/web-data-access-http",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-teachers depends on @gps/web-data-access-http in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-teachers",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-teachers depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-auth",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-auth depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-auth",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-auth depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-auth",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-auth depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-rbac",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-rbac depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-rbac",
+      "target": "project:@gps/data-access-prisma",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-rbac depends on @gps/data-access-prisma in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-rbac",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-rbac depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/feature-rbac",
+      "target": "project:@gps/server-errors",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/feature-rbac depends on @gps/server-errors in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-classes",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-classes depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-classes",
+      "target": "project:@gps/web-data-access-http",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-classes depends on @gps/web-data-access-http in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-classes",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-classes depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-auth",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-auth depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/web-feature-auth",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/web-feature-auth depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal-e2e",
+      "target": "project:portal",
+      "type": "related",
+      "direction": "forward",
+      "description": "portal-e2e is linked to portal in the Nx project graph.",
+      "weight": 0.65
+    },
+    {
+      "source": "project:@gps/api-e2e",
+      "target": "project:@gps/api",
+      "type": "related",
+      "direction": "forward",
+      "description": "@gps/api-e2e is linked to @gps/api in the Nx project graph.",
+      "weight": 0.65
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-data-access-http",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-data-access-http in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-query",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-query in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-router",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-router in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-ui",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-ui in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-feature-attendance",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-feature-attendance in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-feature-students",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-feature-students in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-feature-classes",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-feature-classes in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/web-feature-teachers",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/web-feature-teachers in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:portal",
+      "target": "project:@gps/auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "portal depends on @gps/auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/data-access-db",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/data-access-db in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-academics",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-academics in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-attendance",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-attendance in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-billing",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-billing in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-communications",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-communications in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-documents",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-documents in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-auth",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-auth in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-guardians",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-guardians in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-exams",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-exams in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-homework",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-homework in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-admissions",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-admissions in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-rbac",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-rbac in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-schools",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-schools in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-staff",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-staff in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-students",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-students in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-student-lifecycle",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-student-lifecycle in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-tenants",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-tenants in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-timetable",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-timetable in the Nx project graph.",
+      "weight": 0.9
+    },
+    {
+      "source": "project:@gps/api",
+      "target": "project:@gps/feature-transport",
+      "type": "depends_on",
+      "direction": "forward",
+      "description": "@gps/api depends on @gps/feature-transport in the Nx project graph.",
+      "weight": 0.9
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:apps",
+      "name": "Applications",
+      "description": "Top-level runnable app and e2e projects.",
+      "nodeIds": [
+        "project:portal-e2e",
+        "project:@gps/api-e2e",
+        "project:portal",
+        "project:@gps/api",
+        "project:@gps/gps"
+      ]
+    },
+    {
+      "id": "layer:server",
+      "name": "Server Features",
+      "description": "NestJS/server-side feature and utility projects.",
+      "nodeIds": [
+        "project:@gps/feature-student-lifecycle",
+        "project:@gps/feature-communications",
+        "project:@gps/feature-admissions",
+        "project:@gps/feature-attendance",
+        "project:@gps/feature-academics",
+        "project:@gps/feature-documents",
+        "project:@gps/feature-guardians",
+        "project:@gps/feature-timetable",
+        "project:@gps/feature-transport",
+        "project:@gps/feature-homework",
+        "project:@gps/feature-students",
+        "project:@gps/feature-billing",
+        "project:@gps/feature-schools",
+        "project:@gps/feature-tenants",
+        "project:@gps/feature-exams",
+        "project:@gps/feature-staff",
+        "project:@gps/server-errors",
+        "project:@gps/feature-auth",
+        "project:@gps/feature-rbac",
+        "project:@gps/api"
+      ]
+    },
+    {
+      "id": "layer:web",
+      "name": "Web UI",
+      "description": "React/web feature, routing, auth, query, and UI projects.",
+      "nodeIds": [
+        "project:@gps/web-feature-attendance",
+        "project:@gps/web-data-access-http",
+        "project:@gps/web-feature-students",
+        "project:@gps/web-feature-teachers",
+        "project:@gps/web-feature-classes",
+        "project:@gps/web-feature-auth",
+        "project:@gps/web-router",
+        "project:@gps/web-query",
+        "project:@gps/auth",
+        "project:@gps/web-auth",
+        "project:@gps/web-ui",
+        "project:portal",
+        "project:@gps/gps"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "Data Access",
+      "description": "Shared database and Prisma access layer.",
+      "nodeIds": [
+        "project:prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70",
+        "project:@gps/data-access-prisma",
+        "project:@gps/data-access-db",
+        "project:@gps/web-data-access-http"
+      ]
+    },
+    {
+      "id": "layer:tools",
+      "name": "Tooling and Infra",
+      "description": "Workspace infrastructure projects.",
+      "nodeIds": [
+        "project:infra"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Start with runnable surfaces",
+      "description": "GPS has a NestJS API, a portal web app, a newer @gps/gps web app, and e2e projects for API and portal verification.",
+      "nodeIds": [
+        "project:portal-e2e",
+        "project:@gps/api-e2e",
+        "project:portal",
+        "project:@gps/api",
+        "project:@gps/gps"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Follow the API feature composition",
+      "description": "The API app composes server feature libraries for academics, attendance, billing, communications, documents, guardians, exams, homework, admissions, RBAC, schools, staff, students, lifecycle, tenants, timetable, and transport.",
+      "nodeIds": [
+        "project:@gps/api",
+        "project:@gps/data-access-db",
+        "project:@gps/feature-academics",
+        "project:@gps/feature-attendance",
+        "project:@gps/feature-billing",
+        "project:@gps/feature-communications",
+        "project:@gps/feature-documents",
+        "project:@gps/feature-auth",
+        "project:@gps/feature-guardians",
+        "project:@gps/feature-exams",
+        "project:@gps/feature-homework",
+        "project:@gps/feature-admissions",
+        "project:@gps/feature-rbac",
+        "project:@gps/feature-schools",
+        "project:@gps/feature-staff",
+        "project:@gps/feature-students",
+        "project:@gps/feature-student-lifecycle",
+        "project:@gps/feature-tenants",
+        "project:@gps/feature-timetable",
+        "project:@gps/feature-transport"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Follow the portal composition",
+      "description": "The portal app composes web feature libraries, shared auth, data access HTTP, query, router, and UI packages.",
+      "nodeIds": [
+        "project:portal",
+        "project:@gps/web-data-access-http",
+        "project:@gps/web-query",
+        "project:@gps/web-router",
+        "project:@gps/web-ui",
+        "project:@gps/web-feature-auth",
+        "project:@gps/web-feature-attendance",
+        "project:@gps/web-feature-students",
+        "project:@gps/web-feature-classes",
+        "project:@gps/web-feature-teachers",
+        "project:@gps/auth"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Understand the data foundation",
+      "description": "Server features depend on shared data-access-db and data-access-prisma, which wraps the generated Prisma client.",
+      "nodeIds": [
+        "project:@gps/data-access-db",
+        "project:@gps/data-access-prisma",
+        "project:prisma-client-a0670fa00f84163b03dd37dcee26719e38569f51d7b4a350120a73555c651c70"
+      ]
+    }
+  ]
+}
