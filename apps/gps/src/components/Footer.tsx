@@ -1,12 +1,19 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, DownloadCloud } from 'lucide-react';
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  DownloadCloud,
+  ExternalLink,
+  ShieldCheck,
+} from 'lucide-react';
 import { contactInfo } from '../lib/contactInfo';
 
 export default function Footer() {
   return (
     <footer className="bg-slate-900 text-white relative overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid gap-8 mb-8 lg:grid-cols-[1.15fr_0.85fr_1fr]">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
@@ -26,6 +33,43 @@ export default function Footer() {
               A modern, values-driven school in Fatehpur offering holistic
               education from play school to middle school.
             </p>
+            <a
+              href="/all_images/cert-com.jpeg"
+              target="_blank"
+              rel="noreferrer"
+              className="group block rounded-3xl border border-white/10 bg-white/6 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/10"
+            >
+              <div className="flex items-start gap-4">
+                <img
+                  src="/all_images/cert-com.jpeg"
+                  alt="Society registration certificate"
+                  className="h-28 w-20 flex-shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
+                />
+                <div className="min-w-0 space-y-2">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/90">
+                    <ShieldCheck size={14} />
+                    Registered Society
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold leading-5 text-white">
+                      Wisdom Path Education Society
+                    </p>
+                    <p className="text-xs leading-5 text-slate-300">
+                      Registered under the Himachal Pradesh Societies
+                      Registration Act, 2006.
+                    </p>
+                    <p className="text-xs leading-5 text-slate-400">
+                      Certificate issued on 16 September 2024 in Fatehpur,
+                      Himachal Pradesh.
+                    </p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 text-xs font-medium text-white/90 transition-colors group-hover:text-white">
+                    View certificate
+                    <ExternalLink size={14} />
+                  </div>
+                </div>
+              </div>
+            </a>
             <div className="flex gap-3 mt-3">
               <a
                 href="https://facebook.com"
