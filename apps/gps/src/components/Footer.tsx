@@ -22,17 +22,22 @@ export default function Footer() {
                 alt="GPS logo"
                 className="w-10 h-10 rounded object-cover"
               />
+
               <div>
-                <div className="font-bold text-lg">Global Public School</div>
+                <div className="font-bold text-lg">
+                  Global Public School
+                </div>
                 <div className="text-sm text-slate-400">
                   Learning Today, Leading Tomorrow
                 </div>
               </div>
             </div>
+
             <p className="text-slate-400 text-sm max-w-sm">
               A modern, values-driven school in Fatehpur offering holistic
               education from play school to middle school.
             </p>
+
             <a
               href="/all_images/cert-com.jpeg"
               target="_blank"
@@ -45,24 +50,29 @@ export default function Footer() {
                   alt="Society registration certificate"
                   className="h-28 w-20 flex-shrink-0 rounded-2xl object-cover ring-1 ring-white/10"
                 />
+
                 <div className="min-w-0 space-y-2">
                   <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-300/90">
                     <ShieldCheck size={14} />
                     Registered Society
                   </div>
+
                   <div className="space-y-1">
                     <p className="text-sm font-semibold leading-5 text-white">
                       Wisdom Path Education Society
                     </p>
+
                     <p className="text-xs leading-5 text-slate-300">
                       Registered under the Himachal Pradesh Societies
                       Registration Act, 2006.
                     </p>
+
                     <p className="text-xs leading-5 text-slate-400">
                       Certificate issued on 16 September 2024 in Fatehpur,
                       Himachal Pradesh.
                     </p>
                   </div>
+
                   <div className="inline-flex items-center gap-2 text-xs font-medium text-white/90 transition-colors group-hover:text-white">
                     View certificate
                     <ExternalLink size={14} />
@@ -70,32 +80,39 @@ export default function Footer() {
                 </div>
               </div>
             </a>
+
             <div className="flex gap-3 mt-3">
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Facebook"
                 className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
               >
                 <Facebook size={16} />
               </a>
+
               <a
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Twitter"
                 className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
               >
                 <Twitter size={16} />
               </a>
+
               <a
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Instagram"
                 className="w-9 h-9 bg-slate-800 rounded-full flex items-center justify-center hover:bg-accent transition-colors"
               >
                 <Instagram size={16} />
               </a>
             </div>
+
             <div className="mt-4">
               <a
                 href="/prospectus.pdf"
@@ -112,22 +129,26 @@ export default function Footer() {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h4 className="text-sm font-semibold mb-3">Product</h4>
+
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>
                   <Link to="/about" className="hover:text-accent">
                     About
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/academics" className="hover:text-accent">
                     Academics
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/admissions" className="hover:text-accent">
                     Admissions
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/contact" className="hover:text-accent">
                     Contact
@@ -135,19 +156,23 @@ export default function Footer() {
                 </li>
               </ul>
             </div>
+
             <div>
               <h4 className="text-sm font-semibold mb-3">Resources</h4>
+
               <ul className="space-y-2 text-sm text-slate-400">
                 <li>
                   <Link to="/privacy" className="hover:text-accent">
                     Privacy
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/terms" className="hover:text-accent">
                     Terms
                   </Link>
                 </li>
+
                 <li>
                   <Link to="/sitemap" className="hover:text-accent">
                     Sitemap
@@ -160,9 +185,11 @@ export default function Footer() {
           {/* Contact Info */}
           <div>
             <h4 className="text-sm font-semibold mb-3">Contact</h4>
+
             <ul className="space-y-4 text-sm text-slate-400">
               {contactInfo.map((c) => {
                 const Icon = c.icon;
+
                 return (
                   <li key={c.title} className="flex items-start gap-3">
                     <div
@@ -170,10 +197,12 @@ export default function Footer() {
                     >
                       <Icon size={16} />
                     </div>
+
                     <div>
                       <div className="font-medium text-white text-sm">
                         {c.title}
                       </div>
+
                       <div className="text-slate-400 text-sm mt-1">
                         {c.links
                           ? c.details.map((d, i) => (
@@ -186,7 +215,9 @@ export default function Footer() {
                                 </a>
                               </div>
                             ))
-                          : c.details.map((d, i) => <div key={i}>{d}</div>)}
+                          : c.details.map((d, i) => (
+                              <div key={i}>{d}</div>
+                            ))}
                       </div>
                     </div>
                   </li>
@@ -196,27 +227,50 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 pt-8">
+        {/* Institutional Footnote */}
+        <div className="border-y border-slate-800/80 py-5 mb-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-center">
+            <ShieldCheck
+              size={15}
+              className="text-emerald-400 flex-shrink-0"
+              aria-hidden="true"
+            />
+
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              <span className="text-slate-300">
+                Global Public School, Fatehpur
+              </span>{' '}
+              is managed and operated by{' '}
+              <span className="font-medium text-slate-200">
+                Wisdom Path Education Society
+              </span>
+              .
+            </p>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="border-t border-slate-800 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-400">
             <p>
               © {new Date().getFullYear()} Global Public School. All rights
               reserved.
             </p>
+
             <div className="flex gap-4 mt-4 md:mt-0">
               <Link to="/privacy" className="hover:text-accent">
                 Privacy Policy
               </Link>
+
               <Link to="/terms" className="hover:text-accent">
                 Terms of Service
               </Link>
             </div>
           </div>
         </div>
-
-        {/* small spacer removed - watermark will be absolutely positioned */}
       </div>
 
-      {/* Huge outlined watermark (absolutely positioned, clipped by footer) */}
+      {/* Huge outlined watermark */}
       <svg
         className="absolute left-1/2 transform -translate-x-1/2 bottom-0 w-[220%] h-[220px] sm:h-[260px] md:h-[320px] lg:h-[400px] pointer-events-none z-0 overflow-visible"
         viewBox="0 0 1400 320"
