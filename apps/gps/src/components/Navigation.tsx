@@ -28,6 +28,10 @@ export default function Navigation() {
     { name: 'About Us', href: '/about' },
     { name: 'Academics', href: '/academics' },
     { name: 'Admissions', href: '/admissions' },
+    {
+      name: 'Mandatory Public Disclosure',
+      href: '/mandatory-public-disclosure',
+    },
     { name: 'Contact', href: '/contact' },
   ];
 

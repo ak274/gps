@@ -10,6 +10,7 @@ import Contact from '../pages/Contact';
 import Privacy from '../pages/Privacy';
 import Terms from '../pages/Terms';
 import Sitemap from '../pages/Sitemap';
+import MandatoryPublicDisclosure from '../pages/MandatoryPublicDisclosure';
 import { useSmoothScroll } from '../hooks/useSmoothScroll';
 
 export default function App() {
@@ -29,6 +30,10 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/sitemap" element={<Sitemap />} />
+            <Route
+              path="/mandatory-public-disclosure"
+              element={<MandatoryPublicDisclosure />}
+            />
           </Routes>
         </main>
         <Footer />

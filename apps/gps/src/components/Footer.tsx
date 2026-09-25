@@ -178,6 +178,15 @@ export default function Footer() {
                     Sitemap
                   </Link>
                 </li>
+
+                <li>
+                  <Link
+                    to="/mandatory-public-disclosure"
+                    className="hover:text-accent"
+                  >
+                    Mandatory Public Disclosure
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
