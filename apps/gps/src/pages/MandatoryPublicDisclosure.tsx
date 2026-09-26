@@ -136,6 +136,16 @@ export default function MandatoryPublicDisclosure() {
         <section className="mb-16" aria-labelledby="general-information"><SectionHeading label="Section A" title="General Information" description="Basic school information and official contact details." /><DisclosureTable rows={generalInformation} /></section>
 
         <section className="mb-16" aria-labelledby="documents-information"><SectionHeading label="Section B" title="Documents and Information" description="The required statutory records are published in the requested sequence. Select View LINK to open each PDF directly." />
+          <div className="mb-6 flex flex-col gap-4 border border-emerald-200 bg-emerald-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
+              <div>
+                <p className="text-sm font-semibold text-slate-950">School Self Certificate</p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">View the school’s signed self-certificate for Mandatory Public Disclosure.</p>
+              </div>
+            </div>
+            <a href="/MPD/self%20certificate.pdf" target="_blank" rel="noreferrer" className="inline-flex shrink-0 items-center gap-2 rounded-full bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">View Self Certificate <ExternalLink className="h-4 w-4" /></a>
+          </div>
           <div id="documents-information" className="overflow-hidden border border-slate-200 bg-white">
             <div className="hidden grid-cols-[64px_minmax(0,1fr)_140px] bg-blue-950 px-5 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white sm:grid"><span>S. No.</span><span>Document / Information</span><span>Website Link</span></div>
             <div className="divide-y divide-slate-200">{documents.map((document, index) => <div key={document.title} className="grid gap-3 px-5 py-4 sm:grid-cols-[64px_minmax(0,1fr)_140px] sm:items-center"><span className="text-xs font-bold uppercase tracking-wider text-blue-700">{String(index + 1).padStart(2, '0')}</span><span className="text-sm font-semibold text-slate-900">{document.title}</span><a href={document.file} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-800 underline decoration-blue-200 underline-offset-4 hover:text-blue-600">View LINK <ExternalLink className="h-3.5 w-3.5" /></a></div>)}</div>
