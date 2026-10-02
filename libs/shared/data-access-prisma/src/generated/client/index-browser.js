@@ -142,6 +142,7 @@ exports.Prisma.UserScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   status: 'status',
+  isPlatformAdmin: 'isPlatformAdmin',
   passwordHash: 'passwordHash',
   lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
@@ -368,6 +369,58 @@ exports.Prisma.StudentScalarFieldEnum = {
   deletedById: 'deletedById'
 };
 
+exports.Prisma.FamilyScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  displayName: 'displayName',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.FamilyStudentScalarFieldEnum = {
+  id: 'id',
+  familyId: 'familyId',
+  studentId: 'studentId',
+  relationshipLabel: 'relationshipLabel'
+};
+
+exports.Prisma.FamilyGuardianScalarFieldEnum = {
+  id: 'id',
+  familyId: 'familyId',
+  guardianId: 'guardianId',
+  relationshipLabel: 'relationshipLabel'
+};
+
+exports.Prisma.FamilyAlumniScalarFieldEnum = {
+  id: 'id',
+  familyId: 'familyId',
+  schoolId: 'schoolId',
+  name: 'name',
+  relationshipLabel: 'relationshipLabel',
+  admissionNo: 'admissionNo',
+  graduationYear: 'graduationYear',
+  notes: 'notes'
+};
+
+exports.Prisma.FamilyBenefitScalarFieldEnum = {
+  id: 'id',
+  familyId: 'familyId',
+  schoolId: 'schoolId',
+  feePlanId: 'feePlanId',
+  type: 'type',
+  value: 'value',
+  minimumStudentCount: 'minimumStudentCount',
+  reason: 'reason',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AdmissionApplicationScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -585,6 +638,8 @@ exports.Prisma.FeePlanScalarFieldEnum = {
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  billingCycle: 'billingCycle',
+  dueDay: 'dueDay',
   createdById: 'createdById',
   updatedById: 'updatedById',
   deletedAt: 'deletedAt',
@@ -618,6 +673,41 @@ exports.Prisma.StudentFeePlanScalarFieldEnum = {
   deletedById: 'deletedById'
 };
 
+exports.Prisma.ClassroomFeePlanScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  classRoomId: 'classRoomId',
+  feePlanId: 'feePlanId',
+  assignedAt: 'assignedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
+exports.Prisma.FeeAdjustmentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  feePlanId: 'feePlanId',
+  classRoomId: 'classRoomId',
+  studentId: 'studentId',
+  code: 'code',
+  name: 'name',
+  amount: 'amount',
+  type: 'type',
+  billingCycle: 'billingCycle',
+  reason: 'reason',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById',
+  deletedAt: 'deletedAt',
+  deletedById: 'deletedById'
+};
+
 exports.Prisma.InvoiceScalarFieldEnum = {
   id: 'id',
   tenantId: 'tenantId',
@@ -632,12 +722,70 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   totalAmount: 'totalAmount',
   balanceAmount: 'balanceAmount',
   currencyCode: 'currencyCode',
+  scheduleId: 'scheduleId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   createdById: 'createdById',
   updatedById: 'updatedById',
   deletedAt: 'deletedAt',
   deletedById: 'deletedById'
+};
+
+exports.Prisma.InvoiceScheduleScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  academicYearId: 'academicYearId',
+  feePlanId: 'feePlanId',
+  name: 'name',
+  billingCycle: 'billingCycle',
+  startsOn: 'startsOn',
+  endsOn: 'endsOn',
+  issueDay: 'issueDay',
+  dueDay: 'dueDay',
+  autoPublish: 'autoPublish',
+  autoEmail: 'autoEmail',
+  isActive: 'isActive',
+  lastGeneratedAt: 'lastGeneratedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById'
+};
+
+exports.Prisma.InvoiceDeliveryScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  invoiceId: 'invoiceId',
+  channel: 'channel',
+  status: 'status',
+  recipient: 'recipient',
+  queuedAt: 'queuedAt',
+  sentAt: 'sentAt',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById'
+};
+
+exports.Prisma.PaymentReminderScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  schoolId: 'schoolId',
+  invoiceId: 'invoiceId',
+  channel: 'channel',
+  scheduledFor: 'scheduledFor',
+  status: 'status',
+  sentAt: 'sentAt',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  createdById: 'createdById',
+  updatedById: 'updatedById'
 };
 
 exports.Prisma.InvoiceLineScalarFieldEnum = {
@@ -1013,6 +1161,12 @@ exports.EnrollmentStatus = exports.$Enums.EnrollmentStatus = {
   COMPLETED: 'COMPLETED'
 };
 
+exports.FamilyBenefitType = exports.$Enums.FamilyBenefitType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED: 'FIXED',
+  WAIVER: 'WAIVER'
+};
+
 exports.AdmissionStatus = exports.$Enums.AdmissionStatus = {
   DRAFT: 'DRAFT',
   SUBMITTED: 'SUBMITTED',
@@ -1067,6 +1221,18 @@ exports.AttendanceStatus = exports.$Enums.AttendanceStatus = {
   HOLIDAY: 'HOLIDAY'
 };
 
+exports.FeeBillingCycle = exports.$Enums.FeeBillingCycle = {
+  MONTHLY: 'MONTHLY',
+  QUARTERLY: 'QUARTERLY',
+  ANNUAL: 'ANNUAL',
+  ONE_TIME: 'ONE_TIME'
+};
+
+exports.FeeAdjustmentType = exports.$Enums.FeeAdjustmentType = {
+  CHARGE: 'CHARGE',
+  DISCOUNT: 'DISCOUNT'
+};
+
 exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
   DRAFT: 'DRAFT',
   ISSUED: 'ISSUED',
@@ -1074,6 +1240,25 @@ exports.InvoiceStatus = exports.$Enums.InvoiceStatus = {
   PAID: 'PAID',
   OVERDUE: 'OVERDUE',
   VOID: 'VOID'
+};
+
+exports.InvoiceDeliveryChannel = exports.$Enums.InvoiceDeliveryChannel = {
+  EMAIL: 'EMAIL',
+  PORTAL: 'PORTAL',
+  PRINT: 'PRINT'
+};
+
+exports.InvoiceDeliveryStatus = exports.$Enums.InvoiceDeliveryStatus = {
+  QUEUED: 'QUEUED',
+  SENT: 'SENT',
+  FAILED: 'FAILED'
+};
+
+exports.ReminderStatus = exports.$Enums.ReminderStatus = {
+  SCHEDULED: 'SCHEDULED',
+  SENT: 'SENT',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
 };
 
 exports.PaymentMethod = exports.$Enums.PaymentMethod = {
@@ -1162,6 +1347,11 @@ exports.Prisma.ModelName = {
   TeacherProfile: 'TeacherProfile',
   Guardian: 'Guardian',
   Student: 'Student',
+  Family: 'Family',
+  FamilyStudent: 'FamilyStudent',
+  FamilyGuardian: 'FamilyGuardian',
+  FamilyAlumni: 'FamilyAlumni',
+  FamilyBenefit: 'FamilyBenefit',
   AdmissionApplication: 'AdmissionApplication',
   PromotionBatch: 'PromotionBatch',
   PromotionMapping: 'PromotionMapping',
@@ -1177,7 +1367,12 @@ exports.Prisma.ModelName = {
   FeePlan: 'FeePlan',
   FeeItem: 'FeeItem',
   StudentFeePlan: 'StudentFeePlan',
+  ClassroomFeePlan: 'ClassroomFeePlan',
+  FeeAdjustment: 'FeeAdjustment',
   Invoice: 'Invoice',
+  InvoiceSchedule: 'InvoiceSchedule',
+  InvoiceDelivery: 'InvoiceDelivery',
+  PaymentReminder: 'PaymentReminder',
   InvoiceLine: 'InvoiceLine',
   Payment: 'Payment',
   PaymentAllocation: 'PaymentAllocation',

@@ -1,8 +1,14 @@
 import { PrismaService } from '@gps/data-access-db';
-import { StaffProfile, TeacherProfile } from '@gps/data-access-prisma';
-import { apiConflict, apiNotFound } from '@gps/server-errors';
+import {
+  MembershipStatus,
+  StaffProfile,
+  TeacherProfile,
+  UserStatus,
+} from '@gps/data-access-prisma';
+import { apiBadRequest, apiConflict, apiNotFound, apiUnprocessable } from '@gps/server-errors';
 import { Injectable } from '@nestjs/common';
 import type { AuthenticatedUser } from '@gps/feature-auth';
+import { parse } from 'csv-parse/sync';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { ListStaffQueryDto } from './dto/list-staff-query.dto';
@@ -10,6 +16,18 @@ import { StaffResponseDto } from './dto/staff-response.dto';
 import { TeacherResponseDto } from './dto/teacher-response.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
+import { StaffImportCsvDto } from './dto/staff-import-csv.dto';
+import {
+  StaffImportCommitDto,
+  StaffImportCommitResponseDto,
+  StaffImportErrorDto,
+  StaffImportPreviewResponseDto,
+  StaffImportRecordDto,
+} from './dto/staff-import-response.dto';
+
+type TeacherWithName = TeacherProfile & {
+  staffProfile: { user: { firstName: string; lastName: string | null } };
+};
 
 @Injectable()
 export class StaffService {
@@ -129,10 +147,11 @@ export class StaffService {
   async listTeachers(user: AuthenticatedUser): Promise<TeacherResponseDto[]> {
     const rows = await this.prisma.teacherProfile.findMany({
       where: { tenantId: user.tenantId, deletedAt: null },
+      include: { staffProfile: { include: { user: { select: { firstName: true, lastName: true } } } } },
       orderBy: [{ createdAt: 'desc' }],
     });
 
-    return rows.map((row) => this.toTeacherResponse(row));
+    return rows.map((row) => this.toTeacherResponse(row as TeacherWithName));
   }
 
   async findTeacherById(user: AuthenticatedUser, teacherId: string): Promise<TeacherResponseDto> {
@@ -196,6 +215,216 @@ export class StaffService {
     return this.toTeacherResponse(row);
   }
 
+  async previewImportCsv(
+    user: AuthenticatedUser,
+    dto: StaffImportCsvDto,
+    file?: Express.Multer.File,
+  ): Promise<StaffImportPreviewResponseDto> {
+    const rows = await this.parseImportRows(file);
+    const records = this.normalizeImportRows(rows);
+    await this.ensureImportScope(user, dto);
+
+    const existingStaff = await this.prisma.staffProfile.findMany({
+      where: { tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null },
+      select: { employeeCode: true, user: { select: { email: true } } },
+    });
+    const existingCodes = new Set(existingStaff.map((row) => row.employeeCode.toLowerCase()));
+    const existingEmails = new Set(existingStaff.map((row) => row.user.email.toLowerCase()));
+    const seenCodes = new Map<string, number>();
+    const seenEmails = new Map<string, number>();
+    const errors: StaffImportErrorDto[] = [];
+    const validRecords: StaffImportRecordDto[] = [];
+
+    records.forEach((record, rowIndex) => {
+      const rowErrors: StaffImportErrorDto[] = [];
+      const email = record.email.toLowerCase();
+      const employeeCode = record.employeeCode.toLowerCase();
+
+      if (!record.email || !record.firstName || !record.employeeCode) {
+        rowErrors.push({
+          rowIndex,
+          code: 'REQUIRED_FIELD_MISSING',
+          message: 'Email, first name and employee code are required',
+          details: { email: record.email, employeeCode: record.employeeCode },
+        });
+      }
+      if (record.email && !/^\S+@\S+\.\S+$/.test(record.email)) {
+        rowErrors.push({
+          rowIndex,
+          code: 'INVALID_EMAIL',
+          message: 'Email address is invalid',
+          details: { email: record.email },
+        });
+      }
+      if (seenCodes.has(employeeCode)) {
+        rowErrors.push({
+          rowIndex,
+          code: 'DUPLICATE_EMPLOYEE_CODE',
+          message: 'Employee code is repeated in this file',
+          details: { firstRowIndex: seenCodes.get(employeeCode), employeeCode: record.employeeCode },
+        });
+      }
+      if (seenEmails.has(email)) {
+        rowErrors.push({
+          rowIndex,
+          code: 'DUPLICATE_EMAIL',
+          message: 'Email is repeated in this file',
+          details: { firstRowIndex: seenEmails.get(email), email: record.email },
+        });
+      }
+      if (existingCodes.has(employeeCode)) {
+        rowErrors.push({
+          rowIndex,
+          code: 'EMPLOYEE_CODE_EXISTS',
+          message: 'Employee code already exists in this school',
+          details: { employeeCode: record.employeeCode },
+        });
+      }
+      if (existingEmails.has(email)) {
+        rowErrors.push({
+          rowIndex,
+          code: 'STAFF_EMAIL_EXISTS',
+          message: 'This email already has a staff profile in this school',
+          details: { email: record.email },
+        });
+      }
+      if (record.employeeCode) seenCodes.set(employeeCode, rowIndex);
+      if (record.email) seenEmails.set(email, rowIndex);
+
+      if (rowErrors.length > 0) errors.push(...rowErrors);
+      else validRecords.push(record);
+    });
+
+    return {
+      totalRows: records.length,
+      validRows: validRecords.length,
+      invalidRows: records.length - validRecords.length,
+      records: validRecords,
+      errors,
+    };
+  }
+
+  async commitImport(
+    user: AuthenticatedUser,
+    dto: StaffImportCsvDto,
+    input: StaffImportCommitDto,
+  ): Promise<StaffImportCommitResponseDto> {
+    await this.ensureImportScope(user, dto);
+    if (input.records.length === 0) {
+      throw apiUnprocessable('STAFF_IMPORT_EMPTY', 'At least one reviewed staff record is required');
+    }
+
+    const staffRole = await this.prisma.role.findFirst({
+      where: { tenantId: user.tenantId, key: 'staff', deletedAt: null },
+      select: { id: true },
+    });
+    if (!staffRole) {
+      throw apiBadRequest('STAFF_ROLE_NOT_CONFIGURED', 'The staff role is not configured for this institution');
+    }
+
+    let createdCount = 0;
+    let invitedCount = 0;
+    const errors: StaffImportErrorDto[] = [];
+
+    for (let rowIndex = 0; rowIndex < input.records.length; rowIndex += 1) {
+      const record = input.records[rowIndex];
+      try {
+        await this.prisma.$transaction(async (tx) => {
+          const email = record.email.toLowerCase();
+          const existingUser = await tx.user.findUnique({ where: { email } });
+          const invited = !existingUser;
+          const staffUser =
+            existingUser ??
+            (await tx.user.create({
+              data: {
+                email,
+                firstName: record.firstName,
+                lastName: record.lastName,
+                status: UserStatus.INVITED,
+                createdById: user.sub,
+                updatedById: user.sub,
+              },
+            }));
+          const membership = await tx.userTenant.upsert({
+            where: { tenantId_userId: { tenantId: user.tenantId, userId: staffUser.id } },
+            create: {
+              tenantId: user.tenantId,
+              userId: staffUser.id,
+              status: MembershipStatus.INVITED,
+              createdById: user.sub,
+              updatedById: user.sub,
+            },
+            update: { deletedAt: null, deletedById: null, updatedById: user.sub },
+          });
+          await tx.userRoleAssignment.upsert({
+            where: { userTenantId_roleId: { userTenantId: membership.id, roleId: staffRole.id } },
+            create: { userTenantId: membership.id, roleId: staffRole.id, createdById: user.sub, updatedById: user.sub },
+            update: { deletedAt: null, deletedById: null, updatedById: user.sub },
+          });
+          await tx.staffProfile.create({
+            data: {
+              tenantId: user.tenantId,
+              schoolId: dto.schoolId,
+              campusId: dto.campusId,
+              userId: staffUser.id,
+              employeeCode: record.employeeCode,
+              designation: record.designation,
+              employmentType: record.employmentType,
+              joinedOn: record.joinedOn ? new Date(record.joinedOn) : null,
+              createdById: user.sub,
+              updatedById: user.sub,
+            },
+          });
+          if (invited) invitedCount += 1;
+          createdCount += 1;
+        });
+      } catch (error) {
+        errors.push({
+          rowIndex,
+          code: 'IMPORT_COMMIT_FAILED',
+          message: error instanceof Error ? error.message : 'Unable to commit staff record',
+          details: { email: record.email, employeeCode: record.employeeCode },
+        });
+      }
+    }
+
+    return { createdCount, invitedCount, errors };
+  }
+
+  private async parseImportRows(file?: Express.Multer.File): Promise<Array<Record<string, string>>> {
+    if (!file || !file.buffer || file.buffer.length === 0) {
+      throw apiUnprocessable('STAFF_IMPORT_FILE_MISSING', 'CSV file is required');
+    }
+    const text = file.buffer.toString('utf8');
+    return parse(text, { columns: true, skip_empty_lines: true, trim: true }) as Array<Record<string, string>>;
+  }
+
+  private normalizeImportRows(rows: Array<Record<string, string>>): StaffImportRecordDto[] {
+    return rows.map((row) => ({
+      email: row.email?.trim().toLowerCase() ?? '',
+      firstName: row.firstName?.trim() ?? '',
+      lastName: row.lastName?.trim() || null,
+      employeeCode: row.employeeCode?.trim() ?? '',
+      designation: row.designation?.trim() || null,
+      employmentType: row.employmentType?.trim() || null,
+      joinedOn: row.joinedOn?.trim() || null,
+    }));
+  }
+
+  private async ensureImportScope(user: AuthenticatedUser, dto: StaffImportCsvDto): Promise<void> {
+    const school = await this.prisma.school.findFirst({
+      where: { id: dto.schoolId, tenantId: user.tenantId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!school) throw apiNotFound('SCHOOL_NOT_FOUND', 'School not found in your institution');
+    if (!dto.campusId) return;
+    const campus = await this.prisma.campus.findFirst({
+      where: { id: dto.campusId, schoolId: dto.schoolId, tenantId: user.tenantId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!campus) throw apiNotFound('CAMPUS_NOT_FOUND', 'Campus does not belong to the selected school');
+  }
+
   async updateTeacher(
     user: AuthenticatedUser,
     teacherId: string,
@@ -254,11 +483,14 @@ export class StaffService {
     };
   }
 
-  private toTeacherResponse(row: TeacherProfile): TeacherResponseDto {
+  private toTeacherResponse(row: TeacherProfile | TeacherWithName): TeacherResponseDto {
+    const staffProfile = (row as Partial<TeacherWithName>).staffProfile;
     return {
       id: row.id,
       tenantId: row.tenantId,
       staffProfileId: row.staffProfileId,
+      firstName: staffProfile?.user.firstName ?? '',
+      lastName: staffProfile?.user.lastName ?? null,
       specialization: row.specialization,
       experienceYears: row.experienceYears,
       createdAt: row.createdAt.toISOString(),

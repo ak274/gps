@@ -7,6 +7,10 @@ School management APIs scoped to authenticated tenant.
 - `GET /api/schools` (scope: `schools.read`)
 - `GET /api/schools/:schoolId` (scope: `schools.read`)
 - `POST /api/schools` (scope: `schools.write`)
+- `POST /api/schools/provision` (scope: `schools.write`) — creates a school, its initial campus, an invited administrator membership, role assignment, and school assignment transactionally.
+- `GET /api/schools/platform/tenants` (platform admin) — lists all institutions and school counts.
+- `GET /api/schools/platform/all` (platform admin) — lists all schools across institutions.
+- `POST /api/schools/platform/provision` (platform admin) — provisions a school under a selected institution.
 - `PATCH /api/schools/:schoolId` (scope: `schools.write`)
 - `GET /api/schools/campuses` (scope: `schools.read`)
 - `GET /api/schools/campuses/:campusId` (scope: `schools.read`)

@@ -148,7 +148,7 @@ const ROLE_SCOPE_MAP = {
 };
 
 const DEMO_USERS = [
-  { email: 'superadmin@gps.local', firstName: 'Super', lastName: 'Admin' },
+  { email: 'superadmin@gps.local', firstName: 'Super', lastName: 'Admin', isPlatformAdmin: true },
   { email: 'solo.admin@gps.local', firstName: 'Solo', lastName: 'Admin' },
   { email: 'solo.teacher1@gps.local', firstName: 'Anita', lastName: 'Sharma' },
   { email: 'solo.teacher2@gps.local', firstName: 'Rohit', lastName: 'Verma' },
@@ -232,6 +232,7 @@ async function ensureUser(profile) {
       lastName: profile.lastName,
       status: UserStatus.ACTIVE,
       passwordHash: DEFAULT_PASSWORD_HASH,
+      ...(profile.isPlatformAdmin !== undefined ? { isPlatformAdmin: profile.isPlatformAdmin } : {}),
     },
     create: {
       email: profile.email.toLowerCase(),
@@ -239,6 +240,7 @@ async function ensureUser(profile) {
       lastName: profile.lastName,
       status: UserStatus.ACTIVE,
       passwordHash: DEFAULT_PASSWORD_HASH,
+      isPlatformAdmin: Boolean(profile.isPlatformAdmin),
     },
   });
 }

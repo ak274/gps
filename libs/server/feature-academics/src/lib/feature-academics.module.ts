@@ -6,11 +6,14 @@ import { EnrollmentsController } from './enrollments/enrollments.controller';
 import { EnrollmentsService } from './enrollments/enrollments.service';
 import { SubjectsController } from './subjects/subjects.controller';
 import { SubjectsService } from './subjects/subjects.service';
+import { ClassroomSubjectsController } from './classroom-subjects/classroom-subjects.controller';
+import { ClassroomSubjectsService } from './classroom-subjects/classroom-subjects.service';
+import { AcademicYearsController } from './academic-years/academic-years.controller';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [ClassroomsController, SubjectsController, EnrollmentsController],
-  providers: [ClassroomsService, SubjectsService, EnrollmentsService],
-  exports: [ClassroomsService, SubjectsService, EnrollmentsService],
+  controllers: [ClassroomsController, SubjectsController, EnrollmentsController, ClassroomSubjectsController, AcademicYearsController],
+  providers: [ClassroomsService, SubjectsService, EnrollmentsService, ClassroomSubjectsService],
+  exports: [ClassroomsService, SubjectsService, EnrollmentsService, ClassroomSubjectsService],
 })
 export class AcademicsModule {}

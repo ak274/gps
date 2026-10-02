@@ -3,6 +3,7 @@ import {
   Campus,
   MembershipStatus,
   School,
+  UserStatus,
   UserTenantSchoolAssignment,
 } from '@gps/data-access-prisma';
 import { apiBadRequest, apiConflict, apiNotFound } from '@gps/server-errors';
@@ -17,6 +18,12 @@ import { ListCampusesQueryDto } from './dto/list-campuses-query.dto';
 import { ListSchoolsQueryDto } from './dto/list-schools-query.dto';
 import { SchoolResponseDto } from './dto/school-response.dto';
 import { SchoolAdminAssignmentResponseDto } from './dto/school-admin-assignment-response.dto';
+import { SchoolReadinessResponseDto } from './dto/school-readiness-response.dto';
+import { ProvisionSchoolDto } from './dto/provision-school.dto';
+import { ProvisionSchoolResponseDto } from './dto/provision-school-response.dto';
+import { PlatformProvisionSchoolDto } from './dto/platform-provision-school.dto';
+import { PlatformSchoolResponseDto } from './dto/platform-school-response.dto';
+import { PlatformTenantResponseDto } from './dto/platform-tenant-response.dto';
 import { UpdateCampusDto } from './dto/update-campus.dto';
 import { UpdateSchoolDto } from './dto/update-school.dto';
 
@@ -64,6 +71,130 @@ export class SchoolsService {
     return this.toResponse(school);
   }
 
+  async getReadiness(
+    user: AuthenticatedUser,
+    schoolId: string,
+  ): Promise<SchoolReadinessResponseDto> {
+    await this.ensureSchoolAccessible(user, schoolId);
+
+    const [school, campusCount, currentAcademicYear, staffCount, teacherCount, studentCount, feePlanCount] =
+      await Promise.all([
+        this.prisma.school.findFirstOrThrow({
+          where: { id: schoolId, tenantId: user.tenantId, deletedAt: null },
+          select: { id: true, name: true, board: true, contactEmail: true, contactPhone: true },
+        }),
+        this.prisma.campus.count({ where: { schoolId, tenantId: user.tenantId, deletedAt: null } }),
+        this.prisma.academicYear.findFirst({
+          where: { schoolId, tenantId: user.tenantId, deletedAt: null, isCurrent: true },
+          select: { id: true },
+        }),
+        this.prisma.staffProfile.count({ where: { schoolId, tenantId: user.tenantId, deletedAt: null } }),
+        this.prisma.teacherProfile.count({
+          where: { tenantId: user.tenantId, staffProfile: { schoolId, deletedAt: null } },
+        }),
+        this.prisma.student.count({ where: { schoolId, tenantId: user.tenantId, deletedAt: null } }),
+        this.prisma.feePlan.count({ where: { schoolId, tenantId: user.tenantId, deletedAt: null } }),
+      ]);
+
+    const classRoomCount = currentAcademicYear
+      ? await this.prisma.classRoom.count({
+          where: {
+            schoolId,
+            tenantId: user.tenantId,
+            academicYearId: currentAcademicYear.id,
+            deletedAt: null,
+          },
+        })
+      : 0;
+
+    const steps: SchoolReadinessResponseDto['steps'] = [
+      {
+        id: 'school-profile',
+        label: 'School profile',
+        description: 'Add the school identity and primary contact details.',
+        complete: Boolean(school.name && school.board && (school.contactEmail || school.contactPhone)),
+        required: true,
+        count: 1,
+        href: '/app/settings/school',
+      },
+      {
+        id: 'campuses',
+        label: 'Campuses',
+        description: 'Configure at least one operating campus.',
+        complete: campusCount > 0,
+        required: true,
+        count: campusCount,
+        href: '/app/campuses',
+      },
+      {
+        id: 'academic-year',
+        label: 'Academic year',
+        description: 'Set the current academic year and terms.',
+        complete: Boolean(currentAcademicYear),
+        required: true,
+        count: currentAcademicYear ? 1 : 0,
+        href: '/app/academics',
+      },
+      {
+        id: 'classes-sections',
+        label: 'Classes and sections',
+        description: 'Create the classes and sections for the current year.',
+        complete: classRoomCount > 0,
+        required: true,
+        count: classRoomCount,
+        href: '/app/classes',
+      },
+      {
+        id: 'staff',
+        label: 'Staff',
+        description: 'Bring in staff and assign their operating roles.',
+        complete: staffCount > 0,
+        required: true,
+        count: staffCount,
+        href: '/app/teachers',
+      },
+      {
+        id: 'teachers',
+        label: 'Teachers',
+        description: 'Create teacher profiles and assignments.',
+        complete: teacherCount > 0,
+        required: true,
+        count: teacherCount,
+        href: '/app/teachers',
+      },
+      {
+        id: 'students',
+        label: 'Students and guardians',
+        description: 'Import students and connect their guardians.',
+        complete: studentCount > 0,
+        required: true,
+        count: studentCount,
+        href: '/app/students',
+      },
+      {
+        id: 'fee-structures',
+        label: 'Fee structures',
+        description: 'Configure fee plans when the school collects fees through GPS.',
+        complete: feePlanCount > 0,
+        required: false,
+        count: feePlanCount,
+        href: '/app/fees',
+      },
+    ];
+
+    const requiredSteps = steps.filter((step) => step.required);
+    const completedRequiredSteps = requiredSteps.filter((step) => step.complete).length;
+    const percent = Math.round((completedRequiredSteps / requiredSteps.length) * 100);
+
+    return {
+      schoolId: school.id,
+      schoolName: school.name,
+      percent,
+      status: percent === 0 ? 'NOT_STARTED' : percent === 100 ? 'READY' : 'IN_PROGRESS',
+      steps,
+    };
+  }
+
   async create(user: AuthenticatedUser, dto: CreateSchoolDto): Promise<SchoolResponseDto> {
     const exists = await this.prisma.school.findFirst({
       where: {
@@ -94,6 +225,208 @@ export class SchoolsService {
     });
 
     return this.toResponse(school);
+  }
+
+  async provision(
+    user: AuthenticatedUser,
+    dto: ProvisionSchoolDto,
+  ): Promise<ProvisionSchoolResponseDto> {
+    return this.provisionForTenant(user, user.tenantId, dto);
+  }
+
+  async provisionPlatformSchool(
+    user: AuthenticatedUser,
+    dto: PlatformProvisionSchoolDto,
+  ): Promise<ProvisionSchoolResponseDto> {
+    return this.provisionForTenant(user, dto.tenantId, dto);
+  }
+
+  async listPlatformTenants(): Promise<PlatformTenantResponseDto[]> {
+    const tenants = await this.prisma.tenant.findMany({
+      where: { deletedAt: null },
+      include: { _count: { select: { schools: true } } },
+      orderBy: [{ name: 'asc' }],
+    });
+
+    return tenants.map((tenant) => ({
+      id: tenant.id,
+      code: tenant.code,
+      name: tenant.name,
+      status: tenant.status,
+      schoolCount: tenant._count.schools,
+    }));
+  }
+
+  async listPlatformSchools(): Promise<PlatformSchoolResponseDto[]> {
+    const schools = await this.prisma.school.findMany({
+      where: { deletedAt: null },
+      include: { tenant: true, _count: { select: { campuses: true } } },
+      orderBy: [{ name: 'asc' }],
+    });
+
+    return schools.map((school) => ({
+      id: school.id,
+      tenantId: school.tenantId,
+      tenantCode: school.tenant.code,
+      tenantName: school.tenant.name,
+      code: school.code,
+      name: school.name,
+      board: school.board,
+      campusCount: school._count.campuses,
+      createdAt: school.createdAt.toISOString(),
+    }));
+  }
+
+  private async provisionForTenant(
+    user: AuthenticatedUser,
+    targetTenantId: string,
+    dto: ProvisionSchoolDto,
+  ): Promise<ProvisionSchoolResponseDto> {
+    const tenant = await this.prisma.tenant.findFirst({
+      where: { id: targetTenantId, deletedAt: null },
+      select: { id: true },
+    });
+    if (!tenant) {
+      throw apiNotFound('TENANT_NOT_FOUND', 'Institution not found', { tenantId: targetTenantId });
+    }
+
+    const existingSchool = await this.prisma.school.findFirst({
+      where: { tenantId: targetTenantId, code: dto.schoolCode, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (existingSchool) {
+      throw apiConflict('SCHOOL_CODE_CONFLICT', 'School code already exists in this tenant', {
+        code: dto.schoolCode,
+      });
+    }
+
+    const provisioned = await this.prisma.$transaction(async (tx) => {
+      const school = await tx.school.create({
+        data: {
+          tenantId: targetTenantId,
+          code: dto.schoolCode,
+          name: dto.schoolName,
+          board: dto.board,
+          contactEmail: dto.contactEmail,
+          contactPhone: dto.contactPhone,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+      });
+
+      const campus = await tx.campus.create({
+        data: {
+          tenantId: targetTenantId,
+          schoolId: school.id,
+          code: dto.campusCode,
+          name: dto.campusName,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+      });
+
+      const existingUser = await tx.user.findUnique({
+        where: { email: dto.adminEmail },
+      });
+      const adminUser =
+        existingUser ??
+        (await tx.user.create({
+          data: {
+            email: dto.adminEmail,
+            firstName: dto.adminFirstName,
+            lastName: dto.adminLastName,
+            status: UserStatus.INVITED,
+            createdById: user.sub,
+            updatedById: user.sub,
+          },
+        }));
+
+      const membership = await tx.userTenant.upsert({
+        where: {
+          tenantId_userId: {
+            tenantId: targetTenantId,
+            userId: adminUser.id,
+          },
+        },
+        create: {
+          tenantId: targetTenantId,
+          userId: adminUser.id,
+          status: MembershipStatus.INVITED,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+        update: {
+          deletedAt: null,
+          deletedById: null,
+          updatedById: user.sub,
+        },
+      });
+
+      const adminRole = await tx.role.findFirst({
+        where: {
+          tenantId: targetTenantId,
+          key: { in: ['school_admin', 'tenant_admin', 'admin', 'super_admin'] },
+          deletedAt: null,
+        },
+        orderBy: [{ key: 'asc' }],
+      });
+
+      if (!adminRole) {
+        throw apiBadRequest(
+          'SCHOOL_ADMIN_ROLE_NOT_CONFIGURED',
+          'No school administrator role is configured for this tenant',
+        );
+      }
+
+      await tx.userRoleAssignment.upsert({
+        where: {
+          userTenantId_roleId: {
+            userTenantId: membership.id,
+            roleId: adminRole.id,
+          },
+        },
+        create: {
+          userTenantId: membership.id,
+          roleId: adminRole.id,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+        update: {
+          deletedAt: null,
+          deletedById: null,
+          updatedById: user.sub,
+        },
+      });
+
+      const assignment = await tx.userTenantSchoolAssignment.create({
+        data: {
+          tenantId: targetTenantId,
+          userTenantId: membership.id,
+          schoolId: school.id,
+          canManageAllCampuses: true,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+      });
+
+      return { school, campus, adminUser, membership, adminRole, assignment };
+    });
+
+    return {
+      school: this.toResponse(provisioned.school),
+      campus: this.toCampusResponse(provisioned.campus),
+      schoolAdmin: {
+        userId: provisioned.adminUser.id,
+        userTenantId: provisioned.membership.id,
+        email: provisioned.adminUser.email,
+        firstName: provisioned.adminUser.firstName,
+        lastName: provisioned.adminUser.lastName,
+        status: provisioned.adminUser.status === UserStatus.ACTIVE ? 'ACTIVE' : 'INVITED',
+        roleKey: provisioned.adminRole.key,
+      },
+      status: 'ADMIN_INVITED',
+    };
   }
 
   async update(

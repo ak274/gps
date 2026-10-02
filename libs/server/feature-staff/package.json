@@ -18,9 +18,11 @@
     "@gps/feature-auth": "workspace:*",
     "@gps/server-errors": "workspace:*",
     "@nestjs/common": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
     "@nestjs/swagger": "^11.2.6",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.3"
+    "class-validator": "^0.14.3",
+    "csv-parse": "^6.1.0"
   },
   "nx": {
     "tags": [

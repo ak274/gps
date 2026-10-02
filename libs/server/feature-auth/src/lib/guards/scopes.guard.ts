@@ -19,6 +19,7 @@ export class ScopesGuard implements CanActivate {
     }
 
     const req = context.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
+    if (req.user?.isPlatformAdmin) return true;
     const userScopes = req.user?.scopes ?? [];
     const allowed = requiredScopes.every((scope) => userScopes.includes(scope));
 

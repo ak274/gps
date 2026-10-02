@@ -16,6 +16,9 @@ export class AuthenticatedUserDto {
   @ApiProperty()
   tenantCode!: string;
 
+  @ApiProperty()
+  isPlatformAdmin!: boolean;
+
   @ApiProperty({ type: [String] })
   roles!: string[];
 

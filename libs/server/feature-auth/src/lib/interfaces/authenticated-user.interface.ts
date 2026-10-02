@@ -4,6 +4,7 @@ export interface AuthenticatedUser {
   email: string;
   tenantId: string;
   tenantCode: string;
+  isPlatformAdmin: boolean;
   roles: string[];
   scopes: string[];
 }

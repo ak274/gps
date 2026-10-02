@@ -12,3 +12,4 @@ export * from './lib/dto/refresh-token.dto';
 export * from './lib/dto/logout.dto';
 export * from './lib/dto/signup.dto';
 export * from './lib/interfaces/authenticated-user.interface';
+export * from './lib/guards/platform-admin.guard';

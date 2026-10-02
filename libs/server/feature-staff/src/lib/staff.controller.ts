@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CurrentUser, Scopes } from '@gps/feature-auth';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -17,12 +19,42 @@ import { TeacherResponseDto } from './dto/teacher-response.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { StaffService } from './staff.service';
+import { StaffImportCsvDto } from './dto/staff-import-csv.dto';
+import { StaffImportCommitDto, StaffImportCommitResponseDto, StaffImportPreviewResponseDto } from './dto/staff-import-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('staff')
 @ApiBearerAuth()
 @Controller('staff')
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
+
+  @ApiOperation({ summary: 'Preview staff CSV import without writing records' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', required: ['schoolId', 'file'], properties: { schoolId: { type: 'string' }, campusId: { type: 'string' }, file: { type: 'string', format: 'binary' } } } })
+  @ApiOkResponse({ type: StaffImportPreviewResponseDto })
+  @Scopes('staff.write')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('import/csv/preview')
+  previewImport(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: StaffImportCsvDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.staffService.previewImportCsv(user, dto, file);
+  }
+
+  @ApiOperation({ summary: 'Commit reviewed staff import records' })
+  @ApiOkResponse({ type: StaffImportCommitResponseDto })
+  @Scopes('staff.write')
+  @Post('import')
+  commitImport(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() body: StaffImportCsvDto & StaffImportCommitDto,
+  ) {
+    const { schoolId, campusId, records } = body;
+    return this.staffService.commitImport(user, { schoolId, campusId }, { records });
+  }
 
   @ApiOperation({ summary: 'List staff profiles' })
   @ApiOkResponse({ type: [StaffResponseDto] })

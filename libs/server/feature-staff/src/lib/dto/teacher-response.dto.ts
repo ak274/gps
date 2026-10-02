@@ -10,6 +10,12 @@ export class TeacherResponseDto {
   @ApiProperty()
   staffProfileId!: string;
 
+  @ApiProperty()
+  firstName!: string;
+
+  @ApiPropertyOptional()
+  lastName!: string | null;
+
   @ApiPropertyOptional()
   specialization!: string | null;
 

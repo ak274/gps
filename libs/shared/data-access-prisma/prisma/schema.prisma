@@ -75,6 +75,43 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum FeeBillingCycle {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  ONE_TIME
+}
+
+enum FeeAdjustmentType {
+  CHARGE
+  DISCOUNT
+}
+
+enum FamilyBenefitType {
+  PERCENTAGE
+  FIXED
+  WAIVER
+}
+
+enum InvoiceDeliveryChannel {
+  EMAIL
+  PORTAL
+  PRINT
+}
+
+enum InvoiceDeliveryStatus {
+  QUEUED
+  SENT
+  FAILED
+}
+
+enum ReminderStatus {
+  SCHEDULED
+  SENT
+  FAILED
+  CANCELLED
+}
+
 enum TransportAssignmentStatus {
   ACTIVE
   PAUSED
@@ -184,51 +221,56 @@ model Tenant {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  schools               School[]
-  academicYears         AcademicYear[]
-  terms                 Term[]
-  users                 UserTenant[]
-  roles                 Role[]
-  students              Student[]
-  guardians             Guardian[]
-  staffProfiles         StaffProfile[]
-  teacherProfile        TeacherProfile[]
-  classRooms            ClassRoom[]
-  subjects              Subject[]
-  enrollments           Enrollment[]
-  feePlans              FeePlan[]
-  feeItems              FeeItem[]
-  studentFeePlan        StudentFeePlan[]
-  invoices              Invoice[]
-  invoiceLines          InvoiceLine[]
-  payments              Payment[]
-  paymentAlloc          PaymentAllocation[]
-  routes                TransportRoute[]
-  stops                 TransportStop[]
-  vehicles              TransportVehicle[]
-  transportAsg          StudentTransportAssignment[]
-  docs                  Document[]
-  auditLogs             AuditLog[]
-  Campus                Campus[]
-  StudentGuardian       StudentGuardian[]
-  ClassroomSubject      ClassroomSubject[]
-  AttendanceSession     AttendanceSession[]
-  AttendanceRecord      AttendanceRecord[]
-  timetableEntries      TimetableEntry[]
-  teacherAttendance     TeacherAttendance[]
-  notifications         Notification[]
-  userNotifications     UserNotification[]
-  messages              Message[]
-  sessions              Session[]
-  exams                 Exam[]
-  examSubjects          ExamSubject[]
-  studentAssess         StudentAssessment[]
-  homework              Homework[]
-  admissionApplications AdmissionApplication[]
-  promotionBatches      PromotionBatch[]
-  promotionMappings     PromotionMapping[]
-  promotionOverrides    PromotionStudentOverride[]
-  studentExitRequests   StudentExitRequest[]
+  schools                     School[]
+  academicYears               AcademicYear[]
+  terms                       Term[]
+  users                       UserTenant[]
+  roles                       Role[]
+  students                    Student[]
+  guardians                   Guardian[]
+  staffProfiles               StaffProfile[]
+  teacherProfile              TeacherProfile[]
+  classRooms                  ClassRoom[]
+  subjects                    Subject[]
+  enrollments                 Enrollment[]
+  feePlans                    FeePlan[]
+  feeItems                    FeeItem[]
+  studentFeePlan              StudentFeePlan[]
+  classroomFeePlans           ClassroomFeePlan[]
+  feeAdjustments              FeeAdjustment[]
+  invoices                    Invoice[]
+  invoiceSchedules            InvoiceSchedule[]
+  invoiceDeliveries           InvoiceDelivery[]
+  paymentReminders            PaymentReminder[]
+  invoiceLines                InvoiceLine[]
+  payments                    Payment[]
+  paymentAlloc                PaymentAllocation[]
+  routes                      TransportRoute[]
+  stops                       TransportStop[]
+  vehicles                    TransportVehicle[]
+  transportAsg                StudentTransportAssignment[]
+  docs                        Document[]
+  auditLogs                   AuditLog[]
+  Campus                      Campus[]
+  StudentGuardian             StudentGuardian[]
+  ClassroomSubject            ClassroomSubject[]
+  AttendanceSession           AttendanceSession[]
+  AttendanceRecord            AttendanceRecord[]
+  timetableEntries            TimetableEntry[]
+  teacherAttendance           TeacherAttendance[]
+  notifications               Notification[]
+  userNotifications           UserNotification[]
+  messages                    Message[]
+  sessions                    Session[]
+  exams                       Exam[]
+  examSubjects                ExamSubject[]
+  studentAssess               StudentAssessment[]
+  homework                    Homework[]
+  admissionApplications       AdmissionApplication[]
+  promotionBatches            PromotionBatch[]
+  promotionMappings           PromotionMapping[]
+  promotionOverrides          PromotionStudentOverride[]
+  studentExitRequests         StudentExitRequest[]
   userTenantSchoolAssignments UserTenantSchoolAssignment[]
 
   createdById String?   @map("created_by_id")
@@ -236,24 +278,26 @@ model Tenant {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
-  createdBy User? @relation("TenantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_tenants_created_by_id_users")
-  updatedBy User? @relation("TenantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_tenants_updated_by_id_users")
-  deletedBy User? @relation("TenantDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_tenants_deleted_by_id_users")
+  createdBy User?    @relation("TenantCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_tenants_created_by_id_users")
+  updatedBy User?    @relation("TenantUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_tenants_updated_by_id_users")
+  deletedBy User?    @relation("TenantDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_tenants_deleted_by_id_users")
+  Family    Family[]
 
   @@map("tenants")
 }
 
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique(map: "uq_users_email")
-  phoneE164    String?    @unique(map: "uq_users_phone_e164") @map("phone_e164")
-  firstName    String     @map("first_name")
-  lastName     String?    @map("last_name")
-  status       UserStatus @default(INVITED)
-  passwordHash String?    @map("password_hash")
-  lastLoginAt  DateTime?  @map("last_login_at")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+  id              String     @id @default(cuid())
+  email           String     @unique(map: "uq_users_email")
+  phoneE164       String?    @unique(map: "uq_users_phone_e164") @map("phone_e164")
+  firstName       String     @map("first_name")
+  lastName        String?    @map("last_name")
+  status          UserStatus @default(INVITED)
+  isPlatformAdmin Boolean    @default(false) @map("is_platform_admin")
+  passwordHash    String?    @map("password_hash")
+  lastLoginAt     DateTime?  @map("last_login_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
 
   memberships       UserTenant[]
   staffProfiles     StaffProfile[]
@@ -320,6 +364,12 @@ model User {
   invoicesCreated                    Invoice[]                    @relation("InvoiceCreatedBy")
   invoicesDeleted                    Invoice[]                    @relation("InvoiceDeletedBy")
   invoicesUpdated                    Invoice[]                    @relation("InvoiceUpdatedBy")
+  invoiceSchedulesCreated            InvoiceSchedule[]            @relation("InvoiceScheduleCreatedBy")
+  invoiceSchedulesUpdated            InvoiceSchedule[]            @relation("InvoiceScheduleUpdatedBy")
+  invoiceDeliveriesCreated           InvoiceDelivery[]            @relation("InvoiceDeliveryCreatedBy")
+  invoiceDeliveriesUpdated           InvoiceDelivery[]            @relation("InvoiceDeliveryUpdatedBy")
+  paymentRemindersCreated            PaymentReminder[]            @relation("PaymentReminderCreatedBy")
+  paymentRemindersUpdated            PaymentReminder[]            @relation("PaymentReminderUpdatedBy")
   messagesCreated                    Message[]                    @relation("MessageCreatedBy")
   messagesDeleted                    Message[]                    @relation("MessageDeletedBy")
   messagesUpdated                    Message[]                    @relation("MessageUpdatedBy")
@@ -356,6 +406,15 @@ model User {
   studentFeePlansCreated             StudentFeePlan[]             @relation("StudentFeePlanCreatedBy")
   studentFeePlansDeleted             StudentFeePlan[]             @relation("StudentFeePlanDeletedBy")
   studentFeePlansUpdated             StudentFeePlan[]             @relation("StudentFeePlanUpdatedBy")
+  classroomFeePlansCreated           ClassroomFeePlan[]           @relation("ClassroomFeePlanCreatedBy")
+  classroomFeePlansUpdated           ClassroomFeePlan[]           @relation("ClassroomFeePlanUpdatedBy")
+  classroomFeePlansDeleted           ClassroomFeePlan[]           @relation("ClassroomFeePlanDeletedBy")
+  feeAdjustmentsCreated              FeeAdjustment[]              @relation("FeeAdjustmentCreatedBy")
+  feeAdjustmentsUpdated              FeeAdjustment[]              @relation("FeeAdjustmentUpdatedBy")
+  feeAdjustmentsDeleted              FeeAdjustment[]              @relation("FeeAdjustmentDeletedBy")
+  familiesCreated                    Family[]                     @relation("FamilyCreatedBy")
+  familiesUpdated                    Family[]                     @relation("FamilyUpdatedBy")
+  familiesDeleted                    Family[]                     @relation("FamilyDeletedBy")
   studentGuardiansCreated            StudentGuardian[]            @relation("StudentGuardianCreatedBy")
   studentGuardiansDeleted            StudentGuardian[]            @relation("StudentGuardianDeletedBy")
   studentGuardiansUpdated            StudentGuardian[]            @relation("StudentGuardianUpdatedBy")
@@ -445,9 +504,9 @@ model UserTenant {
   createdAt  DateTime         @default(now()) @map("created_at")
   updatedAt  DateTime         @updatedAt @map("updated_at")
 
-  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  roleAssignments UserRoleAssignment[]
+  tenant            Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user              User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleAssignments   UserRoleAssignment[]
   schoolAssignments UserTenantSchoolAssignment[]
 
   createdById String?   @map("created_by_id")
@@ -598,7 +657,7 @@ model School {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant                Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   campuses              Campus[]
   academicYears         AcademicYear[]
   terms                 Term[]
@@ -608,7 +667,13 @@ model School {
   classRooms            ClassRoom[]
   subjects              Subject[]
   feePlans              FeePlan[]
+  feeAdjustments        FeeAdjustment[]
+  alumniRecords         FamilyAlumni[]
+  familyBenefits        FamilyBenefit[]
   invoices              Invoice[]
+  invoiceSchedules      InvoiceSchedule[]
+  invoiceDeliveries     InvoiceDelivery[]
+  paymentReminders      PaymentReminder[]
   payments              Payment[]
   routes                TransportRoute[]
   vehicles              TransportVehicle[]
@@ -700,9 +765,10 @@ model AcademicYear {
   deletedAt   DateTime? @map("deleted_at")
   deletedById String?   @map("deleted_by_id")
 
-  createdBy User? @relation("AcademicYearCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_academic_years_created_by_id_users")
-  updatedBy User? @relation("AcademicYearUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_academic_years_updated_by_id_users")
-  deletedBy User? @relation("AcademicYearDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_academic_years_deleted_by_id_users")
+  createdBy        User?             @relation("AcademicYearCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, map: "fk_academic_years_created_by_id_users")
+  updatedBy        User?             @relation("AcademicYearUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_academic_years_updated_by_id_users")
+  deletedBy        User?             @relation("AcademicYearDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_academic_years_deleted_by_id_users")
+  invoiceSchedules InvoiceSchedule[]
 
   @@unique([schoolId, name], map: "uq_academic_years_school_name")
   @@index([tenantId, schoolId, isCurrent], map: "idx_academic_years_current")
@@ -825,6 +891,7 @@ model Guardian {
   user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   studentLinks StudentGuardian[]
+  familyLinks  FamilyGuardian[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -865,6 +932,8 @@ model Student {
   enrollments           Enrollment[]
   attendance            AttendanceRecord[]
   feePlans              StudentFeePlan[]
+  feeAdjustments        FeeAdjustment[]
+  familyLinks           FamilyStudent[]
   invoices              Invoice[]
   payments              Payment[]
   transportAsg          StudentTransportAssignment[]
@@ -885,6 +954,93 @@ model Student {
   @@unique([schoolId, admissionNo], map: "uq_students_school_admission_no")
   @@index([tenantId, schoolId, currentStatus], map: "idx_students_tenant_school_status")
   @@map("students")
+}
+
+model Family {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  displayName String   @map("display_name")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  students  FamilyStudent[]
+  guardians FamilyGuardian[]
+  alumni    FamilyAlumni[]
+  benefits  FamilyBenefit[]
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+  createdBy   User?     @relation("FamilyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?     @relation("FamilyUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  deletedBy   User?     @relation("FamilyDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, displayName], map: "idx_families_tenant_name")
+  @@map("families")
+}
+
+model FamilyStudent {
+  id                String  @id @default(cuid())
+  familyId          String  @map("family_id")
+  studentId         String  @map("student_id")
+  relationshipLabel String? @map("relationship_label")
+  family            Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  student           Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, studentId], map: "uq_family_students_family_student")
+  @@index([studentId], map: "idx_family_students_student")
+  @@map("family_students")
+}
+
+model FamilyGuardian {
+  id                String   @id @default(cuid())
+  familyId          String   @map("family_id")
+  guardianId        String   @map("guardian_id")
+  relationshipLabel String?  @map("relationship_label")
+  family            Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  guardian          Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, guardianId], map: "uq_family_guardians_family_guardian")
+  @@map("family_guardians")
+}
+
+model FamilyAlumni {
+  id                String  @id @default(cuid())
+  familyId          String  @map("family_id")
+  schoolId          String  @map("school_id")
+  name              String
+  relationshipLabel String? @map("relationship_label")
+  admissionNo       String? @map("admission_no")
+  graduationYear    String? @map("graduation_year")
+  notes             String?
+  family            Family  @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  school            School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@index([familyId], map: "idx_family_alumni_family")
+  @@map("family_alumni")
+}
+
+model FamilyBenefit {
+  id                  String            @id @default(cuid())
+  familyId            String            @map("family_id")
+  schoolId            String            @map("school_id")
+  feePlanId           String?           @map("fee_plan_id")
+  type                FamilyBenefitType
+  value               Decimal           @db.Decimal(12, 2)
+  minimumStudentCount Int               @default(2) @map("minimum_student_count")
+  reason              String
+  isActive            Boolean           @default(true) @map("is_active")
+  createdAt           DateTime          @default(now()) @map("created_at")
+  updatedAt           DateTime          @updatedAt @map("updated_at")
+  family              Family            @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  school              School            @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  feePlan             FeePlan?          @relation(fields: [feePlanId], references: [id], onDelete: SetNull)
+
+  @@index([familyId, schoolId, isActive], map: "idx_family_benefits_family_school_active")
+  @@map("family_benefits")
 }
 
 model AdmissionApplication {
@@ -1123,6 +1279,8 @@ model ClassRoom {
   timetableEntries      TimetableEntry[]
   exams                 Exam[]
   homework              Homework[]
+  feePlans              ClassroomFeePlan[]
+  feeAdjustments        FeeAdjustment[]
   admissionApplications AdmissionApplication[]
   promotionMappingsFrom PromotionMapping[]         @relation("PromotionMappingFromClassRoom")
   promotionMappingsTo   PromotionMapping[]         @relation("PromotionMappingToClassRoom")
@@ -1137,7 +1295,7 @@ model ClassRoom {
   updatedBy User? @relation("ClassRoomUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_class_rooms_updated_by_id_users")
   deletedBy User? @relation("ClassRoomDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_class_rooms_deleted_by_id_users")
 
-  @@unique([academicYearId, name], map: "uq_class_rooms_academic_year_name")
+  @@unique([academicYearId, name, section], map: "uq_class_rooms_academic_year_name_section")
   @@index([tenantId, schoolId], map: "idx_class_rooms_tenant_school")
   @@index([homeRoomTeacherId], map: "idx_class_rooms_home_room_teacher_id")
   @@map("class_rooms")
@@ -1304,8 +1462,14 @@ model FeePlan {
   school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
   academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
 
-  items       FeeItem[]
-  assignments StudentFeePlan[]
+  items                FeeItem[]
+  assignments          StudentFeePlan[]
+  classroomAssignments ClassroomFeePlan[]
+  adjustments          FeeAdjustment[]
+  familyBenefits       FamilyBenefit[]
+  invoiceSchedules     InvoiceSchedule[]
+  billingCycle         FeeBillingCycle    @default(ANNUAL) @map("billing_cycle")
+  dueDay               Int?               @map("due_day")
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -1374,6 +1538,67 @@ model StudentFeePlan {
   @@map("student_fee_plans")
 }
 
+model ClassroomFeePlan {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  classRoomId String   @map("class_room_id")
+  feePlanId   String   @map("fee_plan_id")
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  classRoom ClassRoom @relation(fields: [classRoomId], references: [id], onDelete: Cascade)
+  feePlan   FeePlan   @relation(fields: [feePlanId], references: [id], onDelete: Restrict)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+  createdBy   User?     @relation("ClassroomFeePlanCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?     @relation("ClassroomFeePlanUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  deletedBy   User?     @relation("ClassroomFeePlanDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+
+  @@unique([classRoomId, feePlanId], map: "uq_classroom_fee_plans_classroom_fee_plan")
+  @@index([tenantId, classRoomId], map: "idx_classroom_fee_plans_tenant_classroom")
+  @@map("classroom_fee_plans")
+}
+
+model FeeAdjustment {
+  id            String            @id @default(cuid())
+  tenantId      String            @map("tenant_id")
+  schoolId      String            @map("school_id")
+  feePlanId     String?           @map("fee_plan_id")
+  classRoomId   String?           @map("class_room_id")
+  studentId     String?           @map("student_id")
+  code          String
+  name          String
+  amount        Decimal           @db.Decimal(12, 2)
+  type          FeeAdjustmentType
+  billingCycle  FeeBillingCycle   @default(ONE_TIME) @map("billing_cycle")
+  reason        String?
+  effectiveFrom DateTime?         @map("effective_from") @db.Date
+  effectiveTo   DateTime?         @map("effective_to") @db.Date
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school    School     @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  feePlan   FeePlan?   @relation(fields: [feePlanId], references: [id], onDelete: SetNull)
+  classRoom ClassRoom? @relation(fields: [classRoomId], references: [id], onDelete: Cascade)
+  student   Student?   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdById String?   @map("created_by_id")
+  updatedById String?   @map("updated_by_id")
+  deletedAt   DateTime? @map("deleted_at")
+  deletedById String?   @map("deleted_by_id")
+  createdBy   User?     @relation("FeeAdjustmentCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?     @relation("FeeAdjustmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  deletedBy   User?     @relation("FeeAdjustmentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, schoolId, studentId], map: "idx_fee_adjustments_tenant_school_student")
+  @@index([tenantId, classRoomId], map: "idx_fee_adjustments_tenant_classroom")
+  @@map("fee_adjustments")
+}
+
 model Invoice {
   id            String        @id @default(cuid())
   tenantId      String        @map("tenant_id")
@@ -1388,6 +1613,9 @@ model Invoice {
   totalAmount   Decimal       @map("total_amount") @db.Decimal(12, 2)
   balanceAmount Decimal       @map("balance_amount") @db.Decimal(12, 2)
   currencyCode  String        @default("INR") @map("currency_code")
+  scheduleId    String?       @map("schedule_id")
+  periodStart   DateTime?     @map("period_start") @db.Date
+  periodEnd     DateTime?     @map("period_end") @db.Date
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
 
@@ -1396,6 +1624,9 @@ model Invoice {
   student     Student             @relation(fields: [studentId], references: [id], onDelete: Restrict)
   lines       InvoiceLine[]
   allocations PaymentAllocation[]
+  schedule    InvoiceSchedule?    @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  deliveries  InvoiceDelivery[]
+  reminders   PaymentReminder[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -1407,9 +1638,100 @@ model Invoice {
   deletedBy User? @relation("InvoiceDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_invoices_deleted_by_id_users")
 
   @@unique([schoolId, invoiceNumber], map: "uq_invoices_school_invoice_number")
+  @@unique([scheduleId, studentId, periodStart, periodEnd], map: "uq_invoices_schedule_student_period")
   @@index([tenantId, studentId, status], map: "idx_invoices_student_status")
   @@index([tenantId, issueDate], map: "idx_invoices_issue_date")
   @@map("invoices")
+}
+
+model InvoiceSchedule {
+  id              String          @id @default(cuid())
+  tenantId        String          @map("tenant_id")
+  schoolId        String          @map("school_id")
+  academicYearId  String          @map("academic_year_id")
+  feePlanId       String          @map("fee_plan_id")
+  name            String
+  billingCycle    FeeBillingCycle @map("billing_cycle")
+  startsOn        DateTime        @map("starts_on") @db.Date
+  endsOn          DateTime?       @map("ends_on") @db.Date
+  issueDay        Int             @default(1) @map("issue_day")
+  dueDay          Int             @default(10) @map("due_day")
+  autoPublish     Boolean         @default(true) @map("auto_publish")
+  autoEmail       Boolean         @default(false) @map("auto_email")
+  isActive        Boolean         @default(true) @map("is_active")
+  lastGeneratedAt DateTime?       @map("last_generated_at")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  feePlan      FeePlan      @relation(fields: [feePlanId], references: [id], onDelete: Restrict)
+  invoices     Invoice[]
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("InvoiceScheduleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("InvoiceScheduleUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([schoolId, feePlanId, academicYearId], map: "uq_invoice_schedules_school_plan_year")
+  @@index([tenantId, schoolId, isActive], map: "idx_invoice_schedules_tenant_school_active")
+  @@map("invoice_schedules")
+}
+
+model InvoiceDelivery {
+  id            String                 @id @default(cuid())
+  tenantId      String                 @map("tenant_id")
+  schoolId      String                 @map("school_id")
+  invoiceId     String                 @map("invoice_id")
+  channel       InvoiceDeliveryChannel
+  status        InvoiceDeliveryStatus  @default(QUEUED)
+  recipient     String?
+  queuedAt      DateTime               @default(now()) @map("queued_at")
+  sentAt        DateTime?              @map("sent_at")
+  failureReason String?                @map("failure_reason")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school  School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("InvoiceDeliveryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("InvoiceDeliveryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([invoiceId, channel], map: "uq_invoice_deliveries_invoice_channel")
+  @@index([tenantId, schoolId, status], map: "idx_invoice_deliveries_tenant_school_status")
+  @@map("invoice_deliveries")
+}
+
+model PaymentReminder {
+  id            String                 @id @default(cuid())
+  tenantId      String                 @map("tenant_id")
+  schoolId      String                 @map("school_id")
+  invoiceId     String                 @map("invoice_id")
+  channel       InvoiceDeliveryChannel
+  scheduledFor  DateTime               @map("scheduled_for")
+  status        ReminderStatus         @default(SCHEDULED)
+  sentAt        DateTime?              @map("sent_at")
+  failureReason String?                @map("failure_reason")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school  School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("PaymentReminderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("PaymentReminderUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([invoiceId, channel, scheduledFor], map: "uq_payment_reminders_invoice_channel_date")
+  @@index([tenantId, schoolId, status, scheduledFor], map: "idx_payment_reminders_due")
+  @@map("payment_reminders")
 }
 
 model InvoiceLine {

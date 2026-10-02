@@ -44,3 +44,19 @@ NestJS feature library for tenant-scoped student APIs (CRUD + bulk import).
 - `STUDENT_ADMISSION_NO_CONFLICT` (`409`) when `(schoolId, admissionNo)` already exists.
 - `STUDENTS_IMPORT_FILE_MISSING` (`422`) when CSV upload is missing/empty.
 - `STUDENTS_IMPORT_INVALID_ROWS` (`422`) when CSV rows are missing required fields.
+- `POST /api/students/bulk-import/csv/preview` (scope: `students.write`) parses and validates a CSV without writing records.
+- `POST /api/students/bulk-import` (scope: `students.write`) commits the reviewed JSON records.
+
+## Family relationships
+
+Families are tenant-level records that can connect students, guardians and alumni across the school's campuses. This keeps sibling relationships and family history in one place while allowing school-specific benefits to be configured for finance.
+
+- `GET /api/students/families` (scope: `students.read`)
+- `POST /api/students/families` (scope: `students.write`)
+- `GET /api/students/families/:familyId` (scope: `students.read`)
+- `POST /api/students/families/:familyId/students` (scope: `students.write`)
+- `POST /api/students/families/:familyId/guardians` (scope: `students.write`)
+- `POST /api/students/families/:familyId/alumni` (scope: `students.write`)
+- `POST /api/students/families/:familyId/benefits` (scope: `students.write`)
+
+Family benefits support percentage discounts, fixed discounts and waivers, optionally scoped to a fee plan and gated by the minimum number of enrolled family students. The finance invoice engine still needs to apply these configured benefits automatically during invoice generation.

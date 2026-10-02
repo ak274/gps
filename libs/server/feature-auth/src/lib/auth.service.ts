@@ -93,6 +93,7 @@ export class AuthService {
       email: user.email,
       tenantId: membership.tenantId,
       tenantCode: membership.tenant.code,
+      isPlatformAdmin: user.isPlatformAdmin,
       sessionId: session.id,
       roleAssignments: membership.roleAssignments,
     });
@@ -186,6 +187,7 @@ export class AuthService {
       email: user.email,
       tenantId: tenant.id,
       tenantCode: tenant.code,
+      isPlatformAdmin: false,
       sessionId: session.id,
       roleAssignments: [],
     });
@@ -286,6 +288,7 @@ export class AuthService {
       email: session.user.email,
       tenantId: session.tenantId,
       tenantCode: membership.tenant.code,
+      isPlatformAdmin: session.user.isPlatformAdmin,
       sessionId: newSession.id,
       roleAssignments: membership.roleAssignments,
     });
@@ -332,6 +335,7 @@ export class AuthService {
     email: string;
     tenantId: string;
     tenantCode: string;
+    isPlatformAdmin: boolean;
     roleAssignments: Array<{
       role: {
         key: string;
@@ -354,6 +358,7 @@ export class AuthService {
       email: params.email,
       tenantId: params.tenantId,
       tenantCode: params.tenantCode,
+      isPlatformAdmin: params.isPlatformAdmin,
       roles,
       scopes,
     };

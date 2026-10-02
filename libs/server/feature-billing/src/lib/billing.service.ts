@@ -3,9 +3,14 @@ import {
   FeePlan,
   Invoice,
   InvoiceStatus,
+  EnrollmentStatus,
   Payment,
   PaymentStatus,
   Prisma,
+  FeeBillingCycle,
+  InvoiceDeliveryChannel,
+  InvoiceDeliveryStatus,
+  ReminderStatus,
 } from '@gps/data-access-prisma';
 import { apiConflict, apiNotFound, apiUnprocessable } from '@gps/server-errors';
 import { Injectable } from '@nestjs/common';
@@ -23,6 +28,14 @@ import { UpdateFeePlanDto } from './dto/update-fee-plan.dto';
 import { UpdateInvoiceDto } from './dto/update-invoice.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { FeeDiscountType } from './dto/fee-item-discount-input.dto';
+import { AssignFeePlanDto } from './dto/assign-fee-plan.dto';
+import { CreateFeeAdjustmentDto } from './dto/create-fee-adjustment.dto';
+import { CreateInvoiceScheduleDto } from './dto/create-invoice-schedule.dto';
+import { GenerateInvoicesDto } from './dto/generate-invoices.dto';
+import { CreateInvoiceDeliveryDto } from './dto/create-invoice-delivery.dto';
+import { RunRemindersDto } from './dto/run-reminders.dto';
+import { StudentLedgerResponseDto } from './dto/student-ledger-response.dto';
+import { RunSchedulesDto } from './dto/run-schedules.dto';
 
 @Injectable()
 export class BillingService {
@@ -80,6 +93,8 @@ export class BillingService {
         name: dto.name,
         currencyCode: dto.currencyCode ?? 'INR',
         isActive: dto.isActive ?? true,
+        billingCycle: dto.billingCycle ?? FeeBillingCycle.ANNUAL,
+        dueDay: dto.dueDay,
         items: {
           create: dto.items.map((item) => {
             const computed = this.computeFeeItemAmount(item);
@@ -123,6 +138,220 @@ export class BillingService {
     });
 
     return this.toFeePlanResponse(row);
+  }
+
+  async listFeeAssignments(user: AuthenticatedUser, schoolId?: string) {
+    const [classes, students] = await Promise.all([
+      this.prisma.classroomFeePlan.findMany({
+        where: { tenantId: user.tenantId, deletedAt: null, ...(schoolId ? { classRoom: { schoolId } } : {}) },
+        include: { feePlan: { select: { id: true, name: true } }, classRoom: { select: { name: true, section: true } } },
+      }),
+      this.prisma.studentFeePlan.findMany({
+        where: { tenantId: user.tenantId, deletedAt: null, ...(schoolId ? { student: { schoolId } } : {}) },
+        include: { feePlan: { select: { id: true, name: true } }, student: { select: { firstName: true, lastName: true, admissionNo: true } } },
+      }),
+    ]);
+    return [
+      ...classes.map((row) => ({ id: row.id, feePlanId: row.feePlanId, feePlanName: row.feePlan.name, scope: 'CLASS' as const, targetId: row.classRoomId, targetLabel: `${row.classRoom.name} · ${row.classRoom.section ?? 'Main'}` })),
+      ...students.map((row) => ({ id: row.id, feePlanId: row.feePlanId, feePlanName: row.feePlan.name, scope: 'STUDENT' as const, targetId: row.studentId, targetLabel: `${row.student.firstName} ${row.student.lastName ?? ''} · ${row.student.admissionNo}` })),
+    ];
+  }
+
+  async listInvoiceSchedules(user: AuthenticatedUser, schoolId?: string) {
+    const rows = await this.prisma.invoiceSchedule.findMany({
+      where: { tenantId: user.tenantId, ...(schoolId ? { schoolId } : {}), isActive: true },
+      include: { feePlan: { select: { id: true, name: true, billingCycle: true } }, _count: { select: { invoices: true } } },
+      orderBy: [{ createdAt: 'desc' }],
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      schoolId: row.schoolId,
+      academicYearId: row.academicYearId,
+      feePlanId: row.feePlanId,
+      feePlanName: row.feePlan.name,
+      name: row.name,
+      billingCycle: row.billingCycle,
+      startsOn: row.startsOn.toISOString(),
+      endsOn: row.endsOn?.toISOString() ?? null,
+      issueDay: row.issueDay,
+      dueDay: row.dueDay,
+      autoPublish: row.autoPublish,
+      autoEmail: row.autoEmail,
+      invoiceCount: row._count.invoices,
+      lastGeneratedAt: row.lastGeneratedAt?.toISOString() ?? null,
+    }));
+  }
+
+  async createInvoiceSchedule(user: AuthenticatedUser, dto: CreateInvoiceScheduleDto) {
+    const [school, academicYear, feePlan] = await Promise.all([
+      this.prisma.school.findFirst({ where: { id: dto.schoolId, tenantId: user.tenantId, deletedAt: null }, select: { id: true } }),
+      this.prisma.academicYear.findFirst({ where: { id: dto.academicYearId, tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null }, select: { id: true } }),
+      this.prisma.feePlan.findFirst({ where: { id: dto.feePlanId, tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null }, select: { id: true } }),
+    ]);
+    if (!school || !academicYear || !feePlan) throw apiNotFound('BILLING_SCHEDULE_TARGET_NOT_FOUND', 'School, academic year, or fee plan not found');
+    try {
+      return await this.prisma.invoiceSchedule.create({
+        data: {
+          tenantId: user.tenantId,
+          schoolId: dto.schoolId,
+          academicYearId: dto.academicYearId,
+          feePlanId: dto.feePlanId,
+          name: dto.name,
+          billingCycle: dto.billingCycle,
+          startsOn: new Date(dto.startsOn),
+          endsOn: dto.endsOn ? new Date(dto.endsOn) : null,
+          issueDay: dto.issueDay ?? 1,
+          dueDay: dto.dueDay ?? 10,
+          autoPublish: dto.autoPublish ?? true,
+          autoEmail: dto.autoEmail ?? false,
+          createdById: user.sub,
+          updatedById: user.sub,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw apiConflict('BILLING_SCHEDULE_CONFLICT', 'An invoice schedule already exists for this fee plan and academic year');
+      }
+      throw error;
+    }
+  }
+
+  async runInvoiceSchedules(user: AuthenticatedUser, dto: RunSchedulesDto) {
+    const asOf = dto.asOf ? new Date(dto.asOf) : new Date();
+    const schedules = await this.prisma.invoiceSchedule.findMany({ where: { tenantId: user.tenantId, schoolId: dto.schoolId, isActive: true, startsOn: { lte: asOf }, OR: [{ endsOn: null }, { endsOn: { gte: asOf } }] }, orderBy: [{ createdAt: 'asc' }] });
+    const batches = [];
+    for (const schedule of schedules) {
+      const period = this.periodForSchedule(schedule.billingCycle, asOf, schedule.startsOn);
+      batches.push(await this.generateInvoices(user, { scheduleId: schedule.id, periodStart: period.start.toISOString(), periodEnd: period.end.toISOString(), issueDate: asOf.toISOString(), dueDate: this.addDays(asOf, Math.max(1, schedule.dueDay - schedule.issueDay)).toISOString() }));
+    }
+    return { schoolId: dto.schoolId, asOf: asOf.toISOString(), schedulesRun: batches.length, batches };
+  }
+
+  async generateInvoices(user: AuthenticatedUser, dto: GenerateInvoicesDto) {
+    const schedule = await this.prisma.invoiceSchedule.findFirst({
+      where: { id: dto.scheduleId, tenantId: user.tenantId, isActive: true },
+      include: { feePlan: { include: { items: { where: { deletedAt: null }, orderBy: [{ code: 'asc' }] } } } },
+    });
+    if (!schedule) throw apiNotFound('BILLING_SCHEDULE_NOT_FOUND', 'Invoice schedule not found');
+
+    const periodStart = new Date(dto.periodStart);
+    const periodEnd = new Date(dto.periodEnd);
+    if (periodEnd < periodStart) throw apiUnprocessable('BILLING_INVALID_PERIOD', 'Invoice period end must be on or after period start');
+    const issueDate = dto.issueDate ? new Date(dto.issueDate) : new Date();
+    const dueDate = dto.dueDate ? new Date(dto.dueDate) : this.addDays(issueDate, Math.max(1, schedule.dueDay - schedule.issueDay));
+    const students = await this.prisma.student.findMany({
+      where: {
+        tenantId: user.tenantId,
+        schoolId: schedule.schoolId,
+        currentStatus: EnrollmentStatus.ACTIVE,
+        deletedAt: null,
+        OR: [
+          { feePlans: { some: { feePlanId: schedule.feePlanId, deletedAt: null } } },
+          { enrollments: { some: { academicYearId: schedule.academicYearId, status: EnrollmentStatus.ACTIVE, deletedAt: null, classRoom: { feePlans: { some: { feePlanId: schedule.feePlanId, deletedAt: null } } } } } },
+        ],
+      },
+      select: { id: true, admissionNo: true, enrollments: { where: { academicYearId: schedule.academicYearId, status: EnrollmentStatus.ACTIVE, deletedAt: null }, orderBy: [{ enrolledOn: 'desc' }], take: 1, select: { classRoomId: true } } },
+    });
+
+    const generated: Array<ReturnType<typeof this.toInvoiceResponse>> = [];
+    await this.prisma.$transaction(async (tx) => {
+      for (const student of students) {
+        const existing = await tx.invoice.findFirst({ where: { tenantId: user.tenantId, scheduleId: schedule.id, studentId: student.id, periodStart, periodEnd, deletedAt: null }, include: { lines: { where: { deletedAt: null }, orderBy: [{ id: 'asc' }] } } });
+        if (existing) { generated.push(this.toInvoiceResponse(existing)); continue; }
+
+        const lines: Array<{ feeItemId?: string; description: string; quantity: number; unitAmount: Prisma.Decimal; lineTotal: Prisma.Decimal }> = schedule.feePlan.items.map((item) => ({ feeItemId: item.id, description: item.name, quantity: 1, unitAmount: item.amount, lineTotal: item.amount }));
+        const baseAmount = lines.reduce((sum, line) => sum.add(line.lineTotal), this.decimal(0));
+        const adjustmentRows = await tx.feeAdjustment.findMany({ where: { tenantId: user.tenantId, schoolId: schedule.schoolId, deletedAt: null, OR: [{ studentId: student.id }, ...(student.enrollments[0]?.classRoomId ? [{ classRoomId: student.enrollments[0].classRoomId }] : [])], AND: [{ OR: [{ feePlanId: null }, { feePlanId: schedule.feePlanId }] }, { OR: [{ billingCycle: schedule.billingCycle }, { billingCycle: FeeBillingCycle.ONE_TIME }] }] } });
+        for (const adjustment of adjustmentRows) {
+          const amount = adjustment.type === 'DISCOUNT' ? this.decimal(adjustment.amount).neg() : this.decimal(adjustment.amount);
+          lines.push({ description: adjustment.name, quantity: 1, unitAmount: amount, lineTotal: amount });
+        }
+        const familyLinks = await tx.familyStudent.findMany({ where: { studentId: student.id }, include: { family: { include: { students: true, benefits: { where: { schoolId: schedule.schoolId, isActive: true, OR: [{ feePlanId: null }, { feePlanId: schedule.feePlanId }] } } } } } });
+        const benefit = familyLinks.flatMap((link) => link.family.benefits.map((item) => ({ item, count: link.family.students.length }))).find(({ item, count }) => count >= item.minimumStudentCount);
+        if (benefit) {
+          const discount = benefit.item.type === 'WAIVER' ? baseAmount : benefit.item.type === 'PERCENTAGE' ? baseAmount.mul(benefit.item.value).div(100) : this.decimal(benefit.item.value);
+          const bounded = discount.gt(baseAmount) ? baseAmount : discount;
+          lines.push({ description: benefit.item.reason, quantity: 1, unitAmount: bounded.neg(), lineTotal: bounded.neg() });
+        }
+        const subTotal = lines.reduce((sum, line) => sum.add(line.lineTotal), this.decimal(0));
+        const totalAmount = subTotal.lt(0) ? this.decimal(0) : subTotal;
+        const row = await tx.invoice.create({ data: { tenantId: user.tenantId, schoolId: schedule.schoolId, studentId: student.id, scheduleId: schedule.id, periodStart, periodEnd, invoiceNumber: `INV-${schedule.id.slice(-6)}-${periodStart.toISOString().slice(0, 7).replace('-', '')}-${student.admissionNo}`.slice(0, 60), issueDate, dueDate, status: schedule.autoPublish ? InvoiceStatus.ISSUED : InvoiceStatus.DRAFT, subTotal: totalAmount, taxAmount: this.decimal(0), totalAmount, balanceAmount: totalAmount, currencyCode: schedule.feePlan.currencyCode, createdById: user.sub, updatedById: user.sub, lines: { create: lines.map((line) => ({ tenantId: user.tenantId, feeItemId: line.feeItemId, description: line.description, quantity: line.quantity, unitAmount: line.unitAmount, lineTotal: line.lineTotal, createdById: user.sub, updatedById: user.sub })) } }, include: { lines: { where: { deletedAt: null }, orderBy: [{ id: 'asc' }] } } });
+        if (schedule.autoPublish) await tx.invoiceDelivery.create({ data: { tenantId: user.tenantId, schoolId: schedule.schoolId, invoiceId: row.id, channel: InvoiceDeliveryChannel.PORTAL, status: InvoiceDeliveryStatus.SENT, sentAt: new Date(), createdById: user.sub, updatedById: user.sub } });
+        if (schedule.autoEmail) await tx.invoiceDelivery.create({ data: { tenantId: user.tenantId, schoolId: schedule.schoolId, invoiceId: row.id, channel: InvoiceDeliveryChannel.EMAIL, status: InvoiceDeliveryStatus.QUEUED, createdById: user.sub, updatedById: user.sub } });
+        generated.push(this.toInvoiceResponse(row));
+      }
+      await tx.invoiceSchedule.update({ where: { id: schedule.id }, data: { lastGeneratedAt: new Date(), updatedById: user.sub } });
+    });
+    return { scheduleId: schedule.id, periodStart: periodStart.toISOString(), periodEnd: periodEnd.toISOString(), generatedCount: generated.length, invoices: generated };
+  }
+
+  async deliverInvoice(user: AuthenticatedUser, invoiceId: string, dto: CreateInvoiceDeliveryDto) {
+    const invoice = await this.prisma.invoice.findFirst({ where: { id: invoiceId, tenantId: user.tenantId, deletedAt: null }, select: { id: true, schoolId: true } });
+    if (!invoice) throw apiNotFound('BILLING_INVOICE_NOT_FOUND', 'Invoice not found');
+    return this.prisma.invoiceDelivery.upsert({ where: { invoiceId_channel: { invoiceId, channel: dto.channel } }, create: { tenantId: user.tenantId, schoolId: invoice.schoolId, invoiceId, channel: dto.channel, recipient: dto.recipient, status: dto.channel === InvoiceDeliveryChannel.PORTAL ? InvoiceDeliveryStatus.SENT : InvoiceDeliveryStatus.QUEUED, sentAt: dto.channel === InvoiceDeliveryChannel.PORTAL ? new Date() : null, createdById: user.sub, updatedById: user.sub }, update: { recipient: dto.recipient, status: dto.channel === InvoiceDeliveryChannel.PORTAL ? InvoiceDeliveryStatus.SENT : InvoiceDeliveryStatus.QUEUED, sentAt: dto.channel === InvoiceDeliveryChannel.PORTAL ? new Date() : null, failureReason: null, updatedById: user.sub } });
+  }
+
+  async runPaymentReminders(user: AuthenticatedUser, dto: RunRemindersDto) {
+    const asOf = dto.asOf ? new Date(dto.asOf) : new Date();
+    const daysBeforeDue = dto.daysBeforeDue ?? 3;
+    const cutoff = this.addDays(asOf, daysBeforeDue);
+    const invoices = await this.prisma.invoice.findMany({ where: { tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null, balanceAmount: { gt: 0 }, status: { in: [InvoiceStatus.ISSUED, InvoiceStatus.PARTIAL, InvoiceStatus.OVERDUE] }, dueDate: { not: null, lte: cutoff } }, select: { id: true, schoolId: true, dueDate: true } });
+    let created = 0;
+    for (const invoice of invoices) {
+      if (invoice.dueDate && invoice.dueDate < asOf) await this.prisma.invoice.update({ where: { id: invoice.id }, data: { status: InvoiceStatus.OVERDUE } });
+      await this.prisma.paymentReminder.upsert({ where: { invoiceId_channel_scheduledFor: { invoiceId: invoice.id, channel: dto.channel ?? InvoiceDeliveryChannel.EMAIL, scheduledFor: asOf } }, create: { tenantId: user.tenantId, schoolId: invoice.schoolId, invoiceId: invoice.id, channel: dto.channel ?? InvoiceDeliveryChannel.EMAIL, scheduledFor: asOf, status: ReminderStatus.SCHEDULED, createdById: user.sub, updatedById: user.sub }, update: {} });
+      created++;
+    }
+    return { asOf: asOf.toISOString(), matchedInvoices: invoices.length, remindersQueued: created, channel: dto.channel ?? InvoiceDeliveryChannel.EMAIL };
+  }
+
+  async getStudentLedger(user: AuthenticatedUser, studentId: string): Promise<StudentLedgerResponseDto> {
+    const student = await this.prisma.student.findFirst({ where: { id: studentId, tenantId: user.tenantId, deletedAt: null }, select: { id: true } });
+    if (!student) throw apiNotFound('BILLING_STUDENT_NOT_FOUND', 'Student not found');
+    const [invoices, payments] = await Promise.all([
+      this.prisma.invoice.findMany({ where: { tenantId: user.tenantId, studentId, deletedAt: null }, orderBy: [{ issueDate: 'asc' }] }),
+      this.prisma.payment.findMany({ where: { tenantId: user.tenantId, studentId, deletedAt: null, status: PaymentStatus.COMPLETED }, orderBy: [{ paidAt: 'asc' }] }),
+    ]);
+    const events = [...invoices.map((invoice) => ({ id: invoice.id, type: 'INVOICE' as const, date: invoice.issueDate, description: `Invoice ${invoice.invoiceNumber}`, debit: invoice.totalAmount, credit: this.decimal(0), reference: invoice.invoiceNumber })), ...payments.map((payment) => ({ id: payment.id, type: 'PAYMENT' as const, date: payment.paidAt, description: `Payment · ${payment.method}`, debit: this.decimal(0), credit: payment.amount, reference: payment.receiptNumber }))].sort((a, b) => a.date.getTime() - b.date.getTime());
+    let balance = this.decimal(0);
+    return { studentId, currencyCode: invoices[0]?.currencyCode ?? payments[0]?.currencyCode ?? 'INR', openingBalance: '0.00', closingBalance: this.toMoney(events.reduce((sum, event) => sum.add(event.debit).sub(event.credit), this.decimal(0))), entries: events.map((event) => { balance = balance.add(event.debit).sub(event.credit); return { id: event.id, type: event.type, date: event.date.toISOString(), description: event.description, debit: this.toMoney(event.debit), credit: this.toMoney(event.credit), balance: this.toMoney(balance), reference: event.reference }; }) };
+  }
+
+  async renderPaymentReceipt(user: AuthenticatedUser, paymentId: string) {
+    const payment = await this.prisma.payment.findFirst({ where: { id: paymentId, tenantId: user.tenantId, deletedAt: null }, include: { student: { select: { firstName: true, lastName: true, admissionNo: true } }, allocations: { where: { deletedAt: null }, include: { invoice: { select: { invoiceNumber: true } } } } } });
+    if (!payment) throw apiNotFound('BILLING_PAYMENT_NOT_FOUND', 'Payment not found');
+    const studentName = `${payment.student.firstName} ${payment.student.lastName ?? ''}`.trim();
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Receipt ${payment.receiptNumber}</title><style>body{font-family:Arial,sans-serif;color:#17233b;max-width:720px;margin:40px auto;padding:24px}h1{margin-bottom:4px}.meta{color:#64748b;margin-bottom:28px}.row{display:flex;justify-content:space-between;border-bottom:1px solid #e2e8f0;padding:12px 0}.total{font-size:22px;font-weight:700;border-top:2px solid #17233b;margin-top:12px}@media print{body{margin:0}}</style></head><body><h1>Payment receipt</h1><div class="meta">Receipt ${payment.receiptNumber} · ${payment.paidAt.toISOString().slice(0, 10)}</div><div class="row"><span>Student</span><strong>${this.escapeHtml(studentName)} · ${this.escapeHtml(payment.student.admissionNo)}</strong></div><div class="row"><span>Payment method</span><strong>${payment.method.replace('_', ' ')}</strong></div><div class="row"><span>Reference</span><strong>${this.escapeHtml(payment.reference ?? '—')}</strong></div><div class="row"><span>Allocated invoices</span><strong>${payment.allocations.map((allocation) => allocation.invoice.invoiceNumber).join(', ') || 'Account credit'}</strong></div><div class="row total"><span>Amount received</span><strong>${payment.currencyCode} ${this.toMoney(payment.amount)}</strong></div><script>window.print()</script></body></html>`;
+  }
+
+  async assignFeePlanToClass(user: AuthenticatedUser, dto: AssignFeePlanDto) {
+    const [classRoom, feePlan] = await Promise.all([
+      this.prisma.classRoom.findFirst({ where: { id: dto.targetId, tenantId: user.tenantId, deletedAt: null }, select: { id: true, schoolId: true } }),
+      this.prisma.feePlan.findFirst({ where: { id: dto.feePlanId, tenantId: user.tenantId, deletedAt: null }, select: { id: true, schoolId: true } }),
+    ]);
+    if (!classRoom || !feePlan) throw apiNotFound('BILLING_ASSIGNMENT_TARGET_NOT_FOUND', 'Class or fee plan not found');
+    if (classRoom.schoolId !== feePlan.schoolId) throw apiUnprocessable('BILLING_SCHOOL_MISMATCH', 'Class and fee plan must belong to the same school');
+    return this.prisma.classroomFeePlan.upsert({ where: { classRoomId_feePlanId: { classRoomId: dto.targetId, feePlanId: dto.feePlanId } }, create: { tenantId: user.tenantId, classRoomId: dto.targetId, feePlanId: dto.feePlanId, createdById: user.sub, updatedById: user.sub }, update: { deletedAt: null, updatedById: user.sub } });
+  }
+
+  async assignFeePlanToStudent(user: AuthenticatedUser, dto: AssignFeePlanDto) {
+    const [student, feePlan] = await Promise.all([
+      this.prisma.student.findFirst({ where: { id: dto.targetId, tenantId: user.tenantId, deletedAt: null }, select: { id: true, schoolId: true } }),
+      this.prisma.feePlan.findFirst({ where: { id: dto.feePlanId, tenantId: user.tenantId, deletedAt: null }, select: { id: true, schoolId: true } }),
+    ]);
+    if (!student || !feePlan) throw apiNotFound('BILLING_ASSIGNMENT_TARGET_NOT_FOUND', 'Student or fee plan not found');
+    if (student.schoolId !== feePlan.schoolId) throw apiUnprocessable('BILLING_SCHOOL_MISMATCH', 'Student and fee plan must belong to the same school');
+    return this.prisma.studentFeePlan.upsert({ where: { studentId_feePlanId: { studentId: dto.targetId, feePlanId: dto.feePlanId } }, create: { tenantId: user.tenantId, studentId: dto.targetId, feePlanId: dto.feePlanId, createdById: user.sub, updatedById: user.sub }, update: { deletedAt: null, updatedById: user.sub } });
+  }
+
+  async createFeeAdjustment(user: AuthenticatedUser, dto: CreateFeeAdjustmentDto) {
+    if (!dto.studentId && !dto.classRoomId) throw apiUnprocessable('BILLING_ADJUSTMENT_TARGET_REQUIRED', 'Choose a student or class as the adjustment target');
+    if (dto.studentId && dto.classRoomId) throw apiUnprocessable('BILLING_ADJUSTMENT_ONE_TARGET', 'An adjustment can target a student or a class, not both');
+    const target = dto.studentId
+      ? await this.prisma.student.findFirst({ where: { id: dto.studentId, tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null }, select: { id: true } })
+      : await this.prisma.classRoom.findFirst({ where: { id: dto.classRoomId, tenantId: user.tenantId, schoolId: dto.schoolId, deletedAt: null }, select: { id: true } });
+    if (!target) throw apiNotFound('BILLING_ADJUSTMENT_TARGET_NOT_FOUND', 'Adjustment target not found');
+    return this.prisma.feeAdjustment.create({ data: { tenantId: user.tenantId, schoolId: dto.schoolId, studentId: dto.studentId, classRoomId: dto.classRoomId, feePlanId: dto.feePlanId, code: dto.code, name: dto.name, amount: this.decimal(dto.amount), type: dto.type, billingCycle: dto.billingCycle ?? FeeBillingCycle.ONE_TIME, reason: dto.reason, createdById: user.sub, updatedById: user.sub } });
   }
 
   async listInvoices(user: AuthenticatedUser, query: ListInvoicesQueryDto) {
@@ -444,6 +673,25 @@ export class BillingService {
 
   private decimal(value: string | number | Prisma.Decimal) {
     return value instanceof Prisma.Decimal ? value : new Prisma.Decimal(value);
+  }
+
+  private addDays(date: Date, days: number) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  private periodForSchedule(cycle: FeeBillingCycle, asOf: Date, startsOn: Date) {
+    const year = asOf.getUTCFullYear();
+    const month = asOf.getUTCMonth();
+    if (cycle === FeeBillingCycle.MONTHLY) return { start: new Date(Date.UTC(year, month, 1)), end: new Date(Date.UTC(year, month + 1, 0)) };
+    if (cycle === FeeBillingCycle.QUARTERLY) { const quarterStart = Math.floor(month / 3) * 3; return { start: new Date(Date.UTC(year, quarterStart, 1)), end: new Date(Date.UTC(year, quarterStart + 3, 0)) }; }
+    if (cycle === FeeBillingCycle.ANNUAL) return { start: new Date(Date.UTC(year, startsOn.getUTCMonth(), 1)), end: new Date(Date.UTC(year + 1, startsOn.getUTCMonth(), 0)) };
+    return { start: startsOn, end: startsOn };
+  }
+
+  private escapeHtml(value: string) {
+    return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character] ?? character);
   }
 
   private toMoney(value: Prisma.Decimal) {

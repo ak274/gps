@@ -12,6 +12,8 @@ Staff and teacher profile management APIs.
 - `GET /api/staff/teachers/:teacherId` (`teachers.read`)
 - `POST /api/staff/teachers` (`teachers.write`)
 - `PATCH /api/staff/teachers/:teacherId` (`teachers.write`)
+- `POST /api/staff/import/csv/preview` (`staff.write`) — validates staff CSV rows without writing.
+- `POST /api/staff/import` (`staff.write`) — creates invited users, memberships, staff roles and staff profiles for reviewed rows.
 
 ## Notes
 
