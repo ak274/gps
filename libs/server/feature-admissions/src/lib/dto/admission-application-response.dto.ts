@@ -2,6 +2,18 @@ import { AdmissionStatus, Gender } from '@gps/data-access-prisma';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AdmissionApplicationResponseDto {
+  @ApiPropertyOptional()
+  formId!: string | null;
+
+  @ApiPropertyOptional()
+  formVersion!: number | null;
+
+  @ApiPropertyOptional()
+  applicationNumber!: string | null;
+
+  @ApiPropertyOptional({ type: Object })
+  formData!: Record<string, unknown> | null;
+
   @ApiProperty()
   id!: string;
 
@@ -64,6 +76,27 @@ export class AdmissionApplicationResponseDto {
 
   @ApiPropertyOptional({ description: 'ISO datetime string' })
   decidedAt!: string | null;
+
+  @ApiPropertyOptional()
+  infoRequestedAt!: string | null;
+
+  @ApiPropertyOptional()
+  infoRequestMessage!: string | null;
+
+  @ApiPropertyOptional()
+  offerIssuedAt!: string | null;
+
+  @ApiPropertyOptional()
+  offerExpiresAt!: string | null;
+
+  @ApiPropertyOptional()
+  feesClearedAt!: string | null;
+
+  @ApiPropertyOptional()
+  finalVerifiedAt!: string | null;
+
+  @ApiPropertyOptional()
+  enrollmentConfirmedAt!: string | null;
 
   @ApiProperty({ description: 'ISO datetime string' })
   createdAt!: string;

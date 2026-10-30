@@ -15,3 +15,4 @@ export * from './lib/dto/link-family-member.dto';
 export * from './lib/dto/create-family-alumni.dto';
 export * from './lib/dto/create-family-benefit.dto';
 export * from './lib/dto/family-response.dto';
+export * from './lib/dto/student-records.dto';

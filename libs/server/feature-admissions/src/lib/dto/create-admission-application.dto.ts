@@ -1,8 +1,13 @@
 import { AdmissionStatus, Gender } from '@gps/data-access-prisma';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import { IsDateString, IsEnum, IsObject, IsOptional, IsString, Length } from 'class-validator';
 
 export class CreateAdmissionApplicationDto {
+  @ApiPropertyOptional({ description: 'Published admission form version used by this application' })
+  @IsOptional()
+  @IsString()
+  formId?: string;
+
   @ApiProperty()
   @IsString()
   schoolId!: string;
@@ -77,5 +82,30 @@ export class CreateAdmissionApplicationDto {
   @IsOptional()
   @IsEnum(AdmissionStatus)
   status?: AdmissionStatus;
+
+  @ApiPropertyOptional({ type: Object, description: 'Answers to school-configured fields' })
+  @IsOptional()
+  @IsObject()
+  formData?: Record<string, unknown>;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  admissionCategory?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  applicationSource?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  preferredLanguage?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  termsVersion?: string;
 }
 

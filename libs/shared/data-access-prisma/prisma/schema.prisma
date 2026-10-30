@@ -130,6 +130,15 @@ enum DocumentEntityType {
   OTHER
 }
 
+enum DocumentReviewStatus {
+  PENDING
+  IN_REVIEW
+  VERIFIED
+  REJECTED
+  NEEDS_INFORMATION
+  EXPIRED
+}
+
 enum AuditAction {
   CREATE
   UPDATE
@@ -151,6 +160,48 @@ enum NotificationTargetType {
   USER
 }
 
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskType {
+  MANUAL
+  APPROVAL
+  DOCUMENT_REVIEW
+  FOLLOW_UP
+  IMPORT
+  OTHER
+}
+
+enum ApprovalStatus {
+  REQUESTED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+  CANCELLED
+}
+
+enum ApprovalStepStatus {
+  PENDING
+  ACTIVE
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+  SKIPPED
+}
+
 enum ExamStatus {
   DRAFT
   PUBLISHED
@@ -169,10 +220,84 @@ enum AdmissionStatus {
   DRAFT
   SUBMITTED
   REVIEWING
+  INFO_REQUESTED
   APPROVED
+  WAITLISTED
   REJECTED
+  OFFERED
+  FEE_PENDING
+  READY_FOR_ENROLLMENT
   ENROLLED
   WITHDRAWN
+}
+
+enum AdmissionEventType {
+  CREATED
+  UPDATED
+  SUBMITTED
+  REVIEW_STARTED
+  INFO_REQUESTED
+  INFO_RECEIVED
+  DOCUMENT_UPLOADED
+  DOCUMENT_VERIFIED
+  DOCUMENT_REJECTED
+  ASSESSMENT_RECORDED
+  APPROVED
+  WAITLISTED
+  REJECTED
+  OFFERED
+  FEE_MARKED_PAID
+  FINAL_VERIFIED
+  ENROLLED
+  NOTE_ADDED
+}
+
+enum AdmissionDocumentReviewStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  NOT_REQUIRED
+}
+
+enum StudentDocumentStatus {
+  REQUIRED
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+  NOT_APPLICABLE
+}
+
+enum AdmissionFormStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AdmissionFieldType {
+  TEXT
+  TEXTAREA
+  DATE
+  NUMBER
+  PHONE
+  EMAIL
+  SELECT
+  MULTI_SELECT
+  BOOLEAN
+  FILE
+}
+
+enum AdmissionDocumentStage {
+  APPLICATION
+  REVIEW
+  ENROLLMENT
+}
+
+enum AdmissionLeadStatus {
+  STARTED
+  VERIFIED
+  SUBMITTED
+  EXPIRED
 }
 
 enum PromotionBatchStatus {
@@ -221,57 +346,70 @@ model Tenant {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  schools                     School[]
-  academicYears               AcademicYear[]
-  terms                       Term[]
-  users                       UserTenant[]
-  roles                       Role[]
-  students                    Student[]
-  guardians                   Guardian[]
-  staffProfiles               StaffProfile[]
-  teacherProfile              TeacherProfile[]
-  classRooms                  ClassRoom[]
-  subjects                    Subject[]
-  enrollments                 Enrollment[]
-  feePlans                    FeePlan[]
-  feeItems                    FeeItem[]
-  studentFeePlan              StudentFeePlan[]
-  classroomFeePlans           ClassroomFeePlan[]
-  feeAdjustments              FeeAdjustment[]
-  invoices                    Invoice[]
-  invoiceSchedules            InvoiceSchedule[]
-  invoiceDeliveries           InvoiceDelivery[]
-  paymentReminders            PaymentReminder[]
-  invoiceLines                InvoiceLine[]
-  payments                    Payment[]
-  paymentAlloc                PaymentAllocation[]
-  routes                      TransportRoute[]
-  stops                       TransportStop[]
-  vehicles                    TransportVehicle[]
-  transportAsg                StudentTransportAssignment[]
-  docs                        Document[]
-  auditLogs                   AuditLog[]
-  Campus                      Campus[]
-  StudentGuardian             StudentGuardian[]
-  ClassroomSubject            ClassroomSubject[]
-  AttendanceSession           AttendanceSession[]
-  AttendanceRecord            AttendanceRecord[]
-  timetableEntries            TimetableEntry[]
-  teacherAttendance           TeacherAttendance[]
-  notifications               Notification[]
-  userNotifications           UserNotification[]
-  messages                    Message[]
-  sessions                    Session[]
-  exams                       Exam[]
-  examSubjects                ExamSubject[]
-  studentAssess               StudentAssessment[]
-  homework                    Homework[]
-  admissionApplications       AdmissionApplication[]
-  promotionBatches            PromotionBatch[]
-  promotionMappings           PromotionMapping[]
-  promotionOverrides          PromotionStudentOverride[]
-  studentExitRequests         StudentExitRequest[]
-  userTenantSchoolAssignments UserTenantSchoolAssignment[]
+  schools                       School[]
+  academicYears                 AcademicYear[]
+  terms                         Term[]
+  users                         UserTenant[]
+  roles                         Role[]
+  students                      Student[]
+  guardians                     Guardian[]
+  staffProfiles                 StaffProfile[]
+  teacherProfile                TeacherProfile[]
+  classRooms                    ClassRoom[]
+  subjects                      Subject[]
+  enrollments                   Enrollment[]
+  feePlans                      FeePlan[]
+  feeItems                      FeeItem[]
+  studentFeePlan                StudentFeePlan[]
+  classroomFeePlans             ClassroomFeePlan[]
+  feeAdjustments                FeeAdjustment[]
+  invoices                      Invoice[]
+  invoiceSchedules              InvoiceSchedule[]
+  invoiceDeliveries             InvoiceDelivery[]
+  paymentReminders              PaymentReminder[]
+  invoiceLines                  InvoiceLine[]
+  payments                      Payment[]
+  paymentAlloc                  PaymentAllocation[]
+  routes                        TransportRoute[]
+  stops                         TransportStop[]
+  vehicles                      TransportVehicle[]
+  transportAsg                  StudentTransportAssignment[]
+  docs                          Document[]
+  auditLogs                     AuditLog[]
+  Campus                        Campus[]
+  StudentGuardian               StudentGuardian[]
+  ClassroomSubject              ClassroomSubject[]
+  AttendanceSession             AttendanceSession[]
+  AttendanceRecord              AttendanceRecord[]
+  timetableEntries              TimetableEntry[]
+  teacherAttendance             TeacherAttendance[]
+  notifications                 Notification[]
+  userNotifications             UserNotification[]
+  notificationPreferences       NotificationPreference[]
+  tasks                         Task[]                         @relation("TenantTasks")
+  taskReminders                 TaskReminder[]                 @relation("TenantTaskReminders")
+  approvalRequests              ApprovalRequest[]              @relation("TenantApprovalRequests")
+  messages                      Message[]
+  sessions                      Session[]
+  exams                         Exam[]
+  examSubjects                  ExamSubject[]
+  studentAssess                 StudentAssessment[]
+  homework                      Homework[]
+  admissionApplications         AdmissionApplication[]
+  admissionForms                AdmissionForm[]
+  admissionFormSections         AdmissionFormSection[]
+  admissionFormFields           AdmissionFormField[]
+  admissionDocumentRequirements AdmissionDocumentRequirement[]
+  admissionLeads                AdmissionLead[]
+  admissionApplicationEvents    AdmissionApplicationEvent[]
+  admissionApplicationDocuments AdmissionApplicationDocument[]
+  promotionBatches              PromotionBatch[]
+  promotionMappings             PromotionMapping[]
+  promotionOverrides            PromotionStudentOverride[]
+  studentExitRequests           StudentExitRequest[]
+  studentDocumentRecords        StudentDocumentRecord[]        @relation("TenantStudentDocumentRecords")
+  studentMedicalProfiles        StudentMedicalProfile[]        @relation("TenantStudentMedicalProfiles")
+  userTenantSchoolAssignments   UserTenantSchoolAssignment[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -299,187 +437,207 @@ model User {
   createdAt       DateTime   @default(now()) @map("created_at")
   updatedAt       DateTime   @updatedAt @map("updated_at")
 
-  memberships       UserTenant[]
-  staffProfiles     StaffProfile[]
-  guardianProfiles  Guardian[]
-  uploadedDocuments Document[]
-  auditLogs         AuditLog[]
-  sessions          Session[]
-  notificationsSent Notification[]     @relation("NotificationSender")
-  notificationReads UserNotification[]
-  messagesSent      Message[]          @relation("MessageSender")
-  messagesReceived  Message[]          @relation("MessageRecipient")
+  memberships             UserTenant[]
+  staffProfiles           StaffProfile[]
+  guardianProfiles        Guardian[]
+  uploadedDocuments       Document[]
+  documentsReviewed       Document[]               @relation("DocumentReviewedBy")
+  auditLogs               AuditLog[]
+  sessions                Session[]
+  notificationsSent       Notification[]           @relation("NotificationSender")
+  notificationReads       UserNotification[]
+  notificationPreferences NotificationPreference[]
+  tasksAssigned           Task[]                   @relation("TaskAssignee")
+  tasksCreated            Task[]                   @relation("TaskCreator")
+  tasksCompleted          Task[]                   @relation("TaskCompleter")
+  taskReminders           TaskReminder[]           @relation("TaskReminderUser")
+  approvalRequestsCreated ApprovalRequest[]        @relation("ApprovalRequestRequester")
+  approvalStepsAssigned   ApprovalStep[]           @relation("ApprovalStepAssignee")
+  approvalStepsDecided    ApprovalStep[]           @relation("ApprovalStepDecider")
+  messagesSent            Message[]                @relation("MessageSender")
+  messagesReceived        Message[]                @relation("MessageRecipient")
 
-  academicYearsCreated               AcademicYear[]               @relation("AcademicYearCreatedBy")
-  academicYearsDeleted               AcademicYear[]               @relation("AcademicYearDeletedBy")
-  academicYearsUpdated               AcademicYear[]               @relation("AcademicYearUpdatedBy")
-  admissionApplicationsCreated       AdmissionApplication[]       @relation("AdmissionApplicationCreatedBy")
-  admissionApplicationsDeleted       AdmissionApplication[]       @relation("AdmissionApplicationDeletedBy")
-  admissionApplicationsUpdated       AdmissionApplication[]       @relation("AdmissionApplicationUpdatedBy")
-  attendanceRecordsCreated           AttendanceRecord[]           @relation("AttendanceRecordCreatedBy")
-  attendanceRecordsDeleted           AttendanceRecord[]           @relation("AttendanceRecordDeletedBy")
-  attendanceRecordsUpdated           AttendanceRecord[]           @relation("AttendanceRecordUpdatedBy")
-  attendanceSessionsCreated          AttendanceSession[]          @relation("AttendanceSessionCreatedBy")
-  attendanceSessionsDeleted          AttendanceSession[]          @relation("AttendanceSessionDeletedBy")
-  attendanceSessionsUpdated          AttendanceSession[]          @relation("AttendanceSessionUpdatedBy")
-  auditLogsCreated                   AuditLog[]                   @relation("AuditLogCreatedBy")
-  auditLogsDeleted                   AuditLog[]                   @relation("AuditLogDeletedBy")
-  auditLogsUpdated                   AuditLog[]                   @relation("AuditLogUpdatedBy")
-  campusesCreated                    Campus[]                     @relation("CampusCreatedBy")
-  campusesDeleted                    Campus[]                     @relation("CampusDeletedBy")
-  campusesUpdated                    Campus[]                     @relation("CampusUpdatedBy")
-  classRoomsCreated                  ClassRoom[]                  @relation("ClassRoomCreatedBy")
-  classRoomsDeleted                  ClassRoom[]                  @relation("ClassRoomDeletedBy")
-  classroomSubjectsCreated           ClassroomSubject[]           @relation("ClassroomSubjectCreatedBy")
-  classroomSubjectsDeleted           ClassroomSubject[]           @relation("ClassroomSubjectDeletedBy")
-  classroomSubjectsUpdated           ClassroomSubject[]           @relation("ClassroomSubjectUpdatedBy")
-  classRoomsUpdated                  ClassRoom[]                  @relation("ClassRoomUpdatedBy")
-  documentsCreated                   Document[]                   @relation("DocumentCreatedBy")
-  documentsDeleted                   Document[]                   @relation("DocumentDeletedBy")
-  documentsUpdated                   Document[]                   @relation("DocumentUpdatedBy")
-  enrollmentsCreated                 Enrollment[]                 @relation("EnrollmentCreatedBy")
-  enrollmentsDeleted                 Enrollment[]                 @relation("EnrollmentDeletedBy")
-  enrollmentsUpdated                 Enrollment[]                 @relation("EnrollmentUpdatedBy")
-  examsCreated                       Exam[]                       @relation("ExamCreatedBy")
-  examsDeleted                       Exam[]                       @relation("ExamDeletedBy")
-  examSubjectsCreated                ExamSubject[]                @relation("ExamSubjectCreatedBy")
-  examSubjectsDeleted                ExamSubject[]                @relation("ExamSubjectDeletedBy")
-  examSubjectsUpdated                ExamSubject[]                @relation("ExamSubjectUpdatedBy")
-  examsUpdated                       Exam[]                       @relation("ExamUpdatedBy")
-  feeItemsCreated                    FeeItem[]                    @relation("FeeItemCreatedBy")
-  feeItemsDeleted                    FeeItem[]                    @relation("FeeItemDeletedBy")
-  feeItemsUpdated                    FeeItem[]                    @relation("FeeItemUpdatedBy")
-  feePlansCreated                    FeePlan[]                    @relation("FeePlanCreatedBy")
-  feePlansDeleted                    FeePlan[]                    @relation("FeePlanDeletedBy")
-  feePlansUpdated                    FeePlan[]                    @relation("FeePlanUpdatedBy")
-  guardiansCreated                   Guardian[]                   @relation("GuardianCreatedBy")
-  guardiansDeleted                   Guardian[]                   @relation("GuardianDeletedBy")
-  guardiansUpdated                   Guardian[]                   @relation("GuardianUpdatedBy")
-  homeworksCreated                   Homework[]                   @relation("HomeworkCreatedBy")
-  homeworksDeleted                   Homework[]                   @relation("HomeworkDeletedBy")
-  homeworksUpdated                   Homework[]                   @relation("HomeworkUpdatedBy")
-  invoiceLinesCreated                InvoiceLine[]                @relation("InvoiceLineCreatedBy")
-  invoiceLinesDeleted                InvoiceLine[]                @relation("InvoiceLineDeletedBy")
-  invoiceLinesUpdated                InvoiceLine[]                @relation("InvoiceLineUpdatedBy")
-  invoicesCreated                    Invoice[]                    @relation("InvoiceCreatedBy")
-  invoicesDeleted                    Invoice[]                    @relation("InvoiceDeletedBy")
-  invoicesUpdated                    Invoice[]                    @relation("InvoiceUpdatedBy")
-  invoiceSchedulesCreated            InvoiceSchedule[]            @relation("InvoiceScheduleCreatedBy")
-  invoiceSchedulesUpdated            InvoiceSchedule[]            @relation("InvoiceScheduleUpdatedBy")
-  invoiceDeliveriesCreated           InvoiceDelivery[]            @relation("InvoiceDeliveryCreatedBy")
-  invoiceDeliveriesUpdated           InvoiceDelivery[]            @relation("InvoiceDeliveryUpdatedBy")
-  paymentRemindersCreated            PaymentReminder[]            @relation("PaymentReminderCreatedBy")
-  paymentRemindersUpdated            PaymentReminder[]            @relation("PaymentReminderUpdatedBy")
-  messagesCreated                    Message[]                    @relation("MessageCreatedBy")
-  messagesDeleted                    Message[]                    @relation("MessageDeletedBy")
-  messagesUpdated                    Message[]                    @relation("MessageUpdatedBy")
-  notificationsCreated               Notification[]               @relation("NotificationCreatedBy")
-  notificationsDeleted               Notification[]               @relation("NotificationDeletedBy")
-  notificationsUpdated               Notification[]               @relation("NotificationUpdatedBy")
-  paymentAllocationsCreated          PaymentAllocation[]          @relation("PaymentAllocationCreatedBy")
-  paymentAllocationsDeleted          PaymentAllocation[]          @relation("PaymentAllocationDeletedBy")
-  paymentAllocationsUpdated          PaymentAllocation[]          @relation("PaymentAllocationUpdatedBy")
-  paymentsCreated                    Payment[]                    @relation("PaymentCreatedBy")
-  paymentsDeleted                    Payment[]                    @relation("PaymentDeletedBy")
-  paymentsUpdated                    Payment[]                    @relation("PaymentUpdatedBy")
-  permissionsCreated                 Permission[]                 @relation("PermissionCreatedBy")
-  permissionsDeleted                 Permission[]                 @relation("PermissionDeletedBy")
-  permissionsUpdated                 Permission[]                 @relation("PermissionUpdatedBy")
-  rolePermissionsCreated             RolePermission[]             @relation("RolePermissionCreatedBy")
-  rolePermissionsDeleted             RolePermission[]             @relation("RolePermissionDeletedBy")
-  rolePermissionsUpdated             RolePermission[]             @relation("RolePermissionUpdatedBy")
-  rolesCreated                       Role[]                       @relation("RoleCreatedBy")
-  rolesDeleted                       Role[]                       @relation("RoleDeletedBy")
-  rolesUpdated                       Role[]                       @relation("RoleUpdatedBy")
-  schoolsCreated                     School[]                     @relation("SchoolCreatedBy")
-  schoolsDeleted                     School[]                     @relation("SchoolDeletedBy")
-  schoolsUpdated                     School[]                     @relation("SchoolUpdatedBy")
-  sessionsCreated                    Session[]                    @relation("SessionCreatedBy")
-  sessionsDeleted                    Session[]                    @relation("SessionDeletedBy")
-  sessionsUpdated                    Session[]                    @relation("SessionUpdatedBy")
-  staffProfilesCreated               StaffProfile[]               @relation("StaffProfileCreatedBy")
-  staffProfilesDeleted               StaffProfile[]               @relation("StaffProfileDeletedBy")
-  staffProfilesUpdated               StaffProfile[]               @relation("StaffProfileUpdatedBy")
-  studentAssessmentsCreated          StudentAssessment[]          @relation("StudentAssessmentCreatedBy")
-  studentAssessmentsDeleted          StudentAssessment[]          @relation("StudentAssessmentDeletedBy")
-  studentAssessmentsUpdated          StudentAssessment[]          @relation("StudentAssessmentUpdatedBy")
-  studentFeePlansCreated             StudentFeePlan[]             @relation("StudentFeePlanCreatedBy")
-  studentFeePlansDeleted             StudentFeePlan[]             @relation("StudentFeePlanDeletedBy")
-  studentFeePlansUpdated             StudentFeePlan[]             @relation("StudentFeePlanUpdatedBy")
-  classroomFeePlansCreated           ClassroomFeePlan[]           @relation("ClassroomFeePlanCreatedBy")
-  classroomFeePlansUpdated           ClassroomFeePlan[]           @relation("ClassroomFeePlanUpdatedBy")
-  classroomFeePlansDeleted           ClassroomFeePlan[]           @relation("ClassroomFeePlanDeletedBy")
-  feeAdjustmentsCreated              FeeAdjustment[]              @relation("FeeAdjustmentCreatedBy")
-  feeAdjustmentsUpdated              FeeAdjustment[]              @relation("FeeAdjustmentUpdatedBy")
-  feeAdjustmentsDeleted              FeeAdjustment[]              @relation("FeeAdjustmentDeletedBy")
-  familiesCreated                    Family[]                     @relation("FamilyCreatedBy")
-  familiesUpdated                    Family[]                     @relation("FamilyUpdatedBy")
-  familiesDeleted                    Family[]                     @relation("FamilyDeletedBy")
-  studentGuardiansCreated            StudentGuardian[]            @relation("StudentGuardianCreatedBy")
-  studentGuardiansDeleted            StudentGuardian[]            @relation("StudentGuardianDeletedBy")
-  studentGuardiansUpdated            StudentGuardian[]            @relation("StudentGuardianUpdatedBy")
-  studentsCreated                    Student[]                    @relation("StudentCreatedBy")
-  studentsDeleted                    Student[]                    @relation("StudentDeletedBy")
-  studentsUpdated                    Student[]                    @relation("StudentUpdatedBy")
-  studentTransportAssignmentsCreated StudentTransportAssignment[] @relation("StudentTransportAssignmentCreatedBy")
-  studentTransportAssignmentsDeleted StudentTransportAssignment[] @relation("StudentTransportAssignmentDeletedBy")
-  studentTransportAssignmentsUpdated StudentTransportAssignment[] @relation("StudentTransportAssignmentUpdatedBy")
-  subjectsCreated                    Subject[]                    @relation("SubjectCreatedBy")
-  subjectsDeleted                    Subject[]                    @relation("SubjectDeletedBy")
-  subjectsUpdated                    Subject[]                    @relation("SubjectUpdatedBy")
-  teacherAttendancesCreated          TeacherAttendance[]          @relation("TeacherAttendanceCreatedBy")
-  teacherAttendancesDeleted          TeacherAttendance[]          @relation("TeacherAttendanceDeletedBy")
-  teacherAttendancesUpdated          TeacherAttendance[]          @relation("TeacherAttendanceUpdatedBy")
-  teacherProfilesCreated             TeacherProfile[]             @relation("TeacherProfileCreatedBy")
-  teacherProfilesDeleted             TeacherProfile[]             @relation("TeacherProfileDeletedBy")
-  teacherProfilesUpdated             TeacherProfile[]             @relation("TeacherProfileUpdatedBy")
-  tenantsCreated                     Tenant[]                     @relation("TenantCreatedBy")
-  tenantsDeleted                     Tenant[]                     @relation("TenantDeletedBy")
-  tenantsUpdated                     Tenant[]                     @relation("TenantUpdatedBy")
-  termsCreated                       Term[]                       @relation("TermCreatedBy")
-  termsDeleted                       Term[]                       @relation("TermDeletedBy")
-  termsUpdated                       Term[]                       @relation("TermUpdatedBy")
-  timetableEntrysCreated             TimetableEntry[]             @relation("TimetableEntryCreatedBy")
-  timetableEntrysDeleted             TimetableEntry[]             @relation("TimetableEntryDeletedBy")
-  timetableEntrysUpdated             TimetableEntry[]             @relation("TimetableEntryUpdatedBy")
-  transportRoutesCreated             TransportRoute[]             @relation("TransportRouteCreatedBy")
-  transportRoutesDeleted             TransportRoute[]             @relation("TransportRouteDeletedBy")
-  transportRoutesUpdated             TransportRoute[]             @relation("TransportRouteUpdatedBy")
-  transportStopsCreated              TransportStop[]              @relation("TransportStopCreatedBy")
-  transportStopsDeleted              TransportStop[]              @relation("TransportStopDeletedBy")
-  transportStopsUpdated              TransportStop[]              @relation("TransportStopUpdatedBy")
-  transportVehiclesCreated           TransportVehicle[]           @relation("TransportVehicleCreatedBy")
-  transportVehiclesDeleted           TransportVehicle[]           @relation("TransportVehicleDeletedBy")
-  transportVehiclesUpdated           TransportVehicle[]           @relation("TransportVehicleUpdatedBy")
-  userNotificationsCreated           UserNotification[]           @relation("UserNotificationCreatedBy")
-  userNotificationsDeleted           UserNotification[]           @relation("UserNotificationDeletedBy")
-  userNotificationsUpdated           UserNotification[]           @relation("UserNotificationUpdatedBy")
-  userRoleAssignmentsCreated         UserRoleAssignment[]         @relation("UserRoleAssignmentCreatedBy")
-  userRoleAssignmentsDeleted         UserRoleAssignment[]         @relation("UserRoleAssignmentDeletedBy")
-  userRoleAssignmentsUpdated         UserRoleAssignment[]         @relation("UserRoleAssignmentUpdatedBy")
-  usersCreated                       User[]                       @relation("UserCreatedBy")
-  usersDeleted                       User[]                       @relation("UserDeletedBy")
-  usersUpdated                       User[]                       @relation("UserUpdatedBy")
-  userTenantsCreated                 UserTenant[]                 @relation("UserTenantCreatedBy")
-  userTenantsDeleted                 UserTenant[]                 @relation("UserTenantDeletedBy")
-  userTenantsUpdated                 UserTenant[]                 @relation("UserTenantUpdatedBy")
-  userTenantSchoolAssignmentsCreated UserTenantSchoolAssignment[] @relation("UserTenantSchoolAssignmentCreatedBy")
-  userTenantSchoolAssignmentsDeleted UserTenantSchoolAssignment[] @relation("UserTenantSchoolAssignmentDeletedBy")
-  userTenantSchoolAssignmentsUpdated UserTenantSchoolAssignment[] @relation("UserTenantSchoolAssignmentUpdatedBy")
-  promotionBatchesCreated            PromotionBatch[]             @relation("PromotionBatchCreatedBy")
-  promotionBatchesDeleted            PromotionBatch[]             @relation("PromotionBatchDeletedBy")
-  promotionBatchesUpdated            PromotionBatch[]             @relation("PromotionBatchUpdatedBy")
-  promotionMappingsCreated           PromotionMapping[]           @relation("PromotionMappingCreatedBy")
-  promotionMappingsDeleted           PromotionMapping[]           @relation("PromotionMappingDeletedBy")
-  promotionMappingsUpdated           PromotionMapping[]           @relation("PromotionMappingUpdatedBy")
-  promotionOverridesCreated          PromotionStudentOverride[]   @relation("PromotionStudentOverrideCreatedBy")
-  promotionOverridesDeleted          PromotionStudentOverride[]   @relation("PromotionStudentOverrideDeletedBy")
-  promotionOverridesUpdated          PromotionStudentOverride[]   @relation("PromotionStudentOverrideUpdatedBy")
-  studentExitRequestsCreated         StudentExitRequest[]         @relation("StudentExitRequestCreatedBy")
-  studentExitRequestsDeleted         StudentExitRequest[]         @relation("StudentExitRequestDeletedBy")
-  studentExitRequestsUpdated         StudentExitRequest[]         @relation("StudentExitRequestUpdatedBy")
-  studentExitRequestsRequested       StudentExitRequest[]         @relation("StudentExitRequestRequestedBy")
-  studentExitRequestsDecided         StudentExitRequest[]         @relation("StudentExitRequestDecidedBy")
+  academicYearsCreated                  AcademicYear[]                 @relation("AcademicYearCreatedBy")
+  academicYearsDeleted                  AcademicYear[]                 @relation("AcademicYearDeletedBy")
+  academicYearsUpdated                  AcademicYear[]                 @relation("AcademicYearUpdatedBy")
+  admissionApplicationsCreated          AdmissionApplication[]         @relation("AdmissionApplicationCreatedBy")
+  admissionApplicationsDeleted          AdmissionApplication[]         @relation("AdmissionApplicationDeletedBy")
+  admissionApplicationsUpdated          AdmissionApplication[]         @relation("AdmissionApplicationUpdatedBy")
+  admissionApplicationEvents            AdmissionApplicationEvent[]    @relation("AdmissionApplicationEventActor")
+  admissionApplicationDocumentsReviewed AdmissionApplicationDocument[] @relation("AdmissionApplicationDocumentReviewer")
+  admissionFormsCreated                 AdmissionForm[]                @relation("AdmissionFormCreatedBy")
+  admissionFormsUpdated                 AdmissionForm[]                @relation("AdmissionFormUpdatedBy")
+  admissionFormSectionsCreated          AdmissionFormSection[]         @relation("AdmissionFormSectionCreatedBy")
+  admissionFormSectionsUpdated          AdmissionFormSection[]         @relation("AdmissionFormSectionUpdatedBy")
+  admissionFormFieldsCreated            AdmissionFormField[]           @relation("AdmissionFormFieldCreatedBy")
+  admissionFormFieldsUpdated            AdmissionFormField[]           @relation("AdmissionFormFieldUpdatedBy")
+  admissionDocumentRequirementsCreated  AdmissionDocumentRequirement[] @relation("AdmissionDocumentRequirementCreatedBy")
+  admissionDocumentRequirementsUpdated  AdmissionDocumentRequirement[] @relation("AdmissionDocumentRequirementUpdatedBy")
+  attendanceRecordsCreated              AttendanceRecord[]             @relation("AttendanceRecordCreatedBy")
+  attendanceRecordsDeleted              AttendanceRecord[]             @relation("AttendanceRecordDeletedBy")
+  attendanceRecordsUpdated              AttendanceRecord[]             @relation("AttendanceRecordUpdatedBy")
+  attendanceSessionsCreated             AttendanceSession[]            @relation("AttendanceSessionCreatedBy")
+  attendanceSessionsDeleted             AttendanceSession[]            @relation("AttendanceSessionDeletedBy")
+  attendanceSessionsUpdated             AttendanceSession[]            @relation("AttendanceSessionUpdatedBy")
+  auditLogsCreated                      AuditLog[]                     @relation("AuditLogCreatedBy")
+  auditLogsDeleted                      AuditLog[]                     @relation("AuditLogDeletedBy")
+  auditLogsUpdated                      AuditLog[]                     @relation("AuditLogUpdatedBy")
+  campusesCreated                       Campus[]                       @relation("CampusCreatedBy")
+  campusesDeleted                       Campus[]                       @relation("CampusDeletedBy")
+  campusesUpdated                       Campus[]                       @relation("CampusUpdatedBy")
+  classRoomsCreated                     ClassRoom[]                    @relation("ClassRoomCreatedBy")
+  classRoomsDeleted                     ClassRoom[]                    @relation("ClassRoomDeletedBy")
+  classroomSubjectsCreated              ClassroomSubject[]             @relation("ClassroomSubjectCreatedBy")
+  classroomSubjectsDeleted              ClassroomSubject[]             @relation("ClassroomSubjectDeletedBy")
+  classroomSubjectsUpdated              ClassroomSubject[]             @relation("ClassroomSubjectUpdatedBy")
+  classRoomsUpdated                     ClassRoom[]                    @relation("ClassRoomUpdatedBy")
+  documentsCreated                      Document[]                     @relation("DocumentCreatedBy")
+  documentsDeleted                      Document[]                     @relation("DocumentDeletedBy")
+  documentsUpdated                      Document[]                     @relation("DocumentUpdatedBy")
+  enrollmentsCreated                    Enrollment[]                   @relation("EnrollmentCreatedBy")
+  enrollmentsDeleted                    Enrollment[]                   @relation("EnrollmentDeletedBy")
+  enrollmentsUpdated                    Enrollment[]                   @relation("EnrollmentUpdatedBy")
+  examsCreated                          Exam[]                         @relation("ExamCreatedBy")
+  examsDeleted                          Exam[]                         @relation("ExamDeletedBy")
+  examSubjectsCreated                   ExamSubject[]                  @relation("ExamSubjectCreatedBy")
+  examSubjectsDeleted                   ExamSubject[]                  @relation("ExamSubjectDeletedBy")
+  examSubjectsUpdated                   ExamSubject[]                  @relation("ExamSubjectUpdatedBy")
+  examsUpdated                          Exam[]                         @relation("ExamUpdatedBy")
+  feeItemsCreated                       FeeItem[]                      @relation("FeeItemCreatedBy")
+  feeItemsDeleted                       FeeItem[]                      @relation("FeeItemDeletedBy")
+  feeItemsUpdated                       FeeItem[]                      @relation("FeeItemUpdatedBy")
+  feePlansCreated                       FeePlan[]                      @relation("FeePlanCreatedBy")
+  feePlansDeleted                       FeePlan[]                      @relation("FeePlanDeletedBy")
+  feePlansUpdated                       FeePlan[]                      @relation("FeePlanUpdatedBy")
+  guardiansCreated                      Guardian[]                     @relation("GuardianCreatedBy")
+  guardiansDeleted                      Guardian[]                     @relation("GuardianDeletedBy")
+  guardiansUpdated                      Guardian[]                     @relation("GuardianUpdatedBy")
+  homeworksCreated                      Homework[]                     @relation("HomeworkCreatedBy")
+  homeworksDeleted                      Homework[]                     @relation("HomeworkDeletedBy")
+  homeworksUpdated                      Homework[]                     @relation("HomeworkUpdatedBy")
+  invoiceLinesCreated                   InvoiceLine[]                  @relation("InvoiceLineCreatedBy")
+  invoiceLinesDeleted                   InvoiceLine[]                  @relation("InvoiceLineDeletedBy")
+  invoiceLinesUpdated                   InvoiceLine[]                  @relation("InvoiceLineUpdatedBy")
+  invoicesCreated                       Invoice[]                      @relation("InvoiceCreatedBy")
+  invoicesDeleted                       Invoice[]                      @relation("InvoiceDeletedBy")
+  invoicesUpdated                       Invoice[]                      @relation("InvoiceUpdatedBy")
+  invoiceSchedulesCreated               InvoiceSchedule[]              @relation("InvoiceScheduleCreatedBy")
+  invoiceSchedulesUpdated               InvoiceSchedule[]              @relation("InvoiceScheduleUpdatedBy")
+  invoiceDeliveriesCreated              InvoiceDelivery[]              @relation("InvoiceDeliveryCreatedBy")
+  invoiceDeliveriesUpdated              InvoiceDelivery[]              @relation("InvoiceDeliveryUpdatedBy")
+  paymentRemindersCreated               PaymentReminder[]              @relation("PaymentReminderCreatedBy")
+  paymentRemindersUpdated               PaymentReminder[]              @relation("PaymentReminderUpdatedBy")
+  messagesCreated                       Message[]                      @relation("MessageCreatedBy")
+  messagesDeleted                       Message[]                      @relation("MessageDeletedBy")
+  messagesUpdated                       Message[]                      @relation("MessageUpdatedBy")
+  notificationsCreated                  Notification[]                 @relation("NotificationCreatedBy")
+  notificationsDeleted                  Notification[]                 @relation("NotificationDeletedBy")
+  notificationsUpdated                  Notification[]                 @relation("NotificationUpdatedBy")
+  paymentAllocationsCreated             PaymentAllocation[]            @relation("PaymentAllocationCreatedBy")
+  paymentAllocationsDeleted             PaymentAllocation[]            @relation("PaymentAllocationDeletedBy")
+  paymentAllocationsUpdated             PaymentAllocation[]            @relation("PaymentAllocationUpdatedBy")
+  paymentsCreated                       Payment[]                      @relation("PaymentCreatedBy")
+  paymentsDeleted                       Payment[]                      @relation("PaymentDeletedBy")
+  paymentsUpdated                       Payment[]                      @relation("PaymentUpdatedBy")
+  permissionsCreated                    Permission[]                   @relation("PermissionCreatedBy")
+  permissionsDeleted                    Permission[]                   @relation("PermissionDeletedBy")
+  permissionsUpdated                    Permission[]                   @relation("PermissionUpdatedBy")
+  rolePermissionsCreated                RolePermission[]               @relation("RolePermissionCreatedBy")
+  rolePermissionsDeleted                RolePermission[]               @relation("RolePermissionDeletedBy")
+  rolePermissionsUpdated                RolePermission[]               @relation("RolePermissionUpdatedBy")
+  rolesCreated                          Role[]                         @relation("RoleCreatedBy")
+  rolesDeleted                          Role[]                         @relation("RoleDeletedBy")
+  rolesUpdated                          Role[]                         @relation("RoleUpdatedBy")
+  schoolsCreated                        School[]                       @relation("SchoolCreatedBy")
+  schoolsDeleted                        School[]                       @relation("SchoolDeletedBy")
+  schoolsUpdated                        School[]                       @relation("SchoolUpdatedBy")
+  sessionsCreated                       Session[]                      @relation("SessionCreatedBy")
+  sessionsDeleted                       Session[]                      @relation("SessionDeletedBy")
+  sessionsUpdated                       Session[]                      @relation("SessionUpdatedBy")
+  staffProfilesCreated                  StaffProfile[]                 @relation("StaffProfileCreatedBy")
+  staffProfilesDeleted                  StaffProfile[]                 @relation("StaffProfileDeletedBy")
+  staffProfilesUpdated                  StaffProfile[]                 @relation("StaffProfileUpdatedBy")
+  studentAssessmentsCreated             StudentAssessment[]            @relation("StudentAssessmentCreatedBy")
+  studentAssessmentsDeleted             StudentAssessment[]            @relation("StudentAssessmentDeletedBy")
+  studentAssessmentsUpdated             StudentAssessment[]            @relation("StudentAssessmentUpdatedBy")
+  studentFeePlansCreated                StudentFeePlan[]               @relation("StudentFeePlanCreatedBy")
+  studentFeePlansDeleted                StudentFeePlan[]               @relation("StudentFeePlanDeletedBy")
+  studentFeePlansUpdated                StudentFeePlan[]               @relation("StudentFeePlanUpdatedBy")
+  classroomFeePlansCreated              ClassroomFeePlan[]             @relation("ClassroomFeePlanCreatedBy")
+  classroomFeePlansUpdated              ClassroomFeePlan[]             @relation("ClassroomFeePlanUpdatedBy")
+  classroomFeePlansDeleted              ClassroomFeePlan[]             @relation("ClassroomFeePlanDeletedBy")
+  feeAdjustmentsCreated                 FeeAdjustment[]                @relation("FeeAdjustmentCreatedBy")
+  feeAdjustmentsUpdated                 FeeAdjustment[]                @relation("FeeAdjustmentUpdatedBy")
+  feeAdjustmentsDeleted                 FeeAdjustment[]                @relation("FeeAdjustmentDeletedBy")
+  familiesCreated                       Family[]                       @relation("FamilyCreatedBy")
+  familiesUpdated                       Family[]                       @relation("FamilyUpdatedBy")
+  familiesDeleted                       Family[]                       @relation("FamilyDeletedBy")
+  studentGuardiansCreated               StudentGuardian[]              @relation("StudentGuardianCreatedBy")
+  studentGuardiansDeleted               StudentGuardian[]              @relation("StudentGuardianDeletedBy")
+  studentGuardiansUpdated               StudentGuardian[]              @relation("StudentGuardianUpdatedBy")
+  studentsCreated                       Student[]                      @relation("StudentCreatedBy")
+  studentsDeleted                       Student[]                      @relation("StudentDeletedBy")
+  studentsUpdated                       Student[]                      @relation("StudentUpdatedBy")
+  studentTransportAssignmentsCreated    StudentTransportAssignment[]   @relation("StudentTransportAssignmentCreatedBy")
+  studentTransportAssignmentsDeleted    StudentTransportAssignment[]   @relation("StudentTransportAssignmentDeletedBy")
+  studentTransportAssignmentsUpdated    StudentTransportAssignment[]   @relation("StudentTransportAssignmentUpdatedBy")
+  subjectsCreated                       Subject[]                      @relation("SubjectCreatedBy")
+  subjectsDeleted                       Subject[]                      @relation("SubjectDeletedBy")
+  subjectsUpdated                       Subject[]                      @relation("SubjectUpdatedBy")
+  teacherAttendancesCreated             TeacherAttendance[]            @relation("TeacherAttendanceCreatedBy")
+  teacherAttendancesDeleted             TeacherAttendance[]            @relation("TeacherAttendanceDeletedBy")
+  teacherAttendancesUpdated             TeacherAttendance[]            @relation("TeacherAttendanceUpdatedBy")
+  teacherProfilesCreated                TeacherProfile[]               @relation("TeacherProfileCreatedBy")
+  teacherProfilesDeleted                TeacherProfile[]               @relation("TeacherProfileDeletedBy")
+  teacherProfilesUpdated                TeacherProfile[]               @relation("TeacherProfileUpdatedBy")
+  tenantsCreated                        Tenant[]                       @relation("TenantCreatedBy")
+  tenantsDeleted                        Tenant[]                       @relation("TenantDeletedBy")
+  tenantsUpdated                        Tenant[]                       @relation("TenantUpdatedBy")
+  termsCreated                          Term[]                         @relation("TermCreatedBy")
+  termsDeleted                          Term[]                         @relation("TermDeletedBy")
+  termsUpdated                          Term[]                         @relation("TermUpdatedBy")
+  timetableEntrysCreated                TimetableEntry[]               @relation("TimetableEntryCreatedBy")
+  timetableEntrysDeleted                TimetableEntry[]               @relation("TimetableEntryDeletedBy")
+  timetableEntrysUpdated                TimetableEntry[]               @relation("TimetableEntryUpdatedBy")
+  transportRoutesCreated                TransportRoute[]               @relation("TransportRouteCreatedBy")
+  transportRoutesDeleted                TransportRoute[]               @relation("TransportRouteDeletedBy")
+  transportRoutesUpdated                TransportRoute[]               @relation("TransportRouteUpdatedBy")
+  transportStopsCreated                 TransportStop[]                @relation("TransportStopCreatedBy")
+  transportStopsDeleted                 TransportStop[]                @relation("TransportStopDeletedBy")
+  transportStopsUpdated                 TransportStop[]                @relation("TransportStopUpdatedBy")
+  transportVehiclesCreated              TransportVehicle[]             @relation("TransportVehicleCreatedBy")
+  transportVehiclesDeleted              TransportVehicle[]             @relation("TransportVehicleDeletedBy")
+  transportVehiclesUpdated              TransportVehicle[]             @relation("TransportVehicleUpdatedBy")
+  userNotificationsCreated              UserNotification[]             @relation("UserNotificationCreatedBy")
+  userNotificationsDeleted              UserNotification[]             @relation("UserNotificationDeletedBy")
+  userNotificationsUpdated              UserNotification[]             @relation("UserNotificationUpdatedBy")
+  userRoleAssignmentsCreated            UserRoleAssignment[]           @relation("UserRoleAssignmentCreatedBy")
+  userRoleAssignmentsDeleted            UserRoleAssignment[]           @relation("UserRoleAssignmentDeletedBy")
+  userRoleAssignmentsUpdated            UserRoleAssignment[]           @relation("UserRoleAssignmentUpdatedBy")
+  usersCreated                          User[]                         @relation("UserCreatedBy")
+  usersDeleted                          User[]                         @relation("UserDeletedBy")
+  usersUpdated                          User[]                         @relation("UserUpdatedBy")
+  userTenantsCreated                    UserTenant[]                   @relation("UserTenantCreatedBy")
+  userTenantsDeleted                    UserTenant[]                   @relation("UserTenantDeletedBy")
+  userTenantsUpdated                    UserTenant[]                   @relation("UserTenantUpdatedBy")
+  userTenantSchoolAssignmentsCreated    UserTenantSchoolAssignment[]   @relation("UserTenantSchoolAssignmentCreatedBy")
+  userTenantSchoolAssignmentsDeleted    UserTenantSchoolAssignment[]   @relation("UserTenantSchoolAssignmentDeletedBy")
+  userTenantSchoolAssignmentsUpdated    UserTenantSchoolAssignment[]   @relation("UserTenantSchoolAssignmentUpdatedBy")
+  promotionBatchesCreated               PromotionBatch[]               @relation("PromotionBatchCreatedBy")
+  promotionBatchesDeleted               PromotionBatch[]               @relation("PromotionBatchDeletedBy")
+  promotionBatchesUpdated               PromotionBatch[]               @relation("PromotionBatchUpdatedBy")
+  promotionMappingsCreated              PromotionMapping[]             @relation("PromotionMappingCreatedBy")
+  promotionMappingsDeleted              PromotionMapping[]             @relation("PromotionMappingDeletedBy")
+  promotionMappingsUpdated              PromotionMapping[]             @relation("PromotionMappingUpdatedBy")
+  promotionOverridesCreated             PromotionStudentOverride[]     @relation("PromotionStudentOverrideCreatedBy")
+  promotionOverridesDeleted             PromotionStudentOverride[]     @relation("PromotionStudentOverrideDeletedBy")
+  promotionOverridesUpdated             PromotionStudentOverride[]     @relation("PromotionStudentOverrideUpdatedBy")
+  studentExitRequestsCreated            StudentExitRequest[]           @relation("StudentExitRequestCreatedBy")
+  studentExitRequestsDeleted            StudentExitRequest[]           @relation("StudentExitRequestDeletedBy")
+  studentExitRequestsUpdated            StudentExitRequest[]           @relation("StudentExitRequestUpdatedBy")
+  studentExitRequestsRequested          StudentExitRequest[]           @relation("StudentExitRequestRequestedBy")
+  studentDocumentsVerified              StudentDocumentRecord[]        @relation("StudentDocumentVerifiedBy")
+  studentExitRequestsDecided            StudentExitRequest[]           @relation("StudentExitRequestDecidedBy")
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -657,36 +815,46 @@ model School {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
-  tenant                Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  campuses              Campus[]
-  academicYears         AcademicYear[]
-  terms                 Term[]
-  students              Student[]
-  guardians             Guardian[]
-  staffProfiles         StaffProfile[]
-  classRooms            ClassRoom[]
-  subjects              Subject[]
-  feePlans              FeePlan[]
-  feeAdjustments        FeeAdjustment[]
-  alumniRecords         FamilyAlumni[]
-  familyBenefits        FamilyBenefit[]
-  invoices              Invoice[]
-  invoiceSchedules      InvoiceSchedule[]
-  invoiceDeliveries     InvoiceDelivery[]
-  paymentReminders      PaymentReminder[]
-  payments              Payment[]
-  routes                TransportRoute[]
-  vehicles              TransportVehicle[]
-  timetableEntries      TimetableEntry[]
-  teacherAttendance     TeacherAttendance[]
-  notifications         Notification[]
-  messages              Message[]
-  exams                 Exam[]
-  homework              Homework[]
-  admissionApplications AdmissionApplication[]
-  promotionBatches      PromotionBatch[]
-  studentExitRequests   StudentExitRequest[]
-  adminAssignments      UserTenantSchoolAssignment[]
+  tenant                        Tenant                         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  campuses                      Campus[]
+  academicYears                 AcademicYear[]
+  terms                         Term[]
+  students                      Student[]
+  guardians                     Guardian[]
+  staffProfiles                 StaffProfile[]
+  classRooms                    ClassRoom[]
+  subjects                      Subject[]
+  feePlans                      FeePlan[]
+  feeAdjustments                FeeAdjustment[]
+  alumniRecords                 FamilyAlumni[]
+  familyBenefits                FamilyBenefit[]
+  invoices                      Invoice[]
+  invoiceSchedules              InvoiceSchedule[]
+  invoiceDeliveries             InvoiceDelivery[]
+  paymentReminders              PaymentReminder[]
+  payments                      Payment[]
+  routes                        TransportRoute[]
+  vehicles                      TransportVehicle[]
+  timetableEntries              TimetableEntry[]
+  teacherAttendance             TeacherAttendance[]
+  notifications                 Notification[]
+  tasks                         Task[]                         @relation("SchoolTasks")
+  approvalRequests              ApprovalRequest[]              @relation("SchoolApprovalRequests")
+  messages                      Message[]
+  exams                         Exam[]
+  homework                      Homework[]
+  admissionApplications         AdmissionApplication[]
+  admissionForms                AdmissionForm[]
+  admissionDocumentRequirements AdmissionDocumentRequirement[]
+  admissionLeads                AdmissionLead[]
+  admissionApplicationEvents    AdmissionApplicationEvent[]
+  admissionApplicationDocuments AdmissionApplicationDocument[]
+  promotionBatches              PromotionBatch[]
+  studentExitRequests           StudentExitRequest[]
+  studentDocumentRecords        StudentDocumentRecord[]        @relation("SchoolStudentDocumentRecords")
+  studentMedicalProfiles        StudentMedicalProfile[]        @relation("SchoolStudentMedicalProfiles")
+  documents                     Document[]                     @relation("SchoolDocuments")
+  adminAssignments              UserTenantSchoolAssignment[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -722,6 +890,7 @@ model Campus {
   staffProfiles         StaffProfile[]
   classRooms            ClassRoom[]
   admissionApplications AdmissionApplication[]
+  admissionForms        AdmissionForm[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -769,6 +938,7 @@ model AcademicYear {
   updatedBy        User?             @relation("AcademicYearUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_academic_years_updated_by_id_users")
   deletedBy        User?             @relation("AcademicYearDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_academic_years_deleted_by_id_users")
   invoiceSchedules InvoiceSchedule[]
+  AdmissionForm    AdmissionForm[]
 
   @@unique([schoolId, name], map: "uq_academic_years_school_name")
   @@index([tenantId, schoolId, isCurrent], map: "idx_academic_years_current")
@@ -941,6 +1111,8 @@ model Student {
   admissionApplications AdmissionApplication[]
   promotionOverrides    PromotionStudentOverride[]
   exitRequests          StudentExitRequest[]
+  documents             StudentDocumentRecord[]
+  medicalProfile        StudentMedicalProfile?
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -954,6 +1126,62 @@ model Student {
   @@unique([schoolId, admissionNo], map: "uq_students_school_admission_no")
   @@index([tenantId, schoolId, currentStatus], map: "idx_students_tenant_school_status")
   @@map("students")
+}
+
+model StudentDocumentRecord {
+  id           String                @id @default(cuid())
+  tenantId     String                @map("tenant_id")
+  schoolId     String                @map("school_id")
+  studentId    String                @map("student_id")
+  documentId   String?               @unique(map: "uq_student_document_records_document_id") @map("document_id")
+  key          String
+  label        String
+  isRequired   Boolean               @default(false) @map("is_required")
+  status       StudentDocumentStatus @default(REQUIRED)
+  reviewNote   String?               @map("review_note")
+  expiresAt    DateTime?             @map("expires_at")
+  verifiedAt   DateTime?             @map("verified_at")
+  verifiedById String?               @map("verified_by_id")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  updatedAt    DateTime              @updatedAt @map("updated_at")
+
+  tenant     Tenant    @relation("TenantStudentDocumentRecords", fields: [tenantId], references: [id], onDelete: Cascade)
+  school     School    @relation("SchoolStudentDocumentRecords", fields: [schoolId], references: [id], onDelete: Cascade)
+  student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  verifiedBy User?     @relation("StudentDocumentVerifiedBy", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  @@unique([studentId, key], map: "uq_student_document_records_student_key")
+  @@index([tenantId, schoolId, status], map: "idx_student_document_records_school_status")
+  @@map("student_document_records")
+}
+
+model StudentMedicalProfile {
+  id                    String    @id @default(cuid())
+  tenantId              String    @map("tenant_id")
+  schoolId              String    @map("school_id")
+  studentId             String    @unique(map: "uq_student_medical_profiles_student_id") @map("student_id")
+  allergies             String?
+  medicalConditions     String?   @map("medical_conditions")
+  medications           String?
+  dietaryRequirements   String?   @map("dietary_requirements")
+  physicalRestrictions  String?   @map("physical_restrictions")
+  emergencyInstructions String?   @map("emergency_instructions")
+  emergencyContactName  String?   @map("emergency_contact_name")
+  emergencyContactPhone String?   @map("emergency_contact_phone")
+  doctorName            String?   @map("doctor_name")
+  doctorPhone           String?   @map("doctor_phone")
+  consentVersion        String?   @map("consent_version")
+  parentConsentedAt     DateTime? @map("parent_consented_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation("TenantStudentMedicalProfiles", fields: [tenantId], references: [id], onDelete: Cascade)
+  school  School  @relation("SchoolStudentMedicalProfiles", fields: [schoolId], references: [id], onDelete: Cascade)
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, schoolId], map: "idx_student_medical_profiles_school")
+  @@map("student_medical_profiles")
 }
 
 model Family {
@@ -1044,14 +1272,30 @@ model FamilyBenefit {
 }
 
 model AdmissionApplication {
-  id             String          @id @default(cuid())
-  tenantId       String          @map("tenant_id")
-  schoolId       String          @map("school_id")
-  campusId       String?         @map("campus_id")
-  academicYearId String          @map("academic_year_id")
-  classRoomId    String?         @map("class_room_id")
-  studentId      String?         @map("student_id")
-  status         AdmissionStatus @default(DRAFT)
+  id                    String          @id @default(cuid())
+  tenantId              String          @map("tenant_id")
+  schoolId              String          @map("school_id")
+  campusId              String?         @map("campus_id")
+  academicYearId        String          @map("academic_year_id")
+  classRoomId           String?         @map("class_room_id")
+  studentId             String?         @map("student_id")
+  status                AdmissionStatus @default(DRAFT)
+  formId                String?         @map("form_id")
+  formVersion           Int?            @map("form_version")
+  applicationNumber     String?         @map("application_number")
+  admissionCategory     String?         @map("admission_category")
+  applicationSource     String?         @map("application_source")
+  preferredLanguage     String?         @map("preferred_language")
+  formData              Json?           @map("form_data")
+  termsVersion          String?         @map("terms_version")
+  parentAcknowledgedAt  DateTime?       @map("parent_acknowledged_at")
+  infoRequestedAt       DateTime?       @map("info_requested_at")
+  infoRequestMessage    String?         @map("info_request_message")
+  offerIssuedAt         DateTime?       @map("offer_issued_at")
+  offerExpiresAt        DateTime?       @map("offer_expires_at")
+  feesClearedAt         DateTime?       @map("fees_cleared_at")
+  finalVerifiedAt       DateTime?       @map("final_verified_at")
+  enrollmentConfirmedAt DateTime?       @map("enrollment_confirmed_at")
 
   firstName   String   @map("first_name")
   lastName    String?  @map("last_name")
@@ -1071,12 +1315,15 @@ model AdmissionApplication {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
-  campus       Campus?      @relation(fields: [campusId], references: [id], onDelete: SetNull)
-  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
-  classRoom    ClassRoom?   @relation(fields: [classRoomId], references: [id], onDelete: SetNull)
-  student      Student?     @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  tenant       Tenant                         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school       School                         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  campus       Campus?                        @relation(fields: [campusId], references: [id], onDelete: SetNull)
+  academicYear AcademicYear                   @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  classRoom    ClassRoom?                     @relation(fields: [classRoomId], references: [id], onDelete: SetNull)
+  student      Student?                       @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  form         AdmissionForm?                 @relation(fields: [formId], references: [id], onDelete: SetNull)
+  events       AdmissionApplicationEvent[]
+  documents    AdmissionApplicationDocument[]
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -1087,10 +1334,209 @@ model AdmissionApplication {
   updatedBy User? @relation("AdmissionApplicationUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, map: "fk_admission_applications_updated_by_id_users")
   deletedBy User? @relation("AdmissionApplicationDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_admission_applications_deleted_by_id_users")
 
+  @@unique([schoolId, applicationNumber], map: "uq_admission_applications_school_number")
   @@index([tenantId, schoolId, status], map: "idx_admission_applications_tenant_school_status")
   @@index([academicYearId, classRoomId], map: "idx_admission_applications_year_classroom")
   @@index([studentId], map: "idx_admission_applications_student_id")
+  @@index([tenantId, formId, status], map: "idx_admission_applications_form_status")
   @@map("admission_applications")
+}
+
+model AdmissionApplicationEvent {
+  id            String             @id @default(cuid())
+  tenantId      String             @map("tenant_id")
+  schoolId      String             @map("school_id")
+  applicationId String             @map("application_id")
+  type          AdmissionEventType
+  fromStatus    AdmissionStatus?   @map("from_status")
+  toStatus      AdmissionStatus?   @map("to_status")
+  message       String?
+  metadata      Json?
+  actorUserId   String?            @map("actor_user_id")
+  createdAt     DateTime           @default(now()) @map("created_at")
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school      School               @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  application AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  actor       User?                @relation("AdmissionApplicationEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, applicationId, createdAt], map: "idx_admission_events_application_timeline")
+  @@map("admission_application_events")
+}
+
+model AdmissionApplicationDocument {
+  id             String                        @id @default(cuid())
+  tenantId       String                        @map("tenant_id")
+  schoolId       String                        @map("school_id")
+  applicationId  String                        @map("application_id")
+  requirementKey String                        @map("requirement_key")
+  label          String
+  fileName       String?                       @map("file_name")
+  mimeType       String?                       @map("mime_type")
+  storageKey     String?                       @map("storage_key")
+  fileSizeBytes  BigInt?                       @map("file_size_bytes")
+  reviewStatus   AdmissionDocumentReviewStatus @default(PENDING) @map("review_status")
+  reviewNote     String?                       @map("review_note")
+  uploadedAt     DateTime?                     @map("uploaded_at")
+  reviewedAt     DateTime?                     @map("reviewed_at")
+  reviewedById   String?                       @map("reviewed_by_id")
+  createdAt      DateTime                      @default(now()) @map("created_at")
+  updatedAt      DateTime                      @updatedAt @map("updated_at")
+
+  tenant      Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school      School               @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  application AdmissionApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewedBy  User?                @relation("AdmissionApplicationDocumentReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@unique([applicationId, requirementKey], map: "uq_admission_application_documents_requirement")
+  @@index([tenantId, schoolId, reviewStatus], map: "idx_admission_application_documents_review")
+  @@map("admission_application_documents")
+}
+
+model AdmissionForm {
+  id             String              @id @default(cuid())
+  tenantId       String              @map("tenant_id")
+  schoolId       String              @map("school_id")
+  academicYearId String              @map("academic_year_id")
+  name           String
+  version        Int                 @default(1)
+  status         AdmissionFormStatus @default(DRAFT)
+  description    String?
+  termsText      String?             @map("terms_text")
+  publishedAt    DateTime?           @map("published_at")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+
+  tenant       Tenant                         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school       School                         @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear                   @relation(fields: [academicYearId], references: [id], onDelete: Restrict)
+  applications AdmissionApplication[]
+  sections     AdmissionFormSection[]
+  documents    AdmissionDocumentRequirement[]
+  leads        AdmissionLead[]
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("AdmissionFormCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("AdmissionFormUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  Campus      Campus? @relation(fields: [campusId], references: [id])
+  campusId    String?
+
+  @@unique([schoolId, academicYearId, version], map: "uq_admission_forms_school_year_version")
+  @@index([tenantId, schoolId, academicYearId, status], map: "idx_admission_forms_lookup")
+  @@map("admission_forms")
+}
+
+model AdmissionFormSection {
+  id          String   @id @default(cuid())
+  tenantId    String   @map("tenant_id")
+  formId      String   @map("form_id")
+  title       String
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  form   AdmissionForm        @relation(fields: [formId], references: [id], onDelete: Cascade)
+  fields AdmissionFormField[]
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("AdmissionFormSectionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("AdmissionFormSectionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, formId, sortOrder], map: "idx_admission_form_sections_order")
+  @@map("admission_form_sections")
+}
+
+model AdmissionFormField {
+  id          String             @id @default(cuid())
+  tenantId    String             @map("tenant_id")
+  sectionId   String             @map("section_id")
+  key         String
+  label       String
+  type        AdmissionFieldType
+  helpText    String?            @map("help_text")
+  isRequired  Boolean            @default(false) @map("is_required")
+  isSensitive Boolean            @default(false) @map("is_sensitive")
+  sortOrder   Int                @default(0) @map("sort_order")
+  options     Json?
+  visibility  Json?
+  validation  Json?
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+
+  tenant  Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  section AdmissionFormSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("AdmissionFormFieldCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("AdmissionFormFieldUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([sectionId, key], map: "uq_admission_form_fields_section_key")
+  @@index([tenantId, sectionId, sortOrder], map: "idx_admission_form_fields_order")
+  @@map("admission_form_fields")
+}
+
+model AdmissionDocumentRequirement {
+  id            String                 @id @default(cuid())
+  tenantId      String                 @map("tenant_id")
+  schoolId      String                 @map("school_id")
+  formId        String                 @map("form_id")
+  key           String
+  label         String
+  stage         AdmissionDocumentStage @default(APPLICATION)
+  isRequired    Boolean                @default(false) @map("is_required")
+  isSensitive   Boolean                @default(false) @map("is_sensitive")
+  acceptedTypes Json?                  @map("accepted_types")
+  maxSizeMb     Int?                   @map("max_size_mb")
+  createdAt     DateTime               @default(now()) @map("created_at")
+  updatedAt     DateTime               @updatedAt @map("updated_at")
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  form   AdmissionForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  createdById String? @map("created_by_id")
+  updatedById String? @map("updated_by_id")
+  createdBy   User?   @relation("AdmissionDocumentRequirementCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?   @relation("AdmissionDocumentRequirementUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([formId, key], map: "uq_admission_document_requirements_form_key")
+  @@index([tenantId, schoolId, formId, stage], map: "idx_admission_document_requirements_lookup")
+  @@map("admission_document_requirements")
+}
+
+model AdmissionLead {
+  id                    String              @id @default(cuid())
+  tenantId              String              @map("tenant_id")
+  schoolId              String              @map("school_id")
+  formId                String              @map("form_id")
+  email                 String
+  phone                 String
+  firstName             String              @map("first_name")
+  lastName              String?             @map("last_name")
+  status                AdmissionLeadStatus @default(STARTED)
+  verificationCodeHash  String              @map("verification_code_hash")
+  verificationExpiresAt DateTime            @map("verification_expires_at")
+  verifiedAt            DateTime?           @map("verified_at")
+  resumeTokenHash       String              @unique(map: "uq_admission_leads_resume_token_hash") @map("resume_token_hash")
+  draftData             Json                @default("{}") @map("draft_data")
+  currentSection        Int                 @default(0) @map("current_section")
+  lastSavedAt           DateTime?           @map("last_saved_at")
+  submittedAt           DateTime?           @map("submitted_at")
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school School        @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  form   AdmissionForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([schoolId, status], map: "idx_admission_leads_school_status")
+  @@index([email, schoolId], map: "idx_admission_leads_email_school")
+  @@map("admission_leads")
 }
 
 model PromotionBatch {
@@ -1940,23 +2386,32 @@ model StudentTransportAssignment {
 }
 
 model Document {
-  id            String             @id @default(cuid())
-  tenantId      String             @map("tenant_id")
-  entityType    DocumentEntityType @map("entity_type")
-  entityId      String             @map("entity_id")
+  id            String               @id @default(cuid())
+  tenantId      String               @map("tenant_id")
+  schoolId      String?              @map("school_id")
+  entityType    DocumentEntityType   @map("entity_type")
+  entityId      String               @map("entity_id")
   category      String
-  fileName      String             @map("file_name")
-  mimeType      String             @map("mime_type")
-  fileSizeBytes BigInt             @map("file_size_bytes")
-  storageBucket String?            @map("storage_bucket")
-  storageKey    String             @map("storage_key")
+  fileName      String               @map("file_name")
+  mimeType      String               @map("mime_type")
+  fileSizeBytes BigInt               @map("file_size_bytes")
+  storageBucket String?              @map("storage_bucket")
+  storageKey    String               @map("storage_key")
   checksum      String?
   metadata      Json?
-  uploadedById  String?            @map("uploaded_by_id")
-  uploadedAt    DateTime           @default(now()) @map("uploaded_at")
+  uploadedById  String?              @map("uploaded_by_id")
+  uploadedAt    DateTime             @default(now()) @map("uploaded_at")
+  reviewStatus  DocumentReviewStatus @default(PENDING) @map("review_status")
+  reviewNote    String?              @map("review_note")
+  reviewedAt    DateTime?            @map("reviewed_at")
+  reviewedById  String?              @map("reviewed_by_id")
+  expiresAt     DateTime?            @map("expires_at")
 
-  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  uploadedBy User?  @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  tenant                Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  school                School?                @relation("SchoolDocuments", fields: [schoolId], references: [id], onDelete: SetNull)
+  uploadedBy            User?                  @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  reviewedBy            User?                  @relation("DocumentReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+  studentDocumentRecord StudentDocumentRecord?
 
   createdById String?   @map("created_by_id")
   updatedById String?   @map("updated_by_id")
@@ -1968,6 +2423,7 @@ model Document {
   deletedBy User? @relation("DocumentDeletedBy", fields: [deletedById], references: [id], onDelete: SetNull, map: "fk_documents_deleted_by_id_users")
 
   @@index([tenantId, entityType, entityId], map: "idx_documents_entity_lookup")
+  @@index([tenantId, schoolId, reviewStatus, expiresAt], map: "idx_documents_review_expiry")
   @@index([storageKey], map: "idx_documents_storage_key")
   @@map("documents")
 }
@@ -2205,6 +2661,104 @@ model Notification {
   @@map("notifications")
 }
 
+model Task {
+  id            String       @id @default(cuid())
+  tenantId      String       @map("tenant_id")
+  schoolId      String       @map("school_id")
+  title         String
+  description   String?
+  type          TaskType     @default(MANUAL)
+  status        TaskStatus   @default(OPEN)
+  priority      TaskPriority @default(NORMAL)
+  assigneeId    String?      @map("assignee_id")
+  createdById   String       @map("created_by_id")
+  completedById String?      @map("completed_by_id")
+  sourceType    String?      @map("source_type")
+  sourceId      String?      @map("source_id")
+  actionUrl     String?      @map("action_url")
+  dueAt         DateTime?    @map("due_at")
+  completedAt   DateTime?    @map("completed_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+  deletedAt     DateTime?    @map("deleted_at")
+
+  tenant      Tenant         @relation("TenantTasks", fields: [tenantId], references: [id], onDelete: Cascade)
+  school      School         @relation("SchoolTasks", fields: [schoolId], references: [id], onDelete: Cascade)
+  assignee    User?          @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy   User           @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  completedBy User?          @relation("TaskCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+  reminders   TaskReminder[]
+
+  @@index([tenantId, schoolId, status, dueAt], map: "idx_tasks_school_status_due")
+  @@index([tenantId, assigneeId, status, dueAt], map: "idx_tasks_assignee_status_due")
+  @@index([sourceType, sourceId], map: "idx_tasks_source")
+  @@map("tasks")
+}
+
+model TaskReminder {
+  id        String    @id @default(cuid())
+  tenantId  String    @map("tenant_id")
+  taskId    String    @map("task_id")
+  userId    String    @map("user_id")
+  remindAt  DateTime  @map("remind_at")
+  sentAt    DateTime? @map("sent_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  tenant Tenant @relation("TenantTaskReminders", fields: [tenantId], references: [id], onDelete: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User   @relation("TaskReminderUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId, sentAt, remindAt], map: "idx_task_reminders_due")
+  @@map("task_reminders")
+}
+
+model ApprovalRequest {
+  id            String         @id @default(cuid())
+  tenantId      String         @map("tenant_id")
+  schoolId      String         @map("school_id")
+  title         String
+  description   String?
+  status        ApprovalStatus @default(REQUESTED)
+  entityType    String         @map("entity_type")
+  entityId      String         @map("entity_id")
+  requestedById String         @map("requested_by_id")
+  dueAt         DateTime?      @map("due_at")
+  completedAt   DateTime?      @map("completed_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  deletedAt     DateTime?      @map("deleted_at")
+
+  tenant      Tenant         @relation("TenantApprovalRequests", fields: [tenantId], references: [id], onDelete: Cascade)
+  school      School         @relation("SchoolApprovalRequests", fields: [schoolId], references: [id], onDelete: Cascade)
+  requestedBy User           @relation("ApprovalRequestRequester", fields: [requestedById], references: [id], onDelete: Restrict)
+  steps       ApprovalStep[]
+
+  @@index([tenantId, schoolId, status, dueAt], map: "idx_approval_requests_school_status")
+  @@index([tenantId, entityType, entityId], map: "idx_approval_requests_entity")
+  @@map("approval_requests")
+}
+
+model ApprovalStep {
+  id                String             @id @default(cuid())
+  approvalRequestId String             @map("approval_request_id")
+  sequence          Int
+  assigneeId        String             @map("assignee_id")
+  status            ApprovalStepStatus @default(PENDING)
+  decisionNote      String?            @map("decision_note")
+  decidedAt         DateTime?          @map("decided_at")
+  decidedById       String?            @map("decided_by_id")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  approvalRequest ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Cascade)
+  assignee        User            @relation("ApprovalStepAssignee", fields: [assigneeId], references: [id], onDelete: Restrict)
+  decidedBy       User?           @relation("ApprovalStepDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@unique([approvalRequestId, sequence], map: "uq_approval_steps_request_sequence")
+  @@index([assigneeId, status], map: "idx_approval_steps_assignee_status")
+  @@map("approval_steps")
+}
+
 model UserNotification {
   id             String    @id @default(cuid())
   tenantId       String    @map("tenant_id")
@@ -2230,6 +2784,24 @@ model UserNotification {
   @@unique([notificationId, userId], map: "uq_user_notifications_notification_user")
   @@index([tenantId, userId, isRead], map: "idx_user_notifications_user_is_read")
   @@map("user_notifications")
+}
+
+model NotificationPreference {
+  id        String   @id @default(cuid())
+  tenantId  String   @map("tenant_id")
+  userId    String   @map("user_id")
+  eventKey  String   @map("event_key")
+  channel   String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId, eventKey, channel], map: "uq_notification_preferences_user_event_channel")
+  @@index([tenantId, userId, enabled], map: "idx_notification_preferences_user_enabled")
+  @@map("notification_preferences")
 }
 
 model Message {

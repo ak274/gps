@@ -15,12 +15,30 @@ import { ListMessagesQueryDto } from './dto/list-messages-query.dto';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
+import { NotificationPreferenceResponseDto } from './dto/notification-preference-response.dto';
+import { UpdateNotificationPreferenceDto } from './dto/update-notification-preference.dto';
 
 @ApiTags('communications')
 @ApiBearerAuth()
 @Controller('communications')
 export class CommunicationsController {
   constructor(private readonly communicationsService: CommunicationsService) {}
+
+  @ApiOperation({ summary: 'List notification preferences for the current user' })
+  @ApiOkResponse({ type: [NotificationPreferenceResponseDto] })
+  @Scopes('communications.notifications.read')
+  @Get('notifications/preferences')
+  listPreferences(@CurrentUser() user: AuthenticatedUser) {
+    return this.communicationsService.listPreferences(user);
+  }
+
+  @ApiOperation({ summary: 'Update one notification preference for the current user' })
+  @ApiOkResponse({ type: NotificationPreferenceResponseDto })
+  @Scopes('communications.notifications.write')
+  @Post('notifications/preferences')
+  updatePreference(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateNotificationPreferenceDto) {
+    return this.communicationsService.updatePreference(user, dto);
+  }
 
   @ApiOperation({ summary: 'List notifications in authenticated tenant context' })
   @ApiOkResponse({ type: [NotificationResponseDto] })

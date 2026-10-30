@@ -9,3 +9,5 @@ export * from './lib/dto/notification-response.dto';
 export * from './lib/dto/create-message.dto';
 export * from './lib/dto/list-messages-query.dto';
 export * from './lib/dto/message-response.dto';
+export * from './lib/dto/update-notification-preference.dto';
+export * from './lib/dto/notification-preference-response.dto';

@@ -1,8 +1,16 @@
-import { DocumentEntityType } from '@gps/data-access-prisma';
+import { DocumentEntityType, DocumentReviewStatus } from '@gps/data-access-prisma';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class ListDocumentsQueryDto {
+  @ApiPropertyOptional({ enum: DocumentReviewStatus })
+  @IsEnum(DocumentReviewStatus)
+  @IsOptional()
+  reviewStatus?: DocumentReviewStatus;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  schoolId?: string;
   @ApiPropertyOptional({ enum: DocumentEntityType })
   @IsOptional()
   @IsEnum(DocumentEntityType)

@@ -16,6 +16,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -37,6 +38,7 @@ import { LinkFamilyMemberDto } from './dto/link-family-member.dto';
 import { CreateFamilyAlumniDto } from './dto/create-family-alumni.dto';
 import { CreateFamilyBenefitDto } from './dto/create-family-benefit.dto';
 import { FamilyResponseDto } from './dto/family-response.dto';
+import { UpdateStudentDocumentReviewDto, UpsertStudentDocumentDto, UpsertStudentMedicalProfileDto } from './dto/student-records.dto';
 
 @ApiTags('students')
 @ApiBearerAuth()
@@ -109,6 +111,41 @@ export class StudentsController {
   @Post('families/:familyId/benefits')
   addFamilyBenefit(@CurrentUser() user: AuthenticatedUser, @Param('familyId') familyId: string, @Body() dto: CreateFamilyBenefitDto) {
     return this.studentsService.addFamilyBenefit(user, familyId, dto);
+  }
+
+  @ApiOperation({ summary: 'List a student document checklist with metadata and verification state' })
+  @Scopes('students.read')
+  @Get(':studentId/documents')
+  listStudentDocuments(@CurrentUser() user: AuthenticatedUser, @Param('studentId') studentId: string) {
+    return this.studentsService.listStudentDocuments(user, studentId);
+  }
+
+  @ApiOperation({ summary: 'Create or update a student document requirement record' })
+  @Scopes('students.write')
+  @Post(':studentId/documents')
+  upsertStudentDocument(@CurrentUser() user: AuthenticatedUser, @Param('studentId') studentId: string, @Body() dto: UpsertStudentDocumentDto) {
+    return this.studentsService.upsertStudentDocument(user, studentId, dto);
+  }
+
+  @ApiOperation({ summary: 'Verify, reject or expire a student document record' })
+  @Scopes('students.write')
+  @Patch(':studentId/documents/:documentId')
+  reviewStudentDocument(@CurrentUser() user: AuthenticatedUser, @Param('studentId') studentId: string, @Param('documentId') documentId: string, @Body() dto: UpdateStudentDocumentReviewDto) {
+    return this.studentsService.reviewStudentDocument(user, studentId, documentId, dto);
+  }
+
+  @ApiOperation({ summary: 'Get the restricted medical and support profile for a student' })
+  @Scopes('students.read')
+  @Get(':studentId/medical-profile')
+  getStudentMedicalProfile(@CurrentUser() user: AuthenticatedUser, @Param('studentId') studentId: string) {
+    return this.studentsService.getStudentMedicalProfile(user, studentId);
+  }
+
+  @ApiOperation({ summary: 'Create or update the restricted medical and support profile for a student' })
+  @Scopes('students.write')
+  @Put(':studentId/medical-profile')
+  upsertStudentMedicalProfile(@CurrentUser() user: AuthenticatedUser, @Param('studentId') studentId: string, @Body() dto: UpsertStudentMedicalProfileDto) {
+    return this.studentsService.upsertStudentMedicalProfile(user, studentId, dto);
   }
 
   @ApiOperation({ summary: 'Get student by ID in the authenticated tenant' })

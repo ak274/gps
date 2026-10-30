@@ -113,6 +113,9 @@
     },
     {
       "path": "./libs/web/feature-classes"
+    },
+    {
+      "path": "./libs/server/feature-workflows"
     }
   ]
 }

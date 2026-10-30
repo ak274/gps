@@ -16,10 +16,31 @@ import { ListMessagesQueryDto } from './dto/list-messages-query.dto';
 import { ListNotificationsQueryDto } from './dto/list-notifications-query.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 import { NotificationResponseDto } from './dto/notification-response.dto';
+import { NotificationPreferenceResponseDto } from './dto/notification-preference-response.dto';
+import { UpdateNotificationPreferenceDto } from './dto/update-notification-preference.dto';
+
+const PREFERENCE_EVENTS = ['TASK_ASSIGNED', 'TASK_REMINDER', 'APPROVAL_REQUESTED', 'APPROVAL_DECISION', 'DOCUMENT_RENEWAL', 'ADMISSION_UPDATE', 'FEE_REMINDER'];
+const PREFERENCE_CHANNELS = ['IN_APP', 'EMAIL', 'SMS', 'WHATSAPP'];
 
 @Injectable()
 export class CommunicationsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async listPreferences(user: AuthenticatedUser): Promise<NotificationPreferenceResponseDto[]> {
+    const rows = await this.prisma.notificationPreference.findMany({ where: { tenantId: user.tenantId, userId: user.sub }, orderBy: [{ eventKey: 'asc' }, { channel: 'asc' }] });
+    const existing = new Map(rows.map((row) => [`${row.eventKey}:${row.channel}`, row]));
+    const now = new Date().toISOString();
+    return PREFERENCE_EVENTS.flatMap((eventKey) => PREFERENCE_CHANNELS.map((channel) => {
+      const row = existing.get(`${eventKey}:${channel}`);
+      return { id: row?.id ?? `default:${eventKey}:${channel}`, eventKey, channel, enabled: row?.enabled ?? channel === 'IN_APP', updatedAt: row?.updatedAt.toISOString() ?? now };
+    }));
+  }
+
+  async updatePreference(user: AuthenticatedUser, dto: UpdateNotificationPreferenceDto): Promise<NotificationPreferenceResponseDto> {
+    const row = await this.prisma.notificationPreference.upsert({ where: { tenantId_userId_eventKey_channel: { tenantId: user.tenantId, userId: user.sub, eventKey: dto.eventKey, channel: dto.channel } }, create: { tenantId: user.tenantId, userId: user.sub, eventKey: dto.eventKey, channel: dto.channel, enabled: dto.enabled }, update: { enabled: dto.enabled } });
+    await this.prisma.auditLog.create({ data: { tenantId: user.tenantId, actorUserId: user.sub, action: 'UPDATE', entityType: 'NOTIFICATION_PREFERENCE', entityId: row.id, message: `${dto.eventKey} ${dto.channel} ${dto.enabled ? 'enabled' : 'disabled'}`, newValues: { eventKey: dto.eventKey, channel: dto.channel, enabled: dto.enabled } } });
+    return { id: row.id, eventKey: row.eventKey, channel: row.channel, enabled: row.enabled, updatedAt: row.updatedAt.toISOString() };
+  }
 
   async listNotifications(
     user: AuthenticatedUser,

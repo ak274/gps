@@ -71,25 +71,38 @@ import {
   createRouter,
   redirect,
   useNavigate,
+  useParams,
   useRouterState,
 } from '@tanstack/react-router';
 import {
+  ArrowRight,
+  Check,
+  CheckCircle2,
   BookOpenCheck,
   ChevronsUpDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
   Building2,
   BadgeCheck,
+  ClipboardList,
   Bell,
-  CheckCircle2,
   Command,
   CreditCard,
+  FileCheck2,
   GraduationCap,
   LayoutDashboard,
+  ListTodo,
   LogOut,
+  Mail,
   Moon,
   Plus,
   Search,
+  Save,
+  ShieldCheck,
   Sparkles,
   Sun,
+  Phone,
   Users,
   UsersRound,
   Wallet,
@@ -110,6 +123,31 @@ type ClassroomLite = {
 type StaffLite = { id: string; firstName?: string | null; lastName?: string | null };
 type TeacherLite = { id: string };
 type StudentLite = { id: string; firstName: string; lastName?: string | null; admissionNo: string };
+type TaskLite = {
+  id: string;
+  schoolId: string;
+  title: string;
+  description: string | null;
+  type: string;
+  status: 'OPEN' | 'IN_PROGRESS' | 'BLOCKED' | 'COMPLETED' | 'CANCELLED';
+  priority: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
+  assigneeName: string | null;
+  dueAt: string | null;
+  actionUrl: string | null;
+  isOverdue: boolean;
+  reminderCount: number;
+};
+type ApprovalLite = {
+  id: string;
+  schoolId: string;
+  title: string;
+  description: string | null;
+  status: 'REQUESTED' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'CHANGES_REQUESTED' | 'CANCELLED';
+  entityType: string;
+  entityId: string;
+  dueAt: string | null;
+  steps: Array<{ id: string; sequence: number; assigneeId: string; assigneeName: string | null; status: string; decisionNote: string | null }>;
+};
 type AttendanceSessionLite = { id: string; classRoomId: string; attendanceOn: string };
 type SchoolReadinessLite = {
   percent: number;
@@ -150,11 +188,17 @@ type StaffImportPreview = {
 };
 type AdmissionLite = {
   id: string; schoolId: string; academicYearId: string; classRoomId?: string | null;
-  studentId?: string | null; status: 'DRAFT' | 'SUBMITTED' | 'REVIEWING' | 'APPROVED' | 'REJECTED' | 'ENROLLED' | 'WITHDRAWN';
+  studentId?: string | null; status: 'DRAFT' | 'SUBMITTED' | 'REVIEWING' | 'INFO_REQUESTED' | 'APPROVED' | 'WAITLISTED' | 'REJECTED' | 'OFFERED' | 'FEE_PENDING' | 'READY_FOR_ENROLLMENT' | 'ENROLLED' | 'WITHDRAWN';
   firstName: string; lastName?: string | null; dateOfBirth: string;
   guardianFirstName: string; guardianLastName?: string | null; guardianPhoneE164?: string | null;
   guardianEmail?: string | null; relationType: string; createdAt: string;
 };
+type StudentDocumentRecordLite = { id: string; key: string; label: string; isRequired: boolean; status: string; reviewNote?: string | null; expiresAt?: string | null; documentId?: string | null };
+type DocumentLite = { id: string; entityType: string; entityId: string; category: string; fileName: string; mimeType: string; fileSizeBytes: string; uploadedAt: string; reviewStatus: string; reviewNote?: string | null; reviewedAt?: string | null; expiresAt?: string | null; downloadUrl: string };
+type DocumentAuditLite = { id: string; action: string; entityType: string; message?: string | null; oldValues?: Record<string, unknown> | null; newValues?: Record<string, unknown> | null; actorUserId?: string | null; createdAt: string };
+type NotificationPreferenceLite = { id: string; eventKey: string; channel: string; enabled: boolean; updatedAt: string };
+type StudentMedicalProfileLite = { allergies?: string | null; medicalConditions?: string | null; medications?: string | null; dietaryRequirements?: string | null; physicalRestrictions?: string | null; emergencyInstructions?: string | null; emergencyContactName?: string | null; emergencyContactPhone?: string | null; doctorName?: string | null; doctorPhone?: string | null };
+type AdmissionFormLite = { id: string; schoolId: string; academicYearId: string; name: string; version: number; status: string; description?: string | null; sections: Array<{ id: string; title: string; sortOrder: number; fields: Array<{ id: string; key: string; label: string; type: string; isRequired: boolean; isSensitive: boolean }> }>; documents: Array<{ id: string; key: string; label: string; stage: string; isRequired: boolean; isSensitive: boolean }> };
 type FeePlanLite = { id: string; name: string; billingCycle: 'MONTHLY' | 'QUARTERLY' | 'ANNUAL' | 'ONE_TIME'; currencyCode: string; items: Array<{ id: string; code: string; name: string; amount: string }> };
 type FeeAssignmentLite = { id: string; feePlanId: string; feePlanName: string; scope: 'CLASS' | 'STUDENT'; targetId: string; targetLabel: string | null };
 type InvoiceLite = { id: string; studentId: string; invoiceNumber?: string; status: string; totalAmount: string; balanceAmount: string; dueDate?: string | null };
@@ -441,6 +485,10 @@ function RootLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const isAppRoute = pathname.startsWith('/app');
 
+  if (pathname.startsWith('/apply/')) {
+    return <main className="min-h-screen bg-[#f7f4ee] text-[#17233b]"><Outlet /></main>;
+  }
+
   if (isAppRoute && auth.isAuthenticated) {
     return <AuthenticatedAppShell />;
   }
@@ -465,6 +513,88 @@ function RootLayout() {
       </main>
     </div>
   );
+}
+
+type PublicAdmissionField = { id: string; key: string; label: string; type: string; helpText?: string | null; isRequired: boolean; options?: unknown };
+type PublicAdmissionSection = { id: string; title: string; description?: string | null; fields: PublicAdmissionField[] };
+type PublicAdmissionForm = { id: string; name: string; version: number; description?: string | null; termsText?: string | null; sections: PublicAdmissionSection[]; documents: Array<{ id: string; label: string; isRequired: boolean }> };
+type PublicAdmissionPayload = { school: { id: string; name: string; board?: string | null }; academicYear?: { id: string; name: string } | null; campuses: Array<{ id: string; name: string; code: string }>; classes: Array<{ id: string; name: string; gradeLevel: string; section?: string | null; campusId?: string | null }>; form: PublicAdmissionForm };
+
+async function publicAdmissionRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(path, { ...init, headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) } });
+  const payload = (await response.json().catch(() => ({}))) as { message?: string } & T;
+  if (!response.ok) throw new Error(payload.message ?? 'Something went wrong. Please try again.');
+  return payload;
+}
+
+function PublicAdmissionPage() {
+  const { schoolId } = useParams({ strict: false }) as { schoolId: string };
+  const [page, setPage] = useState<PublicAdmissionPayload | null>(null);
+  const [stage, setStage] = useState<'start' | 'verify' | 'wizard' | 'done'>('start');
+  const [leadId, setLeadId] = useState('');
+  const [resumeToken, setResumeToken] = useState('');
+  const [verificationPreviewCode, setVerificationPreviewCode] = useState('');
+  const [code, setCode] = useState('');
+  const [error, setError] = useState('');
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [draft, setDraft] = useState<Record<string, unknown>>({});
+  const [startForm, setStartForm] = useState({ firstName: '', lastName: '', email: '', phone: '', campusId: '', classRoomId: '' });
+
+  useEffect(() => {
+    void publicAdmissionRequest<PublicAdmissionPayload>(`/api/admissions/public/form/${schoolId}`)
+      .then(setPage)
+      .catch((reason: Error) => setError(reason.message));
+  }, [schoolId]);
+
+  useEffect(() => {
+    if (stage !== 'wizard' || !leadId || !resumeToken) return;
+    const timer = window.setTimeout(() => {
+      void publicAdmissionRequest<{ savedAt: string }>(`/api/admissions/public/${leadId}/draft?resumeToken=${encodeURIComponent(resumeToken)}`, { method: 'PATCH', body: JSON.stringify({ draftData: draft, currentSection }) })
+        .then((result) => setSavedAt(new Date(result.savedAt)))
+        .catch(() => undefined);
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [currentSection, draft, leadId, resumeToken, stage]);
+
+  const activeSection = page?.form.sections[currentSection];
+  const start = async (event: FormEvent) => {
+    event.preventDefault(); setError('');
+    try {
+      const result = await publicAdmissionRequest<{ leadId: string; verificationPreviewCode?: string }>(`/api/admissions/public/start`, { method: 'POST', body: JSON.stringify({ schoolId, ...startForm }) });
+      setLeadId(result.leadId); setVerificationPreviewCode(result.verificationPreviewCode ?? ''); setStage('verify');
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to start your application.'); }
+  };
+  const verify = async (event: FormEvent) => {
+    event.preventDefault(); setError('');
+    try {
+      const result = await publicAdmissionRequest<{ resumeToken: string; form: PublicAdmissionForm; draftData: Record<string, unknown>; currentSection: number }>(`/api/admissions/public/${leadId}/verify`, { method: 'POST', body: JSON.stringify({ code }) });
+      setResumeToken(result.resumeToken); setDraft(result.draftData); setCurrentSection(result.currentSection); setPage((current) => current ? { ...current, form: result.form } : current); setStage('wizard');
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'That code did not work.'); }
+  };
+  const goNext = () => {
+    if (!activeSection || !page) return;
+    const missing = activeSection.fields.filter((field) => field.isRequired && !draft[field.key]).map((field) => field.label);
+    if (missing.length) { setError(`A quick check before you continue: ${missing.join(', ')} still need${missing.length === 1 ? 's' : ''} an answer.`); return; }
+    setError('');
+    if (currentSection < page.form.sections.length - 1) setCurrentSection((value) => value + 1);
+  };
+  const submit = async () => {
+    setError('');
+    try { await publicAdmissionRequest(`/api/admissions/public/${leadId}/submit?resumeToken=${encodeURIComponent(resumeToken)}`, { method: 'POST', body: JSON.stringify({}) }); setStage('done'); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : 'Please complete the required details before submitting.'); }
+  };
+
+  if (!page && !error) return <div className="grid min-h-screen place-items-center text-sm text-slate-500">Preparing your admission space…</div>;
+  if (error && !page) return <div className="grid min-h-screen place-items-center px-6 text-center"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#a47725]">Admissions are taking a breath</p><h1 className="mt-3 text-3xl font-semibold">This application page isn’t available yet.</h1><p className="mt-3 text-slate-600">{error}</p></div></div>;
+  if (!page) return null;
+
+  if (stage === 'done') return <div className="mx-auto flex min-h-screen max-w-3xl items-center px-6 py-16"><div className="w-full rounded-[2rem] bg-[#17233b] p-8 text-[#f8f5ed] shadow-2xl shadow-[#17233b]/20 sm:p-14"><div className="grid size-14 place-items-center rounded-2xl bg-[#dfbd73] text-[#17233b]"><Check className="size-7" /></div><p className="mt-10 text-xs font-bold uppercase tracking-[0.2em] text-[#dfbd73]">Application received</p><h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-tight sm:text-6xl">That’s a beautiful beginning.</h1><p className="mt-5 max-w-xl text-lg leading-8 text-slate-300">{page.school.name} has your application. Their admissions team can now review the details and reach out using the contact you provided.</p></div></div>;
+
+  return <div className="relative overflow-hidden"><div className="pointer-events-none absolute -right-32 -top-24 size-[32rem] rounded-full bg-[#dfbd73]/20 blur-3xl" /><div className="pointer-events-none absolute -left-48 top-[40%] size-[28rem] rounded-full bg-[#b9cfe0]/35 blur-3xl" /><div className="relative mx-auto min-h-screen max-w-7xl px-5 py-6 sm:px-8 sm:py-10">
+    <header className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-2xl bg-[#17233b] text-[#dfbd73]"><GraduationCap className="size-5" /></div><div><p className="text-sm font-bold tracking-tight">{page.school.name}</p><p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Admissions · {page.form.version ? `2026–27` : 'Application'}</p></div></div><div className="hidden items-center gap-2 rounded-full border border-[#17233b]/10 bg-white/70 px-3 py-2 text-xs font-semibold text-slate-600 sm:flex"><Save className="size-3.5 text-emerald-600" /> Save anytime · return later</div></header>
+    {stage === 'start' || stage === 'verify' ? <div className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20"><div><p className="inline-flex items-center gap-2 rounded-full border border-[#dfbd73]/60 bg-[#fffaf0] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-[#8a671e]"><Sparkles className="size-3.5" /> A considered start</p><h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[0.98] tracking-[-0.05em] text-[#17233b] sm:text-7xl">A place for your child to <span className="font-serif italic text-[#a47725]">begin.</span></h1><p className="mt-7 max-w-xl text-lg leading-8 text-slate-600">Start with a few details. We’ll open a private application space where you can take your time, save automatically, and return whenever it suits your family.</p><div className="mt-9 grid max-w-xl gap-3 sm:grid-cols-3"><div className="rounded-2xl border border-[#17233b]/10 bg-white/70 p-4"><Clock3 className="size-5 text-[#a47725]" /><p className="mt-5 text-sm font-semibold">15–20 minutes</p><p className="mt-1 text-xs leading-5 text-slate-500">Total, across as many sessions as you like.</p></div><div className="rounded-2xl border border-[#17233b]/10 bg-white/70 p-4"><Save className="size-5 text-[#a47725]" /><p className="mt-5 text-sm font-semibold">Auto-saved</p><p className="mt-1 text-xs leading-5 text-slate-500">Your progress stays with you.</p></div><div className="rounded-2xl border border-[#17233b]/10 bg-white/70 p-4"><ShieldCheck className="size-5 text-[#a47725]" /><p className="mt-5 text-sm font-semibold">Private by design</p><p className="mt-1 text-xs leading-5 text-slate-500">Only your verified email can resume it.</p></div></div></div><div className="rounded-[2rem] border border-[#17233b]/10 bg-white/85 p-6 shadow-2xl shadow-[#17233b]/10 backdrop-blur sm:p-9">{stage === 'start' ? <form onSubmit={start} className="space-y-5"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a47725]">First, hello</p><h2 className="mt-2 text-2xl font-semibold">Let’s create your private space.</h2><p className="mt-2 text-sm leading-6 text-slate-500">We’ll send a one-time code to verify your email. No password to remember.</p></div><div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">First name<Input className="mt-2" required value={startForm.firstName} onChange={(event) => setStartForm({ ...startForm, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<Input className="mt-2" value={startForm.lastName} onChange={(event) => setStartForm({ ...startForm, lastName: event.target.value })} /></label></div><label className="block text-sm font-semibold">Email address<div className="relative mt-2"><Mail className="absolute left-3 top-3 size-4 text-slate-400" /><Input className="pl-10" type="email" required value={startForm.email} onChange={(event) => setStartForm({ ...startForm, email: event.target.value })} /></div></label><label className="block text-sm font-semibold">Phone number<div className="relative mt-2"><Phone className="absolute left-3 top-3 size-4 text-slate-400" /><Input className="pl-10" type="tel" required value={startForm.phone} onChange={(event) => setStartForm({ ...startForm, phone: event.target.value })} /></div></label>{error ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}<Button className="h-12 w-full rounded-xl bg-[#17233b] text-[#f8f5ed] hover:bg-[#273754]" type="submit">Begin application <ArrowRight className="ml-2 size-4" /></Button><p className="text-center text-xs text-slate-400">By continuing, you agree to begin an admission application with {page.school.name}.</p></form> : <form onSubmit={verify} className="space-y-5"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a47725]">Check your inbox</p><h2 className="mt-2 text-2xl font-semibold">One small step, then you’re in.</h2><p className="mt-2 text-sm leading-6 text-slate-500">Enter the six-digit code sent to <span className="font-semibold text-slate-700">{startForm.email}</span>.</p></div><Input autoFocus inputMode="numeric" maxLength={6} placeholder="000000" className="h-14 text-center text-2xl font-bold tracking-[0.35em]" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))} />{verificationPreviewCode ? <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">Local preview: your verification code is <strong>{verificationPreviewCode}</strong>.</p> : null}{error ? <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}<Button className="h-12 w-full rounded-xl bg-[#17233b] text-[#f8f5ed] hover:bg-[#273754]" type="submit" disabled={code.length !== 6}>Open my application <ArrowRight className="ml-2 size-4" /></Button><button type="button" className="w-full text-sm font-semibold text-slate-500 hover:text-[#17233b]" onClick={() => setStage('start')}>Use a different email</button></form>}</div></div> : <div className="grid gap-8 py-10 lg:grid-cols-[260px_1fr] lg:py-14"><aside className="lg:sticky lg:top-8 lg:self-start"><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a47725]">Your application</p><h1 className="mt-2 text-3xl font-semibold tracking-tight">Take it at your pace.</h1><p className="mt-3 text-sm leading-6 text-slate-500">We save as you go. You can close this page and return later using your verified email.</p><div className="mt-8 space-y-2">{page.form.sections.map((section, index) => <button type="button" key={section.id} onClick={() => index <= currentSection && setCurrentSection(index)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition ${index === currentSection ? 'bg-[#17233b] font-semibold text-white' : index < currentSection ? 'text-emerald-700 hover:bg-white' : 'text-slate-400'}`}><span className={`grid size-7 place-items-center rounded-full text-xs ${index < currentSection ? 'bg-emerald-100' : index === currentSection ? 'bg-[#dfbd73] text-[#17233b]' : 'bg-slate-200 text-slate-500'}`}>{index < currentSection ? <Check className="size-3.5" /> : index + 1}</span>{section.title}</button>)}</div></aside><section className="rounded-[2rem] border border-[#17233b]/10 bg-white/90 p-6 shadow-2xl shadow-[#17233b]/10 sm:p-10"><div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 pb-7"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#a47725]">Section {currentSection + 1} of {page.form.sections.length}</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">{activeSection?.title}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{activeSection?.description ?? 'A few thoughtful details help the school prepare a welcoming first step.'}</p></div><div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700"><Save className="size-3.5" />{savedAt ? `Saved ${savedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Saving securely'}</div></div><div className="grid gap-5 py-8 sm:grid-cols-2">{activeSection?.fields.map((field) => <label key={field.id} className={`text-sm font-semibold ${field.type === 'TEXTAREA' ? 'sm:col-span-2' : ''}`}>{field.label}{field.isRequired ? <span className="ml-1 text-[#a47725]">*</span> : null}{field.type === 'BOOLEAN' ? <span className="mt-3 flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 font-normal"><input type="checkbox" checked={Boolean(draft[field.key])} onChange={(event) => setDraft({ ...draft, [field.key]: event.target.checked })} className="size-4 accent-[#17233b]" />Yes, I confirm</span> : field.type === 'TEXTAREA' ? <textarea className="mt-2 min-h-32 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 font-normal outline-none ring-[#dfbd73] focus:ring-2" value={String(draft[field.key] ?? '')} onChange={(event) => setDraft({ ...draft, [field.key]: event.target.value })} /> : <Input className="mt-2" type={field.type === 'EMAIL' ? 'email' : field.type === 'DATE' ? 'date' : field.type === 'NUMBER' ? 'number' : field.type === 'PHONE' ? 'tel' : 'text'} value={String(draft[field.key] ?? '')} onChange={(event) => setDraft({ ...draft, [field.key]: event.target.value })} />}{field.helpText ? <span className="mt-1 block text-xs font-normal text-slate-400">{field.helpText}</span> : null}</label>)}</div>{error ? <p className="mb-5 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}<div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-6"><Button variant="ghost" type="button" disabled={currentSection === 0} onClick={() => { setError(''); setCurrentSection((value) => Math.max(0, value - 1)); }}><ChevronLeft className="mr-1 size-4" />Back</Button>{currentSection === page.form.sections.length - 1 ? <Button type="button" className="rounded-xl bg-[#17233b] text-[#f8f5ed] hover:bg-[#273754]" onClick={submit}>Review & submit <CheckCircle2 className="ml-2 size-4" /></Button> : <Button type="button" className="rounded-xl bg-[#17233b] text-[#f8f5ed] hover:bg-[#273754]" onClick={goNext}>Save & continue <ChevronRight className="ml-2 size-4" /></Button>}</div></section></div>}
+  </div></div>;
 }
 
 function AuthenticatedAppShell() {
@@ -666,8 +796,12 @@ function AuthenticatedAppShell() {
     { label: 'Dashboard', path: '/app', icon: LayoutDashboard },
     { label: 'Classes', path: '/app/classes', icon: Building2 },
     { label: 'Students', path: '/app/students', icon: GraduationCap },
+    { label: 'Student records', path: '/app/students/records', icon: ShieldCheck },
     ...(auth.user?.scopes?.includes('admissions.read')
       ? [{ label: 'Admissions', path: '/app/admissions', icon: BadgeCheck }]
+      : []),
+    ...(auth.user?.scopes?.includes('admissions.read')
+      ? [{ label: 'Form builder', path: '/app/admissions/forms', icon: ClipboardList }]
       : []),
     ...(auth.user?.scopes?.includes('billing.feePlans.read')
       ? [{ label: 'Finance', path: '/app/finance', icon: Wallet }]
@@ -677,6 +811,18 @@ function AuthenticatedAppShell() {
       : []),
     { label: 'Teachers', path: '/app/teachers', icon: UsersRound },
     { label: 'Attendance', path: '/app/attendance', icon: BookOpenCheck },
+    ...(auth.user?.scopes?.includes('workflows.tasks.read')
+      ? [{ label: 'Work queue', path: '/app/tasks', icon: ListTodo }]
+      : []),
+    ...(auth.user?.scopes?.includes('workflows.approvals.read')
+      ? [{ label: 'Approvals', path: '/app/approvals', icon: BadgeCheck }]
+      : []),
+    ...(auth.user?.scopes?.includes('documents.read')
+      ? [{ label: 'Document review', path: '/app/documents/review', icon: FileCheck2 }]
+      : []),
+    ...(auth.user?.scopes?.includes('communications.notifications.read')
+      ? [{ label: 'Notification settings', path: '/app/settings/notifications', icon: Bell }]
+      : []),
     ...(canProvisionSchools
       ? [{ label: 'Provision School', path: '/app/schools/provision', icon: Building2 }]
       : []),
@@ -1062,6 +1208,126 @@ function AuthenticatedAppShell() {
       </SidebarProvider>
     </div>
   );
+}
+
+function ApprovalsPage() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const canRead = auth.can('workflows.approvals.read');
+  const canDecide = auth.can('workflows.approvals.decide');
+  const [schoolId, setSchoolId] = useState('');
+  const [note, setNote] = useState('');
+  const [message, setMessage] = useState('');
+  useRequireAuth({ onRedirect: () => navigate({ to: '/login', search: { redirect: '/app/approvals' } }) });
+  const request = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => {
+    const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const response = await auth.authFetch(`${apiBase}${path}`, { method, headers: { accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    const payload = await response.json().catch(() => undefined);
+    if (!response.ok) throw new Error(payload?.message ?? `Request failed (${response.status})`);
+    return payload as T;
+  };
+  const schoolsQuery = useQuery({ queryKey: ['approvals-schools'], queryFn: () => fetchJsonArray<SchoolLite>(auth.authFetch, '/api/schools'), enabled: canRead });
+  const activeSchoolId = schoolId || schoolsQuery.data?.[0]?.id || '';
+  const approvalsQuery = useQuery({ queryKey: ['approvals', activeSchoolId], queryFn: () => request<ApprovalLite[]>(`/api/approvals?schoolId=${activeSchoolId}`), enabled: canRead && Boolean(activeSchoolId) });
+  const mutation = useMutation({ mutationFn: ({ id, decision }: { id: string; decision: 'APPROVE' | 'REJECT' | 'REQUEST_CHANGES' }) => request(`/api/approvals/${id}/decision`, 'POST', { decision, note: note.trim() || (decision === 'APPROVE' ? 'Approved in the school workflow.' : 'Please review the request and provide the missing information.') }), onSuccess: () => { setNote(''); setMessage('Approval decision recorded.'); void queryClient.invalidateQueries({ queryKey: ['approvals'] }); void queryClient.invalidateQueries({ queryKey: ['tasks'] }); } });
+  if (!canRead) return <p className="text-sm text-muted-foreground">Approval access denied.</p>;
+  const approvals = approvalsQuery.data ?? [];
+  return <div className="mx-auto max-w-7xl space-y-8 pb-10"><section className="relative overflow-hidden rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10"><div className="absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#d7a94b]/15 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]"><BadgeCheck className="size-4" /> Approval desk</div><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">Decisions with context, not guesswork.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Review the evidence, see the ordered decision path and leave a reason that helps the next person act.</p></div><label className="min-w-[220px] text-xs font-medium text-slate-300">School<select value={activeSchoolId} onChange={(event) => setSchoolId(event.target.value)} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="" className="text-slate-900">Choose school</option>{(schoolsQuery.data ?? []).map((school) => <option key={school.id} value={school.id} className="text-slate-900">{school.name}</option>)}</select></label></div></section><Card><CardHeader><CardTitle>Approval requests</CardTitle><CardDescription>Each request is sequential, auditable and connected to an underlying school record.</CardDescription></CardHeader><CardContent className="space-y-4"><label className="block max-w-xl text-sm font-medium">Decision note<textarea value={note} onChange={(event) => setNote(event.target.value)} className="mt-1.5 min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Explain the decision or the information needed next." /></label>{approvals.map((approval) => { const active = approval.steps.find((step) => step.status === 'ACTIVE'); const canAct = canDecide && active?.assigneeId === auth.user?.sub; return <div key={approval.id} className="rounded-2xl border border-slate-100 p-5"><div className="flex flex-wrap items-start justify-between gap-4"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold text-slate-900">{approval.title}</h2><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${approval.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : approval.status === 'REJECTED' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>{approval.status.toLowerCase().replace('_', ' ')}</span></div><p className="mt-1 text-xs text-slate-500">{approval.entityType} · {approval.entityId}{approval.dueAt ? ` · due ${approval.dueAt.slice(0, 10)}` : ''}</p><p className="mt-3 text-sm text-slate-600">{approval.description || 'No additional context was provided.'}</p></div>{canAct ? <div className="flex flex-wrap gap-2"><Button size="sm" onClick={() => mutation.mutate({ id: approval.id, decision: 'APPROVE' })}>Approve</Button><Button size="sm" variant="outline" onClick={() => mutation.mutate({ id: approval.id, decision: 'REQUEST_CHANGES' })}>Request changes</Button><Button size="sm" variant="destructive" onClick={() => mutation.mutate({ id: approval.id, decision: 'REJECT' })}>Reject</Button></div> : null}</div><div className="mt-4 grid gap-2 md:grid-cols-3">{approval.steps.map((step) => <div key={step.id} className={`rounded-xl border px-3 py-2.5 ${step.status === 'ACTIVE' ? 'border-[#d7a94b] bg-[#fffaf0]' : 'border-slate-100 bg-slate-50'}`}><p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">Step {step.sequence}</p><p className="mt-1 text-sm font-medium text-slate-800">{step.assigneeName ?? 'Assigned approver'}</p><p className="mt-1 text-xs text-slate-500">{step.status.toLowerCase().replace('_', ' ')}{step.decisionNote ? ` · ${step.decisionNote}` : ''}</p></div>)}</div></div>; })}{!approvals.length ? <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center text-sm text-slate-500">No approval requests are waiting for this school.</div> : null}{message ? <p className="text-sm text-emerald-700">{message}</p> : null}</CardContent></Card></div>;
+}
+
+function NotificationSettingsPage() {
+  const auth = useAuth();
+  const queryClient = useQueryClient();
+  const canRead = auth.user?.scopes?.includes('communications.notifications.read');
+  const canWrite = auth.user?.scopes?.includes('communications.notifications.write');
+  const request = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => {
+    const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const response = await auth.authFetch(`${apiBase}${path}`, { method, headers: { accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    const payload = await response.json().catch(() => undefined);
+    if (!response.ok) throw new Error(payload?.message ?? `Request failed (${response.status})`);
+    return payload as T;
+  };
+  const preferencesQuery = useQuery({ queryKey: ['notification-preferences'], queryFn: () => request<NotificationPreferenceLite[]>('/api/communications/notifications/preferences'), enabled: Boolean(canRead) });
+  const mutation = useMutation({ mutationFn: (preference: NotificationPreferenceLite) => request('/api/communications/notifications/preferences', 'POST', { eventKey: preference.eventKey, channel: preference.channel, enabled: !preference.enabled }), onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['notification-preferences'] }) });
+  if (!canRead) return <div className="p-8 text-sm text-slate-500">You do not have permission to manage notification preferences.</div>;
+  const preferences = preferencesQuery.data ?? [];
+  const events = Array.from(new Set(preferences.map((item) => item.eventKey)));
+  const formatEvent = (eventKey: string) => eventKey.replace(/_/g, ' ').toLowerCase().replace(/^./, (value: string) => value.toUpperCase());
+  return <div className="space-y-6"><section className="rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10"><div className="flex items-start gap-3"><Bell className="mt-1 size-5 text-[#dfbd73]" /><div><p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]">Your communication control</p><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">Choose how work reaches you.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">In-app alerts stay enabled by default. Other channels are preferences for future delivery providers and can be changed without losing school notifications.</p></div></div></section><Card><CardHeader><CardTitle>Notification preferences</CardTitle><CardDescription>Control event categories by channel. Changes apply to your account in this institution.</CardDescription></CardHeader><CardContent><div className="overflow-x-auto"><table className="w-full min-w-[620px] text-left text-sm"><thead><tr className="border-b border-slate-100 text-xs uppercase tracking-wide text-slate-500"><th className="px-3 py-3">Event</th>{['IN_APP', 'EMAIL', 'SMS', 'WHATSAPP'].map((channel) => <th key={channel} className="px-3 py-3">{channel.replace('_', ' ')}</th>)}</tr></thead><tbody>{events.map((eventKey) => <tr key={eventKey} className="border-b border-slate-100 last:border-0"><td className="px-3 py-4 font-medium text-slate-800">{formatEvent(eventKey)}</td>{['IN_APP', 'EMAIL', 'SMS', 'WHATSAPP'].map((channel) => { const preference = preferences.find((item) => item.eventKey === eventKey && item.channel === channel); return <td key={channel} className="px-3 py-4"><Button size="sm" variant={preference?.enabled ? 'default' : 'outline'} disabled={!canWrite || !preference || mutation.isPending} onClick={() => preference && mutation.mutate(preference)}>{preference?.enabled ? 'On' : 'Off'}</Button></td>; })}</tr>)}</tbody></table></div></CardContent></Card></div>;
+}
+
+function DocumentReviewPage() {
+  const auth = useAuth();
+  const queryClient = useQueryClient();
+  const request = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => {
+    const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const response = await auth.authFetch(`${apiBase}${path}`, { method, headers: { accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    const payload = await response.json().catch(() => undefined);
+    if (!response.ok) throw new Error(payload?.message ?? `Request failed (${response.status})`);
+    return payload as T;
+  };
+  const [status, setStatus] = useState('PENDING');
+  const [note, setNote] = useState<Record<string, string>>({});
+  const [auditDocumentId, setAuditDocumentId] = useState('');
+  const canRead = auth.user?.scopes?.includes('documents.read');
+  const canReview = auth.user?.scopes?.includes('documents.review');
+  const documentsQuery = useQuery({
+    queryKey: ['documents-review', status],
+    queryFn: () => request<DocumentLite[]>(`/api/documents?reviewStatus=${status}`),
+    enabled: Boolean(canRead),
+  });
+  const auditQuery = useQuery({ queryKey: ['document-audit', auditDocumentId], queryFn: () => request<DocumentAuditLite[]>(`/api/documents/${auditDocumentId}/audit`), enabled: Boolean(auditDocumentId && canRead) });
+  const reviewMutation = useMutation({
+    mutationFn: ({ id, nextStatus }: { id: string; nextStatus: string }) => request(`/api/documents/${id}/review`, 'PATCH', { status: nextStatus, note: note[id]?.trim() || undefined }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['documents-review'] });
+    },
+  });
+  const expiryMutation = useMutation({ mutationFn: () => request<{ expired: number; tasksCreated: number }>('/api/documents/expiry-reminders/run?days=30', 'POST'), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ['documents-review'] }); } });
+
+  if (!canRead) return <div className="p-8 text-sm text-slate-500">You do not have permission to review documents.</div>;
+  const documents = documentsQuery.data ?? [];
+  return <div className="space-y-6">
+    <section className="relative overflow-hidden rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10">
+      <div className="absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#d7a94b]/15 blur-3xl" />
+      <div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]"><FileCheck2 className="size-4" /> Evidence desk</div><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">Every document gets a clear answer.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Review uploaded evidence, explain what is missing, and keep admissions, student records and compliance journeys moving.</p></div><div className="flex flex-wrap gap-2"><Button variant="outline" className="border-white/20 bg-white/10 text-white hover:bg-white/15 hover:text-white" disabled={expiryMutation.isPending} onClick={() => expiryMutation.mutate()}>Run renewal check</Button><select value={status} onChange={(event) => setStatus(event.target.value)} className="relative min-w-[190px] rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="PENDING" className="text-slate-900">Pending review</option><option value="IN_REVIEW" className="text-slate-900">In review</option><option value="NEEDS_INFORMATION" className="text-slate-900">Needs information</option><option value="VERIFIED" className="text-slate-900">Verified</option><option value="REJECTED" className="text-slate-900">Rejected</option><option value="EXPIRED" className="text-slate-900">Expired</option></select></div></div>
+    </section>
+    <Card><CardHeader><CardTitle>{documents.length} documents in this queue</CardTitle><CardDescription>Decisions are recorded with the reviewer, timestamp and an explanation where follow-up is needed.</CardDescription></CardHeader><CardContent className="space-y-3">{documents.map((document) => <div key={document.id} className="rounded-2xl border border-slate-100 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-medium text-slate-900">{document.fileName}</p><p className="mt-1 text-xs text-slate-500">{document.category} · {document.entityType} · {document.entityId}</p><p className="mt-1 text-xs text-slate-400">Uploaded {document.uploadedAt.slice(0, 10)} · {document.mimeType}</p></div><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${document.reviewStatus === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700' : document.reviewStatus === 'REJECTED' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>{document.reviewStatus.replace('_', ' ').toLowerCase()}</span></div><div className="mt-3 flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={() => setAuditDocumentId(auditDocumentId === document.id ? '' : document.id)}>{auditDocumentId === document.id ? 'Hide history' : 'View history'}</Button><a className="inline-flex items-center rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700" href={document.downloadUrl} target="_blank" rel="noreferrer">Open file</a></div>{auditDocumentId === document.id ? <div className="mt-3 rounded-xl bg-slate-50 p-3">{(auditQuery.data ?? []).map((event) => <div key={event.id} className="border-b border-slate-200 py-2 last:border-0"><p className="text-xs font-semibold text-slate-700">{event.action} · {event.createdAt.slice(0, 19).replace('T', ' ')}</p><p className="text-xs text-slate-500">{event.message ?? 'Document record updated'}{event.actorUserId ? ` · by ${event.actorUserId}` : ''}</p></div>)}{!auditQuery.data?.length ? <p className="text-xs text-slate-500">No audit events recorded yet.</p> : null}</div> : null}{document.reviewNote ? <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">{document.reviewNote}</p> : null}{canReview ? <div className="mt-4 flex flex-col gap-2 sm:flex-row"><Input placeholder="Reviewer note (required for rejection or more information)" value={note[document.id] ?? ''} onChange={(event) => setNote((current) => ({ ...current, [document.id]: event.target.value }))} /><Button variant="outline" disabled={reviewMutation.isPending} onClick={() => reviewMutation.mutate({ id: document.id, nextStatus: 'NEEDS_INFORMATION' })}>Needs information</Button><Button disabled={reviewMutation.isPending} onClick={() => reviewMutation.mutate({ id: document.id, nextStatus: 'VERIFIED' })}>Verify</Button><Button variant="destructive" disabled={reviewMutation.isPending} onClick={() => reviewMutation.mutate({ id: document.id, nextStatus: 'REJECTED' })}>Reject</Button></div> : null}</div>)}{!documents.length ? <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center text-sm text-slate-500">No documents are waiting in this queue. Choose another status or return when new evidence is uploaded.</div> : null}</CardContent></Card>
+  </div>;
+}
+
+function TasksPage() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const canRead = auth.can('workflows.tasks.read');
+  const canWrite = auth.can('workflows.tasks.write');
+  const [schoolId, setSchoolId] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [message, setMessage] = useState('');
+  const [form, setForm] = useState({ title: '', description: '', priority: 'NORMAL', dueAt: '' });
+  useRequireAuth({ onRedirect: () => navigate({ to: '/login', search: { redirect: '/app/tasks' } }) });
+  const request = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => {
+    const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+    const response = await auth.authFetch(`${apiBase}${path}`, { method, headers: { accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    const payload = await response.json().catch(() => undefined);
+    if (!response.ok) throw new Error(payload?.message ?? `Request failed (${response.status})`);
+    return payload as T;
+  };
+  const schoolsQuery = useQuery({ queryKey: ['tasks-schools'], queryFn: () => fetchJsonArray<SchoolLite>(auth.authFetch, '/api/schools'), enabled: canRead });
+  const activeSchoolId = schoolId || schoolsQuery.data?.[0]?.id || '';
+  const tasksQuery = useQuery({ queryKey: ['tasks', activeSchoolId, statusFilter], queryFn: () => request<TaskLite[]>(`/api/tasks?schoolId=${activeSchoolId}${statusFilter ? `&status=${statusFilter}` : ''}`), enabled: canRead && Boolean(activeSchoolId) });
+  const mutation = useMutation({ mutationFn: ({ path, method, body }: { path: string; method: string; body?: unknown }) => request(path, method, body), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ['tasks'] }); setMessage('Work queue updated.'); } });
+  if (!canRead) return <p className="text-sm text-muted-foreground">Work queue access denied.</p>;
+  const tasks = tasksQuery.data ?? [];
+  const openCount = tasks.filter((task) => !['COMPLETED', 'CANCELLED'].includes(task.status)).length;
+  const overdueCount = tasks.filter((task) => task.isOverdue).length;
+  return <div className="mx-auto max-w-7xl space-y-8 pb-10">
+    <section className="relative overflow-hidden rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10"><div className="absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#d7a94b]/15 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]"><ListTodo className="size-4" /> Work queue</div><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">The next action should never disappear.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Bring follow-ups, reviews and approvals into one calm queue with an owner, a due date and a recoverable next step.</p></div><div className="flex flex-wrap gap-3"><label className="min-w-[210px] text-xs font-medium text-slate-300">School<select value={activeSchoolId} onChange={(event) => setSchoolId(event.target.value)} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="" className="text-slate-900">Choose school</option>{(schoolsQuery.data ?? []).map((school) => <option key={school.id} value={school.id} className="text-slate-900">{school.name}</option>)}</select></label><label className="min-w-[160px] text-xs font-medium text-slate-300">View<select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="" className="text-slate-900">All work</option>{['OPEN', 'IN_PROGRESS', 'BLOCKED', 'COMPLETED', 'CANCELLED'].map((status) => <option key={status} value={status} className="text-slate-900">{status.replace('_', ' ')}</option>)}</select></label></div></div></section>
+    <div className="grid gap-4 md:grid-cols-3"><Card><CardContent className="pt-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Visible work</p><p className="mt-2 text-3xl font-semibold">{tasks.length}</p><p className="mt-1 text-sm text-muted-foreground">Across the selected school</p></CardContent></Card><Card><CardContent className="pt-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Needs action</p><p className="mt-2 text-3xl font-semibold text-[#a47725]">{openCount}</p><p className="mt-1 text-sm text-muted-foreground">Open, active or blocked</p></CardContent></Card><Card><CardContent className="pt-6"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Overdue</p><p className="mt-2 text-3xl font-semibold text-rose-700">{overdueCount}</p><p className="mt-1 text-sm text-muted-foreground">Requires visible recovery</p></CardContent></Card></div>
+    <div className="grid gap-6 xl:grid-cols-[1fr_360px]"><Card><CardHeader><CardTitle>Pending actions</CardTitle><CardDescription>Every item has an owner, status and next decision.</CardDescription></CardHeader><CardContent className="space-y-3">{tasks.map((task) => <div key={task.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-100 p-4"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><p className="font-medium text-slate-800">{task.title}</p><span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${task.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' : task.status === 'BLOCKED' || task.isOverdue ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>{task.status.replace('_', ' ').toLowerCase()}</span><span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{task.priority.toLowerCase()}</span></div><p className="mt-1 text-xs text-slate-500">{task.assigneeName ? `Owned by ${task.assigneeName}` : 'Unassigned'}{task.dueAt ? ` · due ${task.dueAt.slice(0, 10)}` : ' · no due date'}{task.reminderCount ? ` · ${task.reminderCount} reminder${task.reminderCount === 1 ? '' : 's'}` : ''}</p></div><div className="flex items-center gap-2">{task.actionUrl ? <Button size="sm" variant="ghost" onClick={() => window.location.assign(task.actionUrl ?? '')}>Open source</Button> : null}{canWrite && !['COMPLETED', 'CANCELLED'].includes(task.status) ? <Button size="sm" variant="outline" onClick={() => mutation.mutate({ path: `/api/tasks/${task.id}/status`, method: 'PATCH', body: { status: 'COMPLETED' } })}>Complete</Button> : null}</div></div>)}{!tasks.length ? <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center text-sm text-slate-500">Nothing is waiting here. New admissions, document reviews and approvals can appear in this queue.</div> : null}</CardContent></Card><Card><CardHeader><CardTitle>Create a follow-up</CardTitle><CardDescription>Keep the first save lightweight. Add detail later if the work grows.</CardDescription></CardHeader><CardContent className="space-y-4"><label className="space-y-1.5 text-sm font-medium">Title<Input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="e.g. Verify missing birth certificate" /></label><label className="space-y-1.5 text-sm font-medium">Description<textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="What should the owner know?" /></label><div className="grid gap-3 sm:grid-cols-2"><label className="space-y-1.5 text-sm font-medium">Priority<select value={form.priority} onChange={(event) => setForm({ ...form, priority: event.target.value })} className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm">{['LOW', 'NORMAL', 'HIGH', 'URGENT'].map((priority) => <option key={priority}>{priority}</option>)}</select></label><label className="space-y-1.5 text-sm font-medium">Due date<input type="datetime-local" value={form.dueAt} onChange={(event) => setForm({ ...form, dueAt: event.target.value })} className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm" /></label></div><Button className="w-full" disabled={!canWrite || !activeSchoolId || !form.title.trim() || mutation.isPending} onClick={() => { mutation.mutate({ path: '/api/tasks', method: 'POST', body: { schoolId: activeSchoolId, title: form.title, description: form.description || undefined, priority: form.priority, dueAt: form.dueAt ? new Date(form.dueAt).toISOString() : undefined } }); setForm({ title: '', description: '', priority: 'NORMAL', dueAt: '' }); }}>Add to queue</Button>{message ? <p className="text-xs text-emerald-700">{message}</p> : null}<Button variant="ghost" className="w-full" disabled={!canWrite || mutation.isPending} onClick={() => mutation.mutate({ path: '/api/tasks/reminders/run', method: 'POST' })}>Process due reminders</Button></CardContent></Card></div>
+  </div>;
 }
 
 function AppHomePage() {
@@ -1582,6 +1848,36 @@ function ImportStaffPage() {
   );
 }
 
+function StudentRecordsPage() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const canRead = auth.can('students.read');
+  const canWrite = auth.can('students.write');
+  const [schoolId, setSchoolId] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [document, setDocument] = useState({ key: '', label: '', isRequired: true, documentId: '' });
+  const [medical, setMedical] = useState<StudentMedicalProfileLite>({});
+  useRequireAuth({ onRedirect: () => navigate({ to: '/login', search: { redirect: '/app/students/records' } }) });
+  const schools = useQuery({ queryKey: ['student-records-schools'], queryFn: () => fetchJsonArray<SchoolLite>(auth.authFetch, '/api/schools'), enabled: canRead });
+  const activeSchoolId = schoolId || schools.data?.[0]?.id || '';
+  const students = useQuery({ queryKey: ['student-records-students', activeSchoolId], queryFn: () => fetchStudents(auth.authFetch, activeSchoolId), enabled: canRead && Boolean(activeSchoolId) });
+  const activeStudentId = studentId || students.data?.[0]?.id || '';
+  const request = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => { const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'; const response = await auth.authFetch(`${apiBase}${path}`, { method, headers: { accept: 'application/json', ...(body ? { 'content-type': 'application/json' } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) }); const payload = await response.json().catch(() => undefined); if (!response.ok) throw new Error(payload?.message ?? `Request failed (${response.status})`); return payload as T; };
+  const documents = useQuery({ queryKey: ['student-records-documents', activeStudentId], queryFn: () => request<StudentDocumentRecordLite[]>(`/api/students/${activeStudentId}/documents`), enabled: canRead && Boolean(activeStudentId) });
+  const medicalQuery = useQuery({ queryKey: ['student-records-medical', activeStudentId], queryFn: () => request<StudentMedicalProfileLite | null>(`/api/students/${activeStudentId}/medical-profile`), enabled: canRead && Boolean(activeStudentId) });
+  useEffect(() => {
+    setMedical(medicalQuery.data ?? {});
+  }, [medicalQuery.data]);
+  const mutation = useMutation({ mutationFn: ({ path, method, body }: { path: string; method: string; body?: unknown }) => request(path, method, body), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ['student-records-documents'] }); void queryClient.invalidateQueries({ queryKey: ['student-records-medical'] }); } });
+  const selectedStudent = students.data?.find((student) => student.id === activeStudentId);
+  if (!canRead) return <p className="text-sm text-muted-foreground">Student records access denied.</p>;
+  return <div className="mx-auto max-w-7xl space-y-8 pb-10">
+    <section className="relative overflow-hidden rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10"><div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-[#d7a94b]/15 blur-3xl" /><div className="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]">Student records</div><h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] md:text-5xl">The details behind the student.</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Keep evidence, sensitive support information and review responsibility together—so staff can act with context, not guesswork.</p></div><div className="flex flex-wrap gap-3"><label className="min-w-[210px] text-xs font-medium text-slate-300">School<select value={activeSchoolId} onChange={(event) => { setSchoolId(event.target.value); setStudentId(''); }} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="" className="text-slate-900">Choose school</option>{(schools.data ?? []).map((school) => <option key={school.id} value={school.id} className="text-slate-900">{school.name}</option>)}</select></label><label className="min-w-[240px] text-xs font-medium text-slate-300">Student<select value={activeStudentId} onChange={(event) => setStudentId(event.target.value)} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white"><option value="" className="text-slate-900">Choose student</option>{(students.data ?? []).map((student) => <option key={student.id} value={student.id} className="text-slate-900">{student.firstName} {student.lastName ?? ''} · {student.admissionNo}</option>)}</select></label></div></div></section>
+    {selectedStudent ? <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]"><Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#fbfaf7]"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47725]">Evidence checklist</p><CardTitle>{selectedStudent.firstName} {selectedStudent.lastName ?? ''}</CardTitle><CardDescription>Required evidence is visible before staff attempts enrollment or final verification.</CardDescription></div><ClipboardList className="mt-1 size-5 text-[#a47725]" /></div></CardHeader><CardContent className="space-y-3 pt-6">{(documents.data ?? []).map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 px-4 py-3"><div><p className="font-medium text-slate-800">{item.label}{item.isRequired ? <span className="ml-2 text-xs font-semibold text-[#a47725]">Required</span> : null}</p><p className="mt-1 text-xs text-slate-500">{item.documentId ? 'Metadata linked' : 'No file linked yet'}{item.expiresAt ? ` · expires ${item.expiresAt.slice(0, 10)}` : ''}{item.reviewNote ? ` · ${item.reviewNote}` : ''}</p></div><div className="flex items-center gap-2"><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === 'VERIFIED' ? 'bg-emerald-50 text-emerald-700' : item.status === 'REJECTED' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'}`}>{item.status.toLowerCase()}</span>{canWrite && item.status !== 'VERIFIED' ? <Button size="sm" variant="outline" onClick={() => mutation.mutate({ path: `/api/students/${activeStudentId}/documents/${item.id}`, method: 'PATCH', body: { status: 'VERIFIED' } })}>Verify</Button> : null}</div></div>)}{!(documents.data ?? []).length ? <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-10 text-center text-sm text-slate-500">No document checklist exists yet. Add the first required record below.</div> : null}<div className="grid gap-3 border-t border-slate-100 pt-5 sm:grid-cols-[1fr_1fr_auto_auto]"><Input placeholder="Key · birthCertificate" value={document.key} onChange={(event) => setDocument({ ...document, key: event.target.value })} /><Input placeholder="Label · Birth certificate" value={document.label} onChange={(event) => setDocument({ ...document, label: event.target.value })} /><Input placeholder="Object metadata ID" value={document.documentId} onChange={(event) => setDocument({ ...document, documentId: event.target.value })} /><Button disabled={!canWrite || !document.key || !document.label || mutation.isPending} onClick={() => { mutation.mutate({ path: `/api/students/${activeStudentId}/documents`, method: 'POST', body: { ...document, documentId: document.documentId || undefined } }); setDocument({ key: '', label: '', isRequired: true, documentId: '' }); }}>Add requirement</Button></div></CardContent></Card><Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#17233b] text-[#f6f3ea]"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#dfbd73]">Restricted support record</p><CardTitle className="text-[#f6f3ea]">Medical and care context</CardTitle><CardDescription className="text-slate-300">Keep sensitive details available only to authorized school staff.</CardDescription></div><ShieldCheck className="mt-1 size-5 text-[#dfbd73]" /></div></CardHeader><CardContent className="space-y-3 pt-6"><div className="grid gap-3 sm:grid-cols-2">{(['allergies', 'medicalConditions', 'medications', 'dietaryRequirements', 'physicalRestrictions', 'emergencyInstructions', 'emergencyContactName', 'emergencyContactPhone', 'doctorName', 'doctorPhone'] as const).map((field) => <label key={field} className={`text-sm font-medium ${field === 'emergencyInstructions' ? 'sm:col-span-2' : ''}`}>{field.replace(/([A-Z])/g, ' $1').replace(/^./, (value) => value.toUpperCase())}<Input className="mt-1.5" value={medical[field] ?? ''} onChange={(event) => setMedical({ ...medical, [field]: event.target.value })} /></label>)}</div><Button className="w-full" disabled={!canWrite || mutation.isPending} onClick={() => mutation.mutate({ path: `/api/students/${activeStudentId}/medical-profile`, method: 'PUT', body: medical })}>{medicalQuery.isFetching ? 'Loading…' : 'Save restricted profile'}</Button></CardContent></Card></div> : <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-5 py-12 text-center text-sm text-slate-500">Choose a school and student to open their document and support records.</div>}
+  </div>;
+}
+
 function AdmissionsPage() {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -1619,7 +1915,7 @@ function AdmissionsPage() {
     onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ['admissions-applications'] }); },
   });
   const applications = applicationsQuery.data ?? [];
-  const counts = { inbox: applications.filter((item) => ['SUBMITTED', 'REVIEWING'].includes(item.status)).length, approved: applications.filter((item) => item.status === 'APPROVED').length, enrolled: applications.filter((item) => item.status === 'ENROLLED').length };
+  const counts = { inbox: applications.filter((item) => ['SUBMITTED', 'REVIEWING', 'INFO_REQUESTED'].includes(item.status)).length, approved: applications.filter((item) => ['APPROVED', 'OFFERED', 'FEE_PENDING', 'READY_FOR_ENROLLMENT'].includes(item.status)).length, enrolled: applications.filter((item) => item.status === 'ENROLLED').length };
 
   if (!canRead) return <p className="text-sm text-muted-foreground">Admissions access denied.</p>;
   return (
@@ -1632,10 +1928,40 @@ function AdmissionsPage() {
       <div className="grid gap-4 md:grid-cols-3"><AdmissionMetric label="Needs attention" value={counts.inbox} tone="amber" /><AdmissionMetric label="Ready to enroll" value={counts.approved} tone="blue" /><AdmissionMetric label="Enrolled this year" value={counts.enrolled} tone="green" /></div>
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#fbfaf7]"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47725]">New application</p><CardTitle>Welcome a new family</CardTitle><CardDescription>Capture the essentials now; complete the review when the documents arrive.</CardDescription></CardHeader><CardContent className="space-y-4 pt-6">{(['firstName', 'lastName', 'dateOfBirth', 'guardianFirstName', 'guardianLastName', 'guardianPhoneE164', 'guardianEmail', 'relationType'] as const).map((field) => <Input key={field} type={field === 'dateOfBirth' ? 'date' : field === 'guardianEmail' ? 'email' : field === 'guardianPhoneE164' ? 'tel' : 'text'} placeholder={field.replace(/([A-Z])/g, ' $1').replace(/^./, (value) => value.toUpperCase())} value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })} />)}<Button className="w-full" disabled={!canWrite || !activeSchoolId || !activeYearId || !form.firstName || !form.dateOfBirth || !form.guardianFirstName || mutation.isPending} onClick={() => { mutation.mutate({ path: '/api/admissions/applications', method: 'POST', body: { ...form, schoolId: activeSchoolId, academicYearId: activeYearId, status: 'SUBMITTED' } }); setForm({ firstName: '', lastName: '', dateOfBirth: '', guardianFirstName: '', guardianLastName: '', guardianPhoneE164: '', guardianEmail: '', relationType: 'Parent' }); }}>{mutation.isPending ? 'Saving…' : 'Submit application'}</Button></CardContent></Card>
-        <Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#fbfaf7]"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47725]">Application pipeline</p><CardTitle>Every applicant, clearly placed</CardTitle><CardDescription>Move an application forward only when the next decision is ready.</CardDescription></div><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All stages</option>{['SUBMITTED', 'REVIEWING', 'APPROVED', 'REJECTED', 'ENROLLED'].map((status) => <option key={status} value={status}>{status[0] + status.slice(1).toLowerCase()}</option>)}</select></div></CardHeader><CardContent className="space-y-3 pt-6">{applications.length ? applications.map((application) => <AdmissionRow key={application.id} application={application} canWrite={canWrite} classes={classesQuery.data ?? []} selectedClass={selectedClass} admissionNo={admissionNo} setSelectedClass={setSelectedClass} setAdmissionNo={setAdmissionNo} onUpdate={(status) => mutation.mutate({ path: `/api/admissions/applications/${application.id}`, method: 'PATCH', body: { status } })} onEnroll={() => mutation.mutate({ path: `/api/admissions/applications/${application.id}/enroll`, method: 'POST', body: { admissionNo, classRoomId: selectedClass || application.classRoomId } })} />) : <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-12 text-center"><p className="font-medium text-slate-800">Your admissions desk is quiet</p><p className="mt-1 text-sm text-slate-500">New applications will appear here for review.</p></div>}</CardContent></Card>
+        <Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#fbfaf7]"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47725]">Application pipeline</p><CardTitle>Every applicant, clearly placed</CardTitle><CardDescription>Move an application forward only when the next decision is ready.</CardDescription></div><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"><option value="">All stages</option>{['SUBMITTED', 'REVIEWING', 'INFO_REQUESTED', 'APPROVED', 'WAITLISTED', 'OFFERED', 'FEE_PENDING', 'READY_FOR_ENROLLMENT', 'REJECTED', 'ENROLLED'].map((status) => <option key={status} value={status}>{status.replace(/_/g, ' ').toLowerCase()}</option>)}</select></div></CardHeader><CardContent className="space-y-3 pt-6">{applications.length ? applications.map((application) => <AdmissionRow key={application.id} application={application} canWrite={canWrite} classes={classesQuery.data ?? []} selectedClass={selectedClass} admissionNo={admissionNo} setSelectedClass={setSelectedClass} setAdmissionNo={setAdmissionNo} onUpdate={(status) => mutation.mutate({ path: `/api/admissions/applications/${application.id}/transition`, method: 'POST', body: { status } })} onEnroll={() => mutation.mutate({ path: `/api/admissions/applications/${application.id}/enroll`, method: 'POST', body: { admissionNo, classRoomId: selectedClass || application.classRoomId } })} />) : <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-12 text-center"><p className="font-medium text-slate-800">Your admissions desk is quiet</p><p className="mt-1 text-sm text-slate-500">New applications will appear here for review.</p></div>}</CardContent></Card>
       </div>
     </div>
   );
+}
+
+function AdmissionFormsPage() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const canRead = auth.can('admissions.read');
+  const canWrite = auth.can('admissions.write');
+  const [schoolId, setSchoolId] = useState('');
+  const [yearId, setYearId] = useState('');
+  const [selectedFormId, setSelectedFormId] = useState('');
+  const [formName, setFormName] = useState('');
+  const [sectionTitle, setSectionTitle] = useState('');
+  const [field, setField] = useState({ sectionId: '', key: '', label: '', type: 'TEXT', isRequired: true, isSensitive: false });
+  const [document, setDocument] = useState({ key: '', label: '', stage: 'APPLICATION', isRequired: true, isSensitive: false });
+  useRequireAuth({ onRedirect: () => navigate({ to: '/login', search: { redirect: '/app/admissions/forms' } }) });
+  const schools = useQuery({ queryKey: ['admission-form-schools'], queryFn: () => fetchJsonArray<SchoolLite>(auth.authFetch, '/api/schools'), enabled: canRead });
+  const activeSchoolId = schoolId || schools.data?.[0]?.id || '';
+  const years = useQuery({ queryKey: ['admission-form-years', activeSchoolId], queryFn: () => fetchJsonArray<{ id: string; name: string; isCurrent: boolean }>(auth.authFetch, `/api/academic-years?schoolId=${activeSchoolId}`), enabled: canRead && Boolean(activeSchoolId) });
+  const activeYearId = yearId || years.data?.find((item) => item.isCurrent)?.id || years.data?.[0]?.id || '';
+  const forms = useQuery({ queryKey: ['admission-forms', activeSchoolId, activeYearId], queryFn: () => fetchJsonArray<AdmissionFormLite>(auth.authFetch, `/api/admissions/forms?schoolId=${activeSchoolId}&academicYearId=${activeYearId}`), enabled: canRead && Boolean(activeSchoolId) && Boolean(activeYearId) });
+  const activeForm = forms.data?.find((item) => item.id === selectedFormId) ?? forms.data?.[0];
+  const call = async (path: string, body: unknown) => { const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'; const response = await auth.authFetch(`${apiBase}${path}`, { method: 'POST', headers: { accept: 'application/json', 'content-type': 'application/json' }, body: JSON.stringify(body) }); const payload = await response.json().catch(() => undefined); if (!response.ok) throw new Error(payload?.message ?? 'Admission form update failed'); return payload; };
+  const mutation = useMutation({ mutationFn: ({ path, body }: { path: string; body: unknown }) => call(path, body), onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ['admission-forms'] }); } });
+  if (!canRead) return <p className="text-sm text-muted-foreground">Admission form access denied.</p>;
+  return <div className="mx-auto max-w-7xl space-y-8 pb-10">
+    <section className="relative overflow-hidden rounded-[28px] bg-[#17233b] px-6 py-8 text-[#f6f3ea] shadow-2xl shadow-slate-900/10 md:px-10 md:py-10"><div className="absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-[#d7a94b]/15 blur-3xl" /><div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-end"><div className="max-w-2xl space-y-4"><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#dfbd73]"><ClipboardList className="h-4 w-4" /> Admission form studio</div><h1 className="text-3xl font-semibold tracking-[-0.04em] md:text-5xl">Build the form your school actually needs.</h1><p className="max-w-xl text-sm leading-7 text-slate-300 md:text-base">Compose a clear parent experience from reusable sections, conditional-ready fields, and a document checklist—then preserve the exact version used by every application.</p></div><div className="flex flex-wrap gap-3"><label className="min-w-[210px] text-xs font-medium text-slate-300">School<select value={activeSchoolId} onChange={(event) => { setSchoolId(event.target.value); setYearId(''); }} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white outline-none"><option value="" className="text-slate-900">Select school</option>{(schools.data ?? []).map((school) => <option key={school.id} value={school.id} className="text-slate-900">{school.name}</option>)}</select></label><label className="min-w-[170px] text-xs font-medium text-slate-300">Academic year<select value={activeYearId} onChange={(event) => setYearId(event.target.value)} className="mt-1 w-full rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-sm text-white outline-none"><option value="" className="text-slate-900">Select year</option>{(years.data ?? []).map((year) => <option key={year.id} value={year.id} className="text-slate-900">{year.name}{year.isCurrent ? ' · Current' : ''}</option>)}</select></label></div></div></section>
+    {mutation.isError ? <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{(mutation.error as Error).message}</div> : null}
+    <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]"><Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#fbfaf7]"><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a47725]">Form versions</p><CardTitle>One source of truth per session</CardTitle><CardDescription>Published forms are immutable in practice: create the next version when policy changes.</CardDescription></CardHeader><CardContent className="space-y-4 pt-6"><div className="flex gap-2"><Input placeholder="2027–28 standard admission" value={formName} onChange={(event) => setFormName(event.target.value)} /><Button size="icon" aria-label="Create admission form" disabled={!canWrite || !activeSchoolId || !activeYearId || !formName || mutation.isPending} onClick={() => { mutation.mutate({ path: '/api/admissions/forms', body: { schoolId: activeSchoolId, academicYearId: activeYearId, name: formName } }); setFormName(''); }}><Plus className="h-4 w-4" /></Button></div><div className="space-y-2">{(forms.data ?? []).map((form) => <button type="button" key={form.id} onClick={() => setSelectedFormId(form.id)} className={`w-full rounded-2xl border px-4 py-3 text-left transition ${activeForm?.id === form.id ? 'border-[#b38b3d] bg-[#fbfaf7]' : 'border-slate-200 bg-white hover:bg-slate-50'}`}><div className="flex items-center justify-between gap-3"><span className="font-medium text-slate-900">{form.name}</span><span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${form.status === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-700' : form.status === 'ARCHIVED' ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700'}`}>{form.status.toLowerCase()}</span></div><p className="mt-1 text-xs text-slate-500">Version {form.version} · {form.sections.length} sections · {form.documents.length} document rules</p></button>)}</div></CardContent></Card><Card className="overflow-hidden border-slate-200/80 shadow-sm"><CardHeader className="border-b border-slate-100 bg-[#17233b] text-[#f6f3ea]"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#dfbd73]">Builder canvas</p><CardTitle className="text-[#f6f3ea]">{activeForm?.name ?? 'Create a form to begin'}</CardTitle><CardDescription className="text-slate-300">{activeForm ? `Version ${activeForm.version} · ${activeForm.status.toLowerCase()}` : 'Sections, fields and evidence rules appear here.'}</CardDescription></div>{activeForm?.status === 'DRAFT' ? <Button disabled={!canWrite || mutation.isPending} onClick={() => mutation.mutate({ path: `/api/admissions/forms/${activeForm.id}/publish`, body: {} })}>Publish version</Button> : null}</div></CardHeader><CardContent className="space-y-6 pt-6">{activeForm ? <><div className="grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-slate-200 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Sections</p><div className="mt-3 space-y-2">{activeForm.sections.map((section) => <div key={section.id} className="rounded-xl bg-slate-50 px-3 py-2.5"><div className="flex items-center justify-between"><span className="font-medium text-slate-800">{section.title}</span><span className="text-xs text-slate-500">{section.fields.length} fields</span></div>{section.fields.length ? <p className="mt-1 text-xs text-slate-500">{section.fields.map((item) => item.label).join(' · ')}</p> : null}</div>)}</div></div><div className="rounded-2xl border border-slate-200 p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Document checklist</p><div className="mt-3 space-y-2">{activeForm.documents.map((item) => <div key={item.id} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2.5 text-sm"><span>{item.label}</span><span className="text-xs text-slate-500">{item.isRequired ? 'Required' : 'Optional'} · {item.stage.toLowerCase()}</span></div>)}{!activeForm.documents.length ? <p className="text-sm text-slate-500">No evidence rules yet.</p> : null}</div></div></div>{activeForm.status === 'DRAFT' ? <div className="grid gap-4 md:grid-cols-3"><div className="space-y-2 rounded-2xl bg-[#fbfaf7] p-4"><p className="font-medium text-slate-900">Add section</p><Input placeholder="Student & family" value={sectionTitle} onChange={(event) => setSectionTitle(event.target.value)} /><Button className="w-full" disabled={!canWrite || !sectionTitle || mutation.isPending} onClick={async () => { const created = await call(`/api/admissions/forms/${activeForm.id}/sections`, { title: sectionTitle, sortOrder: activeForm.sections.length }); setSectionTitle(''); void queryClient.invalidateQueries({ queryKey: ['admission-forms'] }); if (created?.id) setField({ ...field, sectionId: created.id }); }}>Add section</Button></div><div className="space-y-2 rounded-2xl bg-[#fbfaf7] p-4"><p className="font-medium text-slate-900">Add field</p><select value={field.sectionId} onChange={(event) => setField({ ...field, sectionId: event.target.value })} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="">Section</option>{activeForm.sections.map((section) => <option key={section.id} value={section.id}>{section.title}</option>)}</select><Input placeholder="Field key · motherTongue" value={field.key} onChange={(event) => setField({ ...field, key: event.target.value })} /><Input placeholder="Label · Mother tongue" value={field.label} onChange={(event) => setField({ ...field, label: event.target.value })} /><select value={field.type} onChange={(event) => setField({ ...field, type: event.target.value })} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="TEXT">Text</option><option value="DATE">Date</option><option value="SELECT">Select</option><option value="BOOLEAN">Yes / No</option><option value="FILE">File</option><option value="TEXTAREA">Long text</option></select><div className="flex gap-4 text-xs text-slate-600"><label><input type="checkbox" checked={field.isRequired} onChange={(event) => setField({ ...field, isRequired: event.target.checked })} /> Required</label><label><input type="checkbox" checked={field.isSensitive} onChange={(event) => setField({ ...field, isSensitive: event.target.checked })} /> Sensitive</label></div><Button className="w-full" disabled={!canWrite || !field.sectionId || !field.key || !field.label || mutation.isPending} onClick={() => { mutation.mutate({ path: `/api/admissions/form-sections/${field.sectionId}/fields`, body: { ...field, sortOrder: 0 } }); setField({ ...field, key: '', label: '' }); }}>Add field</Button></div><div className="space-y-2 rounded-2xl bg-[#fbfaf7] p-4"><p className="font-medium text-slate-900">Add evidence rule</p><Input placeholder="Key · birthCertificate" value={document.key} onChange={(event) => setDocument({ ...document, key: event.target.value })} /><Input placeholder="Label · Birth certificate" value={document.label} onChange={(event) => setDocument({ ...document, label: event.target.value })} /><select value={document.stage} onChange={(event) => setDocument({ ...document, stage: event.target.value })} className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"><option value="APPLICATION">Application</option><option value="REVIEW">Review</option><option value="ENROLLMENT">Enrollment</option></select><div className="flex gap-4 text-xs text-slate-600"><label><input type="checkbox" checked={document.isRequired} onChange={(event) => setDocument({ ...document, isRequired: event.target.checked })} /> Required</label><label><input type="checkbox" checked={document.isSensitive} onChange={(event) => setDocument({ ...document, isSensitive: event.target.checked })} /> Sensitive</label></div><Button className="w-full" disabled={!canWrite || !document.key || !document.label || mutation.isPending} onClick={() => { mutation.mutate({ path: `/api/admissions/forms/${activeForm.id}/documents`, body: { ...document, schoolId: activeForm.schoolId, acceptedTypes: ['application/pdf', 'image/jpeg', 'image/png'] } }); setDocument({ ...document, key: '', label: '' }); }}>Add document rule</Button></div></div> : null}</> : <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center text-sm text-slate-500">Create a draft form, then shape the parent experience one section at a time.</div>}</CardContent></Card></div>
+  </div>;
 }
 
 function AdmissionMetric({ label, value, tone }: { label: string; value: number; tone: 'amber' | 'blue' | 'green' }) {
@@ -1644,8 +1970,9 @@ function AdmissionMetric({ label, value, tone }: { label: string; value: number;
 }
 
 function AdmissionRow({ application, canWrite, classes, selectedClass, admissionNo, setSelectedClass, setAdmissionNo, onUpdate, onEnroll }: { application: AdmissionLite; canWrite: boolean; classes: ClassroomLite[]; selectedClass: string; admissionNo: string; setSelectedClass: (value: string) => void; setAdmissionNo: (value: string) => void; onUpdate: (status: string) => void; onEnroll: () => void }) {
-  const statusClass = { SUBMITTED: 'bg-slate-100 text-slate-700', REVIEWING: 'bg-blue-50 text-blue-700', APPROVED: 'bg-amber-50 text-amber-700', REJECTED: 'bg-red-50 text-red-700', ENROLLED: 'bg-emerald-50 text-emerald-700', DRAFT: 'bg-slate-100 text-slate-500', WITHDRAWN: 'bg-slate-100 text-slate-500' }[application.status];
-  return <div className="rounded-2xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-semibold text-slate-900">{application.firstName} {application.lastName ?? ''}</p><p className="mt-1 text-xs text-slate-500">Guardian: {application.guardianFirstName} {application.guardianLastName ?? ''} · {application.relationType}</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusClass}`}>{application.status[0] + application.status.slice(1).toLowerCase()}</span></div><div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500"><span>{application.guardianPhoneE164 || application.guardianEmail || 'Contact not provided'}</span>{application.classRoomId ? <span>· class assigned</span> : null}</div>{canWrite && application.status !== 'ENROLLED' && application.status !== 'REJECTED' ? <div className="mt-4 flex flex-wrap gap-2">{application.status === 'SUBMITTED' ? <Button size="sm" variant="outline" onClick={() => onUpdate('REVIEWING')}>Start review</Button> : null}{application.status === 'REVIEWING' ? <><Button size="sm" variant="outline" onClick={() => onUpdate('APPROVED')}>Approve</Button><Button size="sm" variant="ghost" onClick={() => onUpdate('REJECTED')}>Decline</Button></> : null}{application.status === 'APPROVED' ? <><Input className="h-9 w-32" placeholder="Admission no." value={admissionNo} onChange={(event) => setAdmissionNo(event.target.value)} /><select value={selectedClass || application.classRoomId || ''} onChange={(event) => setSelectedClass(event.target.value)} className="h-9 rounded-lg border border-slate-200 px-2 text-xs"><option value="">Choose class</option>{classes.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.section ?? 'Main'}</option>)}</select><Button size="sm" disabled={!admissionNo || !(selectedClass || application.classRoomId)} onClick={onEnroll}>Enroll student</Button></> : null}</div> : null}</div>;
+  const statusClass: Record<string, string> = { SUBMITTED: 'bg-slate-100 text-slate-700', REVIEWING: 'bg-blue-50 text-blue-700', INFO_REQUESTED: 'bg-orange-50 text-orange-700', APPROVED: 'bg-amber-50 text-amber-700', WAITLISTED: 'bg-violet-50 text-violet-700', OFFERED: 'bg-cyan-50 text-cyan-700', FEE_PENDING: 'bg-orange-50 text-orange-700', READY_FOR_ENROLLMENT: 'bg-emerald-50 text-emerald-700', REJECTED: 'bg-red-50 text-red-700', ENROLLED: 'bg-emerald-100 text-emerald-800', DRAFT: 'bg-slate-100 text-slate-500', WITHDRAWN: 'bg-slate-100 text-slate-500' };
+  const label = application.status.replace(/_/g, ' ').toLowerCase();
+  return <div className="rounded-2xl border border-slate-200 bg-white p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-semibold text-slate-900">{application.firstName} {application.lastName ?? ''}</p><p className="mt-1 text-xs text-slate-500">Guardian: {application.guardianFirstName} {application.guardianLastName ?? ''} · {application.relationType}</p></div><span className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusClass[application.status] ?? 'bg-slate-100 text-slate-600'}`}>{label}</span></div><div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500"><span>{application.guardianPhoneE164 || application.guardianEmail || 'Contact not provided'}</span>{application.classRoomId ? <span>· class assigned</span> : null}</div>{canWrite && !['ENROLLED', 'REJECTED', 'WITHDRAWN'].includes(application.status) ? <div className="mt-4 flex flex-wrap gap-2">{application.status === 'SUBMITTED' ? <Button size="sm" variant="outline" onClick={() => onUpdate('REVIEWING')}>Start review</Button> : null}{['REVIEWING', 'INFO_REQUESTED'].includes(application.status) ? <><Button size="sm" variant="outline" onClick={() => onUpdate('APPROVED')}>Approve</Button><Button size="sm" variant="ghost" onClick={() => onUpdate('WAITLISTED')}>Waitlist</Button><Button size="sm" variant="ghost" onClick={() => onUpdate('REJECTED')}>Decline</Button></> : null}{application.status === 'APPROVED' ? <Button size="sm" variant="outline" onClick={() => onUpdate('OFFERED')}>Issue offer</Button> : null}{application.status === 'OFFERED' ? <Button size="sm" variant="outline" onClick={() => onUpdate('FEE_PENDING')}>Mark fees due</Button> : null}{application.status === 'FEE_PENDING' ? <Button size="sm" variant="outline" onClick={() => onUpdate('READY_FOR_ENROLLMENT')}>Final verification</Button> : null}{['APPROVED', 'READY_FOR_ENROLLMENT'].includes(application.status) ? <><Input className="h-9 w-32" placeholder="Admission no." value={admissionNo} onChange={(event) => setAdmissionNo(event.target.value)} /><select value={selectedClass || application.classRoomId || ''} onChange={(event) => setSelectedClass(event.target.value)} className="h-9 rounded-lg border border-slate-200 px-2 text-xs"><option value="">Choose class</option>{classes.map((item) => <option key={item.id} value={item.id}>{item.name} · {item.section ?? 'Main'}</option>)}</select><Button size="sm" disabled={application.status !== 'READY_FOR_ENROLLMENT' || !admissionNo || !(selectedClass || application.classRoomId)} onClick={onEnroll}>Enroll student</Button></> : null}</div> : null}</div>;
 }
 
 function FinancePage() {
@@ -1779,6 +2106,12 @@ const signUpRoute = createRoute({
   component: SignUpRoutePage,
 });
 
+const publicAdmissionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/apply/$schoolId',
+  component: PublicAdmissionPage,
+});
+
 const appRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/app',
@@ -1811,6 +2144,51 @@ const studentsRoute = createRoute({
   component: StudentsPage,
 });
 
+const studentRecordsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/students/records',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: StudentRecordsPage,
+});
+
+const tasksRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/tasks',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: TasksPage,
+});
+
+const approvalsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/approvals',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: ApprovalsPage,
+});
+
+const documentReviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/documents/review',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: DocumentReviewPage,
+});
+
+const notificationSettingsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/settings/notifications',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: NotificationSettingsPage,
+});
+
 const admissionsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/app/admissions',
@@ -1818,6 +2196,15 @@ const admissionsRoute = createRoute({
     if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
   },
   component: AdmissionsPage,
+});
+
+const admissionFormsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/app/admissions/forms',
+  beforeLoad: ({ location }) => {
+    if (!getStoredSession()) throw redirect({ to: '/login', search: { redirect: location.href } });
+  },
+  component: AdmissionFormsPage,
 });
 
 const financeRoute = createRoute({
@@ -1935,12 +2322,19 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
   signUpRoute,
+  publicAdmissionRoute,
   appRoute,
   classesRoute,
   admissionsRoute,
+  admissionFormsRoute,
   financeRoute,
   familiesRoute,
   studentsRoute,
+  studentRecordsRoute,
+  tasksRoute,
+  approvalsRoute,
+  documentReviewRoute,
+  notificationSettingsRoute,
   teachersRoute,
   attendanceRoute,
   provisionSchoolRoute,

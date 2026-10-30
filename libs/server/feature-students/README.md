@@ -31,6 +31,14 @@ NestJS feature library for tenant-scoped student APIs (CRUD + bulk import).
   - Bulk import students via CSV upload (multipart/form-data).
   - Expected headers: `admissionNo,firstName,lastName,gender,dateOfBirth,joinedOn,profilePhotoKey`
 
+## Student records and safeguards
+
+- `GET /api/students/:studentId/documents` (`students.read`) returns the detailed required/optional checklist and review state.
+- `POST /api/students/:studentId/documents` (`students.write`) creates or updates a requirement record and links uploaded metadata from object storage.
+- `PATCH /api/students/:studentId/documents/:documentId` (`students.write`) verifies, rejects or expires a document record.
+- `GET /api/students/:studentId/medical-profile` (`students.read`) returns the restricted medical/support profile.
+- `PUT /api/students/:studentId/medical-profile` (`students.write`) upserts the restricted medical/support profile.
+
 ## Design
 
 - Reads only non-deleted records (`deleted_at IS NULL`).

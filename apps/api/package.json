@@ -148,6 +148,7 @@
     "@gps/feature-tenants": "workspace:*",
     "@gps/feature-timetable": "workspace:*",
     "@gps/feature-transport": "workspace:*",
+    "@gps/feature-workflows": "workspace:*",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.0",

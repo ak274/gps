@@ -13,6 +13,11 @@ import {
 } from 'class-validator';
 
 export class CreateDocumentDto {
+  @ApiPropertyOptional({ description: 'School owning this evidence record' })
+  @IsOptional()
+  @IsString()
+  schoolId?: string;
+
   @ApiProperty({ enum: DocumentEntityType })
   @IsEnum(DocumentEntityType)
   entityType!: DocumentEntityType;

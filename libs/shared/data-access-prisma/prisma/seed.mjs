@@ -30,6 +30,7 @@ const ALL_SCOPES = [
   'communications.notifications.write',
   'documents.read',
   'documents.write',
+  'documents.review',
   'enrollments.read',
   'enrollments.write',
   'exams.read',
@@ -70,6 +71,11 @@ const ALL_SCOPES = [
   'transport.stops.write',
   'transport.vehicles.read',
   'transport.vehicles.write',
+  'workflows.tasks.read',
+  'workflows.tasks.write',
+  'workflows.approvals.read',
+  'workflows.approvals.write',
+  'workflows.approvals.decide',
 ];
 
 const ROLE_SCOPE_MAP = {
@@ -85,6 +91,8 @@ const ROLE_SCOPE_MAP = {
     'classrooms.read',
     'subjects.read',
     'enrollments.read',
+    'documents.read',
+    'documents.review',
     'attendance.records.read',
     'attendance.records.write',
     'attendance.sessions.read',
@@ -97,6 +105,11 @@ const ROLE_SCOPE_MAP = {
     'communications.messages.read',
     'communications.messages.write',
     'communications.notifications.read',
+    'workflows.tasks.read',
+    'workflows.tasks.write',
+    'workflows.approvals.read',
+    'workflows.approvals.write',
+    'workflows.approvals.decide',
   ],
   student: [
     'auth.read',
@@ -144,7 +157,19 @@ const ROLE_SCOPE_MAP = {
     'communications.notifications.read',
     'communications.messages.read',
   ],
-  staff: ['auth.read', 'schools.read', 'staff.read', 'communications.notifications.read'],
+  staff: [
+    'auth.read',
+    'schools.read',
+    'staff.read',
+    'documents.read',
+    'documents.review',
+    'communications.notifications.read',
+    'workflows.tasks.read',
+    'workflows.tasks.write',
+    'workflows.approvals.read',
+    'workflows.approvals.write',
+    'workflows.approvals.decide',
+  ],
 };
 
 const DEMO_USERS = [

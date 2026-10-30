@@ -3,6 +3,7 @@ import {
   Gender,
   Prisma,
   Student,
+  StudentDocumentStatus,
 } from '@gps/data-access-prisma';
 import { apiConflict, apiNotFound, apiUnprocessable } from '@gps/server-errors';
 import { Injectable } from '@nestjs/common';
@@ -25,6 +26,7 @@ import { LinkFamilyMemberDto } from './dto/link-family-member.dto';
 import { CreateFamilyAlumniDto } from './dto/create-family-alumni.dto';
 import { CreateFamilyBenefitDto } from './dto/create-family-benefit.dto';
 import { FamilyResponseDto } from './dto/family-response.dto';
+import { UpdateStudentDocumentReviewDto, UpsertStudentDocumentDto, UpsertStudentMedicalProfileDto } from './dto/student-records.dto';
 
 @Injectable()
 export class StudentsService {
@@ -73,6 +75,38 @@ export class StudentsService {
     }
 
     return this.toResponse(student);
+  }
+
+  async listStudentDocuments(authUser: AuthenticatedUser, studentId: string) {
+    await this.ensureStudent(authUser, studentId);
+    return this.prisma.studentDocumentRecord.findMany({ where: { tenantId: authUser.tenantId, studentId }, include: { document: true, verifiedBy: { select: { id: true, firstName: true, lastName: true } } }, orderBy: [{ isRequired: 'desc' }, { label: 'asc' }] });
+  }
+
+  async upsertStudentDocument(authUser: AuthenticatedUser, studentId: string, dto: UpsertStudentDocumentDto) {
+    const student = await this.ensureStudent(authUser, studentId);
+    if (dto.documentId) {
+      const document = await this.prisma.document.findFirst({ where: { id: dto.documentId, tenantId: authUser.tenantId, entityType: 'STUDENT', entityId: studentId, deletedAt: null }, select: { id: true } });
+      if (!document) throw apiNotFound('STUDENT_DOCUMENT_NOT_FOUND', 'Uploaded student document metadata was not found');
+    }
+    const status = dto.status ?? (dto.documentId ? StudentDocumentStatus.PENDING : dto.isRequired ? StudentDocumentStatus.REQUIRED : StudentDocumentStatus.PENDING);
+    return this.prisma.studentDocumentRecord.upsert({ where: { studentId_key: { studentId, key: dto.key } }, create: { tenantId: authUser.tenantId, schoolId: student.schoolId, studentId, documentId: dto.documentId, key: dto.key, label: dto.label, isRequired: dto.isRequired ?? false, status, expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null, reviewNote: dto.reviewNote }, update: { documentId: dto.documentId, label: dto.label, isRequired: dto.isRequired ?? false, status, expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null, reviewNote: dto.reviewNote, ...(status === StudentDocumentStatus.VERIFIED ? { verifiedAt: new Date(), verifiedById: authUser.sub } : {}) } });
+  }
+
+  async reviewStudentDocument(authUser: AuthenticatedUser, studentId: string, documentId: string, dto: UpdateStudentDocumentReviewDto) {
+    await this.ensureStudent(authUser, studentId);
+    const existing = await this.prisma.studentDocumentRecord.findFirst({ where: { id: documentId, tenantId: authUser.tenantId, studentId } });
+    if (!existing) throw apiNotFound('STUDENT_DOCUMENT_RECORD_NOT_FOUND', 'Student document requirement was not found');
+    return this.prisma.studentDocumentRecord.update({ where: { id: existing.id }, data: { status: dto.status, reviewNote: dto.reviewNote, expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null, ...(dto.status === StudentDocumentStatus.VERIFIED ? { verifiedAt: new Date(), verifiedById: authUser.sub } : { verifiedAt: null, verifiedById: null }) } });
+  }
+
+  async getStudentMedicalProfile(authUser: AuthenticatedUser, studentId: string) {
+    await this.ensureStudent(authUser, studentId);
+    return this.prisma.studentMedicalProfile.findUnique({ where: { studentId } });
+  }
+
+  async upsertStudentMedicalProfile(authUser: AuthenticatedUser, studentId: string, dto: UpsertStudentMedicalProfileDto) {
+    const student = await this.ensureStudent(authUser, studentId);
+    return this.prisma.studentMedicalProfile.upsert({ where: { studentId }, create: { tenantId: authUser.tenantId, schoolId: student.schoolId, studentId, ...dto }, update: { ...dto } });
   }
 
   async create(authUser: AuthenticatedUser, dto: CreateStudentDto): Promise<StudentResponseDto> {
@@ -476,6 +510,12 @@ export class StudentsService {
         invalidCampus,
       );
     }
+  }
+
+  private async ensureStudent(authUser: AuthenticatedUser, studentId: string) {
+    const student = await this.prisma.student.findFirst({ where: { id: studentId, tenantId: authUser.tenantId, deletedAt: null }, select: { id: true, schoolId: true } });
+    if (!student) throw apiNotFound('STUDENT_NOT_FOUND', 'Student not found', { studentId });
+    return student;
   }
 
   private buildWhereClause(

@@ -20,6 +20,7 @@ import { StudentsModule } from '@gps/feature-students';
 import { TenantsModule } from '@gps/feature-tenants';
 import { TimetableModule } from '@gps/feature-timetable';
 import { TransportModule } from '@gps/feature-transport';
+import { WorkflowsModule } from '@gps/feature-workflows';
 import { LoggerErrorInterceptor, LoggerModule } from 'nestjs-pino';
 import type { DestinationStream } from 'pino';
 import { AppController } from './app.controller';
@@ -88,6 +89,7 @@ import { AppService } from './app.service';
     StudentsModule,
     TimetableModule,
     TransportModule,
+    WorkflowsModule,
   ],
   controllers: [AppController],
   providers: [
